@@ -10,10 +10,12 @@ requires = [
     'pyramid',
     'pyramid_debugtoolbar',
     'waitress',
+    'mocker',
+    'coverage',
     ]
 
 setup(name='delorean',
-      version='0.0',
+      version='0.1',
       description='delorean',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
