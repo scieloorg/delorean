@@ -5,11 +5,20 @@ import string
 
 class Transformer(object):
     """
+    Responsible for rendering templates using the given
+    dataset.
     """
     def __init__(self, template):
+        """
+        Accepts a ``template`` as a string.
+        """
         self._template = string.Template(template)
 
     def transform(self, data):
+        """
+        Renders a template using the given data.
+        ``data`` must be dict.
+        """
         if not isinstance(data, dict):
             raise TypeError('data must be dict')
 
@@ -18,11 +27,18 @@ class Transformer(object):
         except KeyError, exc:
             raise ValueError("there are some data missing: {}".format(exc))
 
-    def transform_list(self, data_list):
+    def transform_list(self, data_list, callabl=None):
+        """
+        Renders a template using the given list of data.
+        ``data_list`` must be list or tuple.
+        """
         if not isinstance(data_list, list) and not isinstance(data_list, tuple):
             raise TypeError('data must be list or tuple')
 
         res = []
+        if callabl:
+            callabl(data_list)
+
         for data in data_list:
             res.append(self.transform(data))
         return '\n'.join(res)

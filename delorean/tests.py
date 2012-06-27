@@ -99,6 +99,7 @@ class DataCollectorTests(unittest.TestCase):
 
 class TransformerTests(unittest.TestCase):
     tpl_basic = u'Pra frente, $country'
+    tpl_basic_id = u'!ID $i\n!v100!$title'
 
     def setUp(self):
         self.config = testing.setUp()
@@ -147,3 +148,24 @@ class TransformerTests(unittest.TestCase):
         types = [1, 'str', {}, set()]
         for typ in types:
             self.assertRaises(TypeError, t.transform_list, typ)
+
+    def test_transformation_with_callable(self):
+        """
+        !ID 0
+        !v100!Revista Brasileira
+        !ID 1
+        !v100!Revista Mexicana
+        """
+        t = self._makeOne(self.tpl_basic_id)
+
+        def add_index(data_list):
+            i = 0
+            for item in data_list:
+                item.update({'i':i})
+                i += 1
+
+        result = t.transform_list(
+            [{'title': 'Revista Brasileira'},
+             {'title': 'Revista Mexicana'}], add_index)
+        self.assertEqual(result,
+            u'!ID 0\n!v100!Revista Brasileira\n!ID 1\n!v100!Revista Mexicana')
