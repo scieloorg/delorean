@@ -74,15 +74,15 @@ class DataCollectorTests(unittest.TestCase):
     def tearDown(self):
         testing.tearDown()
 
-    def _makeOne(self, request, resource_url, **kwargs):
+    def _makeOne(self, resource_url, **kwargs):
         from delorean.domain import DataCollector
-        return DataCollector(request, resource_url, **kwargs)
+        return DataCollector(resource_url, **kwargs)
 
     def test_instantiation(self):
         from delorean.domain import DataCollector
         request = testing.DummyRequest()
 
-        dc = self._makeOne(request, self.title_res,
+        dc = self._makeOne(self.title_res,
             url_lib=dummy_urllib2_factory(self.valid_microset))
         self.assertTrue(isinstance(dc, DataCollector))
 
@@ -90,8 +90,60 @@ class DataCollectorTests(unittest.TestCase):
         request = testing.DummyRequest()
         import json
 
-        dc = self._makeOne(request, self.title_res,
+        dc = self._makeOne(self.title_res,
             url_lib=dummy_urllib2_factory(self.valid_microset))
         data = dc.get_data()
         self.assertTrue(isinstance(data, dict))
         self.assertEqual(data, json.loads(self.valid_microset))
+
+
+class TransformerTests(unittest.TestCase):
+    tpl_basic = u'Pra frente, $country'
+
+    def setUp(self):
+        self.config = testing.setUp()
+
+    def tearDown(self):
+        testing.tearDown()
+
+    def _makeOne(self, template, **kwargs):
+        from delorean.domain import Transformer
+        return Transformer(template, **kwargs)
+
+    def test_instantiation(self):
+        from delorean.domain import Transformer
+        t = self._makeOne(self.tpl_basic)
+        self.assertTrue(isinstance(t, Transformer))
+
+    def test_basic_transformation(self):
+        t = self._makeOne(self.tpl_basic)
+        result = t.transform({'country': 'Brasil'})
+        self.assertEqual(result, u'Pra frente, Brasil')
+
+    def test_transformation_missing_data(self):
+        t = self._makeOne(self.tpl_basic)
+        self.assertRaises(ValueError, t.transform, {})
+
+    def test_transformation_wrong_typed_data(self):
+        t = self._makeOne(self.tpl_basic)
+        types = [[], 1, (), 'str', set()]
+        for typ in types:
+            self.assertRaises(TypeError, t.transform, typ)
+
+    def test_basic_list_transformation(self):
+        t = self._makeOne(self.tpl_basic)
+        data_list = [{'country': 'Brasil'}, {'country': 'Egito'}]
+        result = t.transform_list(data_list)
+        expected_result = u'Pra frente, Brasil\nPra frente, Egito'
+        self.assertEqual(result, expected_result)
+
+    def test_transformation_missing_data_list(self):
+        t = self._makeOne(self.tpl_basic)
+        self.assertRaises(ValueError, t.transform_list,
+            [{'country': 'Brasil'}, {}])
+
+    def test_transformation_wrong_typed_data_list(self):
+        t = self._makeOne(self.tpl_basic)
+        types = [1, 'str', {}, set()]
+        for typ in types:
+            self.assertRaises(TypeError, t.transform_list, typ)
