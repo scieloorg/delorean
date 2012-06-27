@@ -2,6 +2,30 @@
 import urllib2
 import json
 import string
+import os
+import zipfile
+import datetime
+
+
+class Packager(object):
+    def __init__(self, data, base_path, zip_lib=zipfile, datetime_lib=datetime):
+        self._data = data
+        self._base_path = base_path
+        self._zip_lib = zip_lib
+        self._datetime_lib = datetime_lib
+
+    def zip_and_deploy(self, dest_filename):
+        fname = os.path.join(self._base_path, dest_filename + '.zip')
+        zi = self._zip_lib.ZipInfo(dest_filename)
+        zi.date_time = datetime.datetime.timetuple(
+           self._datetime_lib.datetime.now())
+        zi.external_attr = 0755 << 16L
+
+        if not os.path.exists(self._base_path):
+            os.makedirs(self._base_path, 0755)
+
+        with self._zip_lib.ZipFile(fname, 'w') as f:
+            f.writestr(zi, self._data)
 
 class Transformer(object):
     """

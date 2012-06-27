@@ -169,3 +169,28 @@ class TransformerTests(unittest.TestCase):
              {'title': 'Revista Mexicana'}], add_index)
         self.assertEqual(result,
             u'!ID 0\n!v100!Revista Brasileira\n!ID 1\n!v100!Revista Mexicana')
+
+class PackagerTests(unittest.TestCase):
+    basic_data = u'!ID 0\n!v100!Revista Brasileira'
+
+    def setUp(self):
+        self.config = testing.setUp()
+
+    def tearDown(self):
+        testing.tearDown()
+
+    def _makeOne(self, data, base_path, **kwargs):
+        from delorean.domain import Packager
+        return Packager(data, base_path, **kwargs)
+
+    def test_instantiation(self):
+        from delorean.domain import Packager
+        p = self._makeOne(self.basic_data, '/tmp/files')
+        self.assertTrue(isinstance(p, Packager))
+
+    def test_zip_data(self):
+        p = self._makeOne(self.basic_data, '/tmp/files')
+        p.zip_and_deploy('zippedfile')
+
+
+
