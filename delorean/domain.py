@@ -7,25 +7,37 @@ import zipfile
 import datetime
 
 
-class Packager(object):
-    def __init__(self, data, base_path, zip_lib=zipfile, datetime_lib=datetime):
-        self._data = data
-        self._base_path = base_path
+class Bundle(object):
+    def __init__(self, *args, **kwargs):
+        # dependencie injection
+        if 'zip_lib' not in kwargs:
+            zip_lib = zipfile
+        if 'datetime_lib' not in kwargs:
+            datetime_lib = datetime
+
+        self._data = args
         self._zip_lib = zip_lib
         self._datetime_lib = datetime_lib
 
-    def zip_and_deploy(self, dest_filename):
-        fname = os.path.join(self._base_path, dest_filename + '.zip')
-        zi = self._zip_lib.ZipInfo(dest_filename)
+    def deploy(self, target, extracted_filename=None):
+        if not extracted_filename:
+            # use the target name
+            extracted_filename = os.path.split(os.path.splitext(target)[-2])[-1]
+
+        # zip metadata
+        zi = self._zip_lib.ZipInfo(extracted_filename)
         zi.date_time = datetime.datetime.timetuple(
            self._datetime_lib.datetime.now())
         zi.external_attr = 0755 << 16L
 
-        if not os.path.exists(self._base_path):
-            os.makedirs(self._base_path, 0755)
+        base_path = os.path.split(os.path.splitext(target)[-2])[0]
+        if not os.path.exists(base_path):
+            os.makedirs(base_path, 0755)
 
-        with self._zip_lib.ZipFile(fname, 'w') as f:
-            f.writestr(zi, self._data)
+        with self._zip_lib.ZipFile(target, 'w') as f:
+            for data in self._data:
+                f.writestr(zi, data)
+
 
 class Transformer(object):
     """

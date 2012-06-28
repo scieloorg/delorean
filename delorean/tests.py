@@ -170,8 +170,8 @@ class TransformerTests(unittest.TestCase):
         self.assertEqual(result,
             u'!ID 0\n!v100!Revista Brasileira\n!ID 1\n!v100!Revista Mexicana')
 
-class PackagerTests(unittest.TestCase):
-    basic_data = u'!ID 0\n!v100!Revista Brasileira'
+class BundleTests(unittest.TestCase):
+    basic_data = [u'arq A', u'arq B']
 
     def setUp(self):
         self.config = testing.setUp()
@@ -179,18 +179,17 @@ class PackagerTests(unittest.TestCase):
     def tearDown(self):
         testing.tearDown()
 
-    def _makeOne(self, data, base_path, **kwargs):
-        from delorean.domain import Packager
-        return Packager(data, base_path, **kwargs)
+    def _makeOne(self, *args, **kwargs):
+        from delorean.domain import Bundle
+        return Bundle(*args, **kwargs)
 
     def test_instantiation(self):
-        from delorean.domain import Packager
-        p = self._makeOne(self.basic_data, '/tmp/files')
-        self.assertTrue(isinstance(p, Packager))
+        from delorean.domain import Bundle
+        p = self._makeOne(*self.basic_data)
+        self.assertTrue(isinstance(p, Bundle))
 
     def test_zip_data(self):
-        p = self._makeOne(self.basic_data, '/tmp/files')
-        p.zip_and_deploy('zippedfile')
-
+        p = self._makeOne(*self.basic_data)
+        p.deploy('/tmp/files/zippedfile.zip')
 
 
