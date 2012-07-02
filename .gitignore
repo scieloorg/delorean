@@ -5,3 +5,5 @@
 *.mo
 *.coverage
 _build/
+_static/
+_template/
