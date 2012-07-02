@@ -30,5 +30,16 @@ O arquivo terá a forma::
     !vYYQ!...conteúdo da tag YYQ.............
     ...
 
+
 FAQ:
-    * A codificação do arquivo ID deve ser ASCII, conforme consta na documentação da Bireme?
+    * A codificação do arquivo ID deve ser ASCII, conforme consta na
+      documentação da Bireme?
+
+      **R:** Não, é possível que seja CP-1252.
+
+    * Existe uma maneira de delegarmos a criação do mfn para o CISIS?
+
+      **R:** Sim. Pode-se utilizar a sintaxe ``!ID 0`` para todos os registros
+      e no utilitário id2i utilizar a opção ``app``::
+
+        id2i arq.id create/app=i

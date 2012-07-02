@@ -171,7 +171,8 @@ class TransformerTests(unittest.TestCase):
             u'!ID 0\n!v100!Revista Brasileira\n!ID 1\n!v100!Revista Mexicana')
 
 class BundleTests(unittest.TestCase):
-    basic_data = [u'arq A', u'arq B']
+    basic_data = [(u'arq_a', u'Arq A content'),
+                  (u'arq_b', u'Arq B content')]
 
     def setUp(self):
         self.config = testing.setUp()
@@ -188,8 +189,20 @@ class BundleTests(unittest.TestCase):
         p = self._makeOne(*self.basic_data)
         self.assertTrue(isinstance(p, Bundle))
 
+    def test_generate_tarball(self):
+        import tarfile
+        data_as_dict = dict(self.basic_data)
+        p = self._makeOne(*self.basic_data)
+        tar_handler = p._tar()
+        self.assertTrue(hasattr(tar_handler, 'read'))
+        self.assertTrue(hasattr(tar_handler, 'name'))
+
+        t = tarfile.open(tar_handler.name, 'r')
+        for member in t.getmembers():
+            self.assertTrue(member.name in data_as_dict)
+
     def test_zip_data(self):
         p = self._makeOne(*self.basic_data)
-        p.deploy('/tmp/files/zippedfile.zip')
+        p.deploy('/tmp/files/zippedfile.tar')
 
 

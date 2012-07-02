@@ -5,38 +5,57 @@ import string
 import os
 import zipfile
 import datetime
-
+import tarfile
+import StringIO
+import tempfile
 
 class Bundle(object):
     def __init__(self, *args, **kwargs):
+        """
+        Accepts an arbitrary number of logical name - data pairs::
+
+          b = Bundle(('arq1', 'arq1 content as str'))
+        """
+
         # dependencie injection
         if 'zip_lib' not in kwargs:
             zip_lib = zipfile
         if 'datetime_lib' not in kwargs:
             datetime_lib = datetime
 
-        self._data = args
+        self._data = dict(args)
         self._zip_lib = zip_lib
         self._datetime_lib = datetime_lib
 
-    def deploy(self, target, extracted_filename=None):
-        if not extracted_filename:
-            # use the target name
-            extracted_filename = os.path.split(os.path.splitext(target)[-2])[-1]
+    def _tar(self):
+        """
+        Generate a tarball containing the data passed at init time.
 
-        # zip metadata
-        zi = self._zip_lib.ZipInfo(extracted_filename)
-        zi.date_time = datetime.datetime.timetuple(
-           self._datetime_lib.datetime.now())
-        zi.external_attr = 0755 << 16L
+        Returns a file handler.
+        """
+        tmp = tempfile.NamedTemporaryFile()
+        out = tarfile.open(tmp.name, 'w')
+
+        try:
+            for name, data in self._data.items():
+                info = tarfile.TarInfo(name)
+                info.size = len(data)
+                out.addfile(info, StringIO.StringIO(data))
+        finally:
+            out.close()
+
+        tmp.seek(0)
+        return tmp
+
+    def deploy(self, target):
+        data = self._tar()
 
         base_path = os.path.split(os.path.splitext(target)[-2])[0]
         if not os.path.exists(base_path):
             os.makedirs(base_path, 0755)
 
-        with self._zip_lib.ZipFile(target, 'w') as f:
-            for data in self._data:
-                f.writestr(zi, data)
+        with open(target, 'w') as f:
+            f.write(data.read())
 
 
 class Transformer(object):
