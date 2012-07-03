@@ -23,6 +23,14 @@
             "iso_code": "pt"
         }
     ],
+    "abstract_keyword_languages": [
+        {
+            "iso_code": "en"
+        },
+        {
+            "iso_code": "pt"
+        }
+    ],
     "scielo_issn": "print",
     "collections": [
         {

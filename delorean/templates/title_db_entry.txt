@@ -1,0 +1,113 @@
+!ID 0
+!v100!${title}
+
+% if scielo_issn == 'print':
+    !v400!${print_issn}
+    !v035!PRINT
+    !v935!${eletronic_issn}
+% else:
+    !v400!${eletronic_issn}
+    !v035!ONLIN
+    !v935!${print_issn}
+% endif
+
+!v150!${short_title}
+!v151!${title_iso}
+
+% if previous_title:
+    !v610!${previous_title}
+% else:
+    !v610!${other_previous_title}
+% endif
+
+% for value in subject_descriptors.split('\n'):
+!v440!${value}
+% endfor
+
+% for value in index_coverage.split('\n'):
+!v450!${value}
+% endfor
+
+% if init_year:
+    !v301!${init_year}
+% endif
+
+!v302!${init_vol}
+!v303!${init_num}
+
+% if final_year:
+    !v304!${final_year}
+% endif
+
+!v305!${final_vol}
+!v306!${final_num}
+
+!v380!${frequency}
+
+% if pub_status == 'current':
+    !v050!C
+% elif pub_status == 'deceased':
+    !v050!D
+% elif pub_status == 'suspended':
+    !v050!S
+% else:
+    !v050!?
+% endif
+
+% for value languages:
+    !v350!${value}
+% endfor
+
+% for value abstract_keyword_languages:
+    !v360!${value}
+% endfor
+
+!v117!${editorial_standard}
+
+!v085!${ctrl_vocabulary}
+
+!v005!S
+
+!v006!Collective Level
+
+!v330!${pub_level}
+
+!v037!${secs_code}
+
+% for value in publisher:
+    !v480!${value['name']}
+% endfor
+
+% for value in sponsor:
+    !v140!${value['name']}
+% endfor
+
+!v540!^t${use_license['disclaimer']}^len
+!v540!^t${use_license['disclaimer']}^les
+!v540!^t${use_license['disclaimer']}^lpt
+
+!v062!${copyrighter}
+
+!v930!${acronym}
+
+!v066!art
+
+!v067!na
+
+!v069!${url_journal}
+
+!v692!${url_online_submission}
+
+!v068!${acronym.lower()}
+
+!v900!${notes}
+
+!v010!br1.1
+
+!v940!${created}
+
+!v950!${creator}
+
+!v941!${updated}
+
+!v951!${creator}
