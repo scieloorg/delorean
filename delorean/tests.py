@@ -98,8 +98,8 @@ class DataCollectorTests(unittest.TestCase):
 
 
 class TransformerTests(unittest.TestCase):
-    tpl_basic = u'Pra frente, $country'
-    tpl_basic_id = u'!ID $i\n!v100!$title'
+    tpl_basic = u'Pra frente, ${country}'
+    tpl_basic_id = u'!ID ${i}\n!v100!${title}'
 
     def setUp(self):
         self.config = testing.setUp()

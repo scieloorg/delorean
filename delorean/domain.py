@@ -1,13 +1,14 @@
 # coding: utf-8
 import urllib2
 import json
-import string
 import os
 import zipfile
 import datetime
 import tarfile
 import StringIO
 import tempfile
+
+from mako.template import Template
 
 class Bundle(object):
     def __init__(self, *args, **kwargs):
@@ -67,7 +68,7 @@ class Transformer(object):
         """
         Accepts a ``template`` as a string.
         """
-        self._template = string.Template(template)
+        self._template = Template(template)
 
     def transform(self, data):
         """
@@ -78,8 +79,8 @@ class Transformer(object):
             raise TypeError('data must be dict')
 
         try:
-            return self._template.substitute(data)
-        except KeyError, exc:
+            return self._template.render(**data)
+        except NameError, exc:
             raise ValueError("there are some data missing: {}".format(exc))
 
     def transform_list(self, data_list, callabl=None):
