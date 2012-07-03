@@ -100,6 +100,13 @@ class DataCollectorTests(unittest.TestCase):
 class TransformerTests(unittest.TestCase):
     tpl_basic = u'Pra frente, ${country}'
     tpl_basic_id = u'!ID ${i}\n!v100!${title}'
+    tpl_basic_compound = u"""
+    !ID 0
+    !v100!${title}
+    % for l in languages:
+    !v350!${l['iso_code']}
+    % endfor
+    """.strip()
 
     def setUp(self):
         self.config = testing.setUp()
@@ -169,6 +176,19 @@ class TransformerTests(unittest.TestCase):
              {'title': 'Revista Mexicana'}], add_index)
         self.assertEqual(result,
             u'!ID 0\n!v100!Revista Brasileira\n!ID 1\n!v100!Revista Mexicana')
+
+    def test_compound_transformation(self):
+        t = self._makeOne(self.tpl_basic_compound)
+        d = {
+          'title': "ABCD. Arquivos Brasileiros",
+          'languages': [
+            {'iso_code': 'en'},
+            {'iso_code': 'pt'},
+          ],
+        }
+        result = t.transform(d)
+        self.assertEqual(result,
+            u'!ID 0\n    !v100!ABCD. Arquivos Brasileiros\n    !v350!en\n    !v350!pt\n')
 
 class BundleTests(unittest.TestCase):
     basic_data = [(u'arq_a', u'Arq A content'),
