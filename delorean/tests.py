@@ -114,9 +114,9 @@ class TransformerTests(unittest.TestCase):
     def tearDown(self):
         testing.tearDown()
 
-    def _makeOne(self, template, **kwargs):
+    def _makeOne(self, *args, **kwargs):
         from delorean.domain import Transformer
-        return Transformer(template, **kwargs)
+        return Transformer(*args, **kwargs)
 
     def test_instantiation(self):
         from delorean.domain import Transformer
@@ -187,8 +187,24 @@ class TransformerTests(unittest.TestCase):
           ],
         }
         result = t.transform(d)
-        self.assertEqual(result,
-            u'!ID 0\n    !v100!ABCD. Arquivos Brasileiros\n    !v350!en\n    !v350!pt\n')
+        self.assertEqual([part.strip() for part in result.split('\n')],
+            u'!ID 0\n!v100!ABCD. Arquivos Brasileiros\n!v350!en\n!v350!pt\n'.split('\n'))
+
+    def test_compound_transformation_filebased(self):
+        import os
+        here = os.path.abspath(os.path.dirname(__file__))
+        t = self._makeOne(filename=os.path.join(here, 'tests_assets/basic_compound.txt'))
+        d = {
+          'title': "ABCD. Arquivos Brasileiros",
+          'languages': [
+            {'iso_code': 'en'},
+            {'iso_code': 'pt'},
+          ],
+        }
+        result = t.transform(d)
+        self.assertEqual([part.strip() for part in result.split('\n')],
+            u'!ID 0\n!v100!ABCD. Arquivos Brasileiros\n!v350!en\n!v350!pt\n'.split('\n'))
+
 
 class BundleTests(unittest.TestCase):
     basic_data = [(u'arq_a', u'Arq A content'),

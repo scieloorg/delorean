@@ -64,11 +64,17 @@ class Transformer(object):
     Responsible for rendering templates using the given
     dataset.
     """
-    def __init__(self, template):
+    def __init__(self, *args, **kwargs):
         """
         Accepts a ``template`` as a string.
         """
-        self._template = Template(template)
+        if args:
+            self._template = Template(args[0])
+        elif 'filename' in kwargs:
+            self._template = Template(filename=kwargs['filename'],
+                module_directory='/tmp/mako_modules')
+        else:
+            raise TypeError()
 
     def transform(self, data):
         """
