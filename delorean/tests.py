@@ -174,8 +174,8 @@ class TransformerTests(unittest.TestCase):
         result = t.transform_list(
             [{'title': 'Revista Brasileira'},
              {'title': 'Revista Mexicana'}], add_index)
-        self.assertEqual(result,
-            u'!ID 0\n!v100!Revista Brasileira\n!ID 1\n!v100!Revista Mexicana')
+        self.assertEqual([part.strip() for part in result.split('\n')],
+            u'!ID 0\n!v100!Revista Brasileira\n!ID 1\n!v100!Revista Mexicana'.split('\n'))
 
     def test_compound_transformation(self):
         t = self._makeOne(self.tpl_basic_compound)
