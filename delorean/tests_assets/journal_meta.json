@@ -73,5 +73,9 @@
     "subject_descriptors": "medicina\ncirurgia\ngastroenterologia\ngastroenterologia",
     "pub_status": "current",
     "title_iso": "ABCD, arq. bras. cir. dig",
-    "print_issn": "0102-6720"
+    "print_issn": "0102-6720",
+    "notes": "Blah",
+    "created": "20120703",
+    "creator": "albert.einstein@scielo.org",
+    "updated": "20120703"
 }
