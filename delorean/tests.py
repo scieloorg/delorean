@@ -206,7 +206,7 @@ class TransformerTests(unittest.TestCase):
             u'!ID 0\n!v100!ABCD. Arquivos Brasileiros\n!v350!en\n!v350!pt\n'.split('\n'))
 
     def test_title_db_generation(self):
-        import os, json, difflib, codecs
+        import os, json, codecs
 
         here = os.path.abspath(os.path.dirname(__file__))
         t = self._makeOne(filename=os.path.join(here, 'templates/title_db_entry.txt'))
@@ -215,9 +215,13 @@ class TransformerTests(unittest.TestCase):
         generated_id = t.transform(d).splitlines()
         canonical_id = codecs.open(os.path.join(here, 'tests_assets/journal_meta.id'), 'r', 'iso8859-1').readlines()
 
-        diff = difflib.unified_diff(generated_id, canonical_id, lineterm='\n')
+        removed_fields = []
+        for i in xrange(len(generated_id)):
+            if canonical_id[i] in removed_fields:
+               del(canonical_id[i])
+            self.assertEqual(generated_id[i].strip(), canonical_id[i].strip())
 
-        import pdb; pdb.set_trace()
+        self.assertEqual(len(generated_id), len(canonical_id))
 
 class BundleTests(unittest.TestCase):
     basic_data = [(u'arq_a', u'Arq A content'),
