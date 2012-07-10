@@ -1,4 +1,6 @@
 # coding: utf-8
+from __future__ import unicode_literals
+
 import urllib2
 import json
 import os
@@ -7,8 +9,13 @@ import datetime
 import tarfile
 import StringIO
 import tempfile
+from abc import (
+    ABCMeta,
+    abstractmethod,
+)
 
 from mako.template import Template
+import slumber
 
 class Bundle(object):
     def __init__(self, *args, **kwargs):
@@ -109,23 +116,44 @@ class DataCollector(object):
     """
     Responsible for collecting data from RESTful interfaces,
     and making them available as Python datastructures.
+
+    Implements an iterable interface.
     """
-    def __init__(self, resource_url, url_lib=urllib2):
+    __metaclass__ = ABCMeta
+
+    def __init__(self, resource_url, slumber_lib=slumber):
         self._resource_url = resource_url
-        self._url_lib = url_lib
+        self._slumber_lib = slumber_lib
 
-        try:
-            self._data = self._url_lib.urlopen(self._resource_url)
-        except url_lib.URLError:
-            raise ValueError("invalid resource url: '%s'".format(
-                self._resource_url))
+        self._api = self._slumber_lib.API(resource_url)
 
-    def get_data(self):
+    def __iter__(self):
+        offset=0
+        resource = getattr(self._api, self._resource_name)
+
+        while True:
+            page = resource.get(offset=offset)
+
+            for obj in page['objects']:
+                yield self.get_data(obj)
+
+            if not page['meta']['next']:
+                raise StopIteration()
+            else:
+                offset += 20
+
+    @abstractmethod
+    def get_data(self, obj):
         """
         Get data from the specified resource and returns
         it as Python native datastructures.
         """
-        return json.loads(self._data.read())
+
+class TitleCollector(DataCollector):
+    _resource_name = 'journals'
+
+    def get_data(self, obj):
+        pass
 
 class DeLorean(object):
     """

@@ -1,4 +1,6 @@
 # coding: utf-8
+from __future__ import unicode_literals
+
 import unittest
 
 from mocker import (
@@ -26,6 +28,23 @@ def dummy_urllib2_factory(json_data):
     mocker.replay()
 
     return url_handler
+
+def dummy_slumber_factory(json_data):
+    mocker = Mocker()
+    dummy_slumber = mocker.mock()
+
+    dummy_slumber.API(ANY)
+    mocker.result(dummy_slumber)
+
+    dummy_slumber.journals
+    mocker.result(dummy_slumber)
+
+    dummy_slumber.get(offset=ANY)
+    mocker.result(json_data)
+
+    mocker.replay()
+
+    return dummy_slumber
 
 
 # Functional tests
@@ -80,22 +99,42 @@ class DataCollectorTests(unittest.TestCase):
 
     def test_instantiation(self):
         from delorean.domain import DataCollector
-        request = testing.DummyRequest()
+
+        self.assertRaises(TypeError, lambda: self._makeOne(self.title_res))
+
+
+class TitleCollectorTests(unittest.TestCase):
+    title_res = u'http://manager.scielo.org/api/v1/'
+    valid_microset = {'objects': [
+        {'title': 'ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)'},
+        ],
+        'meta': {'next': None},
+    }
+
+    def setUp(self):
+        self.config = testing.setUp()
+
+    def tearDown(self):
+        testing.tearDown()
+
+    def _makeOne(self, resource_url, **kwargs):
+        from delorean.domain import TitleCollector
+        return TitleCollector(resource_url, **kwargs)
+
+    def test_instantiation(self):
+        from delorean.domain import TitleCollector
 
         dc = self._makeOne(self.title_res,
-            url_lib=dummy_urllib2_factory(self.valid_microset))
-        self.assertTrue(isinstance(dc, DataCollector))
+            slumber_lib=dummy_slumber_factory(self.valid_microset))
+        self.assertTrue(isinstance(dc, TitleCollector))
 
-    def test_get_data(self):
-        request = testing.DummyRequest()
-        import json
+    def test_gen_iterable(self):
+        from delorean.domain import TitleCollector
 
         dc = self._makeOne(self.title_res,
-            url_lib=dummy_urllib2_factory(self.valid_microset))
-        data = dc.get_data()
-        self.assertTrue(isinstance(data, dict))
-        self.assertEqual(data, json.loads(self.valid_microset))
-
+            slumber_lib=dummy_slumber_factory(self.valid_microset))
+        it = iter(dc)
+        assert False
 
 class TransformerTests(unittest.TestCase):
     tpl_basic = u'Pra frente, ${country}'
