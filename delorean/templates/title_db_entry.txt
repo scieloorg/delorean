@@ -1,6 +1,6 @@
 !ID 0
 !v005!S
-!v006!Collective Level
+!v006!c
 !v010!br1.1
 % if scielo_issn == 'print':
 !v035!PRINT
@@ -25,8 +25,8 @@
 !v085!${ctrl_vocabulary}
 !v100!${title}
 !v117!${editorial_standard}
-% for value in sponsor:
-!v140!${value['name']}
+% for value in sponsors:
+!v140!${value}
 % endfor
 !v150!${short_title}
 !v151!${title_iso}
@@ -42,10 +42,10 @@
 !v306!${final_num}
 !v330!${pub_level}
 % for value in languages:
-!v350!${value['iso_code']}
+!v350!${value}
 % endfor
 % for value in abstract_keyword_languages:
-!v360!${value['iso_code']}
+!v360!${value}
 % endfor
 !v380!${frequency}
 % if scielo_issn == 'print':
@@ -59,8 +59,8 @@
 % for value in index_coverage.split('\n'):
 !v450!${value.upper()}
 % endfor
-% for value in publisher:
-!v480!${value['name']}
+% for value in publishers:
+!v480!${value}
 % endfor
 !v540!^t${use_license['disclaimer']}^len
 !v540!^t${use_license['disclaimer']}^les

@@ -126,15 +126,19 @@ class DataCollector(object):
         self._slumber_lib = slumber_lib
 
         self._api = self._slumber_lib.API(resource_url)
+        self.resource = getattr(self._api, self._resource_name)
 
     def __iter__(self):
         offset=0
-        resource = getattr(self._api, self._resource_name)
 
         while True:
-            page = resource.get(offset=offset)
+            page = self.resource.get(offset=offset)
 
             for obj in page['objects']:
+                # we are interested only in non-trashed items.
+                if obj.get('is_trashed'):
+                    continue
+
                 yield self.get_data(obj)
 
             if not page['meta']['next']:
@@ -153,7 +157,32 @@ class TitleCollector(DataCollector):
     _resource_name = 'journals'
 
     def get_data(self, obj):
-        pass
+        del(obj['collections'])
+        del(obj['issues'])
+
+        # dateiso format
+        obj['created'] = obj['created'][:10].replace('-', '')
+        obj['updated'] = obj['updated'][:10].replace('-', '')
+
+        # get id from a string like: /api/v1/users/1/
+        userid = obj['creator'].strip('/').split('/')[-1]
+        obj['creator'] = self._api.users(userid).get()['username']
+
+        # lookup publishers
+        publishers = []
+        for publisher in obj['publishers']:
+            pubid = publisher.strip('/').split('/')[-1]
+            publishers.append(self._api.publishers(pubid).get()['name'])
+        obj['publishers'] = publishers
+
+        # lookup sponsors
+        sponsors = []
+        for sponsor in obj['sponsors']:
+            spoid = sponsor.strip('/').split('/')[-1]
+            sponsors.append(self._api.sponsors(spoid).get()['name'])
+        obj['sponsors'] = sponsors
+
+        return obj
 
 class DeLorean(object):
     """
