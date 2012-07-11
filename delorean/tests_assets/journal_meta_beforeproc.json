@@ -1,0 +1,102 @@
+{
+    "abstract_keyword_languages": [
+        "en",
+        "pt"
+    ],
+    "acronym": "ABCD",
+    "collections": [
+        "/api/v1/collections/1/"
+    ],
+    "copyrighter": "",
+    "cover": null,
+    "created": "2012-07-05T11:36:07.680706",
+    "creator": "/api/v1/users/1/",
+    "ctrl_vocabulary": "decs",
+    "editorial_standard": "vancouv",
+    "eletronic_issn": "",
+    "final_num": "",
+    "final_vol": "",
+    "final_year": null,
+    "frequency": "Q",
+    "id": "1",
+    "index_coverage": "ll - lilacs",
+    "init_num": "1",
+    "init_vol": "1",
+    "init_year": "1986",
+    "is_trashed": false,
+    "issues": [
+        "/api/v1/issues/5674/",
+        "/api/v1/issues/5675/",
+        "/api/v1/issues/5676/",
+        "/api/v1/issues/5677/",
+        "/api/v1/issues/5678/",
+        "/api/v1/issues/5679/",
+        "/api/v1/issues/5680/",
+        "/api/v1/issues/5681/",
+        "/api/v1/issues/5682/",
+        "/api/v1/issues/5683/",
+        "/api/v1/issues/5684/",
+        "/api/v1/issues/5685/",
+        "/api/v1/issues/5686/",
+        "/api/v1/issues/5687/",
+        "/api/v1/issues/5688/"
+    ],
+    "languages": [
+        "en",
+        "pt"
+    ],
+    "logo": null,
+    "missions": [
+        [
+            "en",
+            "To publish articles of clinical and experimental studies that foster the advancement of research, teaching and assistance in surgical, clinical, and endoscopic gastroenterology, and related areas."
+        ],
+        [
+            "pt",
+            "Publicar  artigos de estudos cl\u00ednicos e experimentais que contribuam para o desenvolvimento da pesquisa, ensino e assist\u00eancia na \u00e1rea gastroenterologia cir\u00fargica, cl\u00ednica, endosc\u00f3pica e outras correlatas."
+        ],
+        [
+            "es",
+            "Publicar art\u00edculos de estudios cl\u00ednicos y experimentales que aporten para el desarrollo de la pesquisa, ense\u00f1anza y asistencia en el \u00e1rea gastroenterolog\u00eda quir\u00fargica, cl\u00ednica, endosc\u00f3pica y otras correlacionadas."
+        ]
+    ],
+    "notes": "",
+    "other_previous_title": "",
+    "other_titles": [
+        [
+            "other",
+            "ABCD, arq. bras. cir. dig."
+        ],
+        [
+            "paralleltitle",
+            "Brazilian Archives of Digestive Surgery"
+        ]
+    ],
+    "print_issn": "0102-6720",
+    "pub_level": "CT",
+    "pub_status": "current",
+    "pub_status_reason": "",
+    "publishers": [
+        "/api/v1/publishers/1/"
+    ],
+    "resource_uri": "/api/v1/journals/1/",
+    "scielo_issn": "print",
+    "secs_code": "6633",
+    "short_title": "ABCD, arq. bras. cir. dig.",
+    "sponsors": [
+        "/api/v1/sponsors/2/"
+    ],
+    "subject_descriptors": "medicina\ncirurgia\ngastroenterologia\ngastroenterologia",
+    "title": "ABCD. Arquivos Brasileiros de Cirurgia Digestiva (S\u00e3o Paulo)",
+    "title_iso": "ABCD, arq. bras. cir. dig",
+    "updated": "2012-07-06T09:33:39.069336",
+    "url_journal": null,
+    "url_online_submission": null,
+    "use_license": {
+        "disclaimer": "",
+        "id": "1",
+        "license_code": "###PLACEBO###",
+        "reference_url": null,
+        "resource_uri": "/api/v1/uselicenses/1/"
+    }
+}
