@@ -85,6 +85,19 @@ def dummy_slumber_factory(json_data):
     mocker.replay()
     return dummy_slumber
 
+def dummy_datetime_factory():
+    mocker = Mocker()
+    dummy_datetime = mocker.mock()
+
+    dummy_datetime.now()
+    mocker.result(None)
+
+    dummy_datetime.strftime(ANY, ANY)
+    mocker.result('20120712-10:07:34:803942')
+
+    mocker.replay()
+    return dummy_datetime
+
 
 # Functional tests
 #################
@@ -111,16 +124,22 @@ class DeLoreanTests(unittest.TestCase):
     def tearDown(self):
         testing.tearDown()
 
-    def _makeOne(self):
+    def _makeOne(self, **kwargs):
         from delorean.domain import DeLorean
-        return DeLorean()
+        return DeLorean(**kwargs)
 
-    def test_generate_serial_bundle(self):
-        dl = self._makeOne()
+    def test_generate_title_bundle(self):
+        dl = self._makeOne(datetime_lib=dummy_datetime_factory(),
+                           endpoints={'title': 'localhost:8000/api/v1/titles'})
         bundle_url = dl.generate_title()
         self.assertEqual(bundle_url,
-            u'http://localhost:6543/files/title_2012-06-26_13:25:24.008242.zip')
+            'title-20120712-10:07:34:803942.tar')
 
+    def test_generate_filename(self):
+        dl = self._makeOne(datetime_lib=dummy_datetime_factory(),
+                           endpoints={'title': 'localhost:8000/api/v1/titles'})
+        self.assertEqual(dl._generate_filename('title'),
+            'title-20120712-10:07:34:803942.tar')
 
 class DataCollectorTests(unittest.TestCase):
     title_res = u'http://manager.scielo.org/api/v1/journal/brasil/0102-6720'
@@ -191,7 +210,7 @@ class TitleCollectorTests(unittest.TestCase):
 
         desired_journal_struct = json.load(open(os.path.join(here, 'tests_assets/journal_meta_afterproc.json')))
 
-        for record in iter(dc):
+        for record in dc:
             for field, value in record.items():
                 self.assertEqual(value, desired_journal_struct[field])
 
@@ -305,6 +324,10 @@ class TransformerTests(unittest.TestCase):
             u'!ID 0\n!v100!ABCD. Arquivos Brasileiros\n!v350!en\n!v350!pt\n'.split('\n'))
 
     def test_title_db_generation(self):
+        """
+        Compares the generated with the expected id file
+        line-by-line.
+        """
         import os, json, codecs
 
         here = os.path.abspath(os.path.dirname(__file__))

@@ -4,11 +4,10 @@ from __future__ import unicode_literals
 import urllib2
 import json
 import os
-import zipfile
-import datetime
 import tarfile
 import StringIO
 import tempfile
+from datetime import datetime
 from abc import (
     ABCMeta,
     abstractmethod,
@@ -24,16 +23,7 @@ class Bundle(object):
 
           b = Bundle(('arq1', 'arq1 content as str'))
         """
-
-        # dependencie injection
-        if 'zip_lib' not in kwargs:
-            zip_lib = zipfile
-        if 'datetime_lib' not in kwargs:
-            datetime_lib = datetime
-
         self._data = dict(args)
-        self._zip_lib = zip_lib
-        self._datetime_lib = datetime_lib
 
     def _tar(self):
         """
@@ -191,5 +181,29 @@ class DeLorean(object):
     compatible with SciELO legacy apps (ISIS dbs)
     from RESTFul data sources.
     """
+    def __init__(self, datetime_lib=datetime, endpoints=None):
+        self._datetime_lib = datetime_lib
+
+        if not endpoints:
+            raise TypeError("missing argument 'endpoints'")
+
+        try:
+            self._endpoints = dict(endpoints)
+        except TypeError:
+            raise ValueError('endpoints must be mapping')
+
+    def _generate_filename(self, prefix, filetype='tar', fmt='%Y%m%d-%H:%M:%S:%f'):
+        now = self._datetime_lib.strftime(self._datetime_lib.now(), fmt)
+        return '{0}.{1}'.format('-'.join([prefix, now]), filetype)
+
     def generate_title(self):
-        return u'http://localhost:6543/files/title_2012-06-26_13:25:24.008242.zip'
+        """
+        Starts the Title bundle generation, and returns the expected
+        resource name. This method returns asynchronously, so the
+        consumer will need to wait until the resource turns available.
+        """
+        expected_resource_name = self._generate_filename('title')
+
+        collector = TitleCollector(self._endpoints['title'])
+
+        return expected_resource_name
