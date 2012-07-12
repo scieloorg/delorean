@@ -159,6 +159,7 @@ class TitleCollector(DataCollector):
     def get_data(self, obj):
         del(obj['collections'])
         del(obj['issues'])
+        del(obj['resource_uri'])
 
         # dateiso format
         obj['created'] = obj['created'][:10].replace('-', '')
