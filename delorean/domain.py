@@ -92,12 +92,12 @@ class Transformer(object):
         Renders a template using the given list of data.
         ``data_list`` must be list or tuple.
         """
-        if not isinstance(data_list, list) and not \
-               isinstance(data_list, tuple) and not \
-               isinstance(data_list, set) and not \
-               isinstance(data_list, str) and not \
-               isinstance(data_list, collections.Iterable):
-            raise TypeError('data must be list or tuple')
+        if isinstance(data_list, str) or isinstance(data_list, dict) or \
+           isinstance(data_list, set):
+            raise TypeError('data must be iterable')
+
+        if not isinstance(data_list, collections.Iterable):
+            raise TypeError('data must be iterable')
 
         res = []
         if callabl:
