@@ -94,6 +94,8 @@ class Transformer(object):
         """
         if not isinstance(data_list, list) and not \
                isinstance(data_list, tuple) and not \
+               isinstance(data_list, set) and not \
+               isinstance(data_list, str) and not \
                isinstance(data_list, collections.Iterable):
             raise TypeError('data must be list or tuple')
 
@@ -184,9 +186,16 @@ class DeLorean(object):
     compatible with SciELO legacy apps (ISIS dbs)
     from RESTFul data sources.
     """
-    def __init__(self, api_uri, datetime_lib=datetime):
+    def __init__(self,
+                 api_uri,
+                 datetime_lib=datetime,
+                 titlecollector=TitleCollector,
+                 transformer=Transformer):
+
         self._datetime_lib = datetime_lib
         self._api_uri = api_uri
+        self._titlecollector = titlecollector
+        self._transformer = transformer
 
     def _generate_filename(self, prefix, filetype='tar', fmt='%Y%m%d-%H:%M:%S:%f'):
         now = self._datetime_lib.strftime(self._datetime_lib.now(), fmt)
@@ -201,11 +210,9 @@ class DeLorean(object):
         HERE = os.path.abspath(os.path.dirname(__file__))
 
         expected_resource_name = self._generate_filename('title')
-        iter_data = TitleCollector(self._api_uri)
-        transformer = Transformer(filename=os.path.join(HERE,
+        iter_data = self._titlecollector(self._api_uri)
+        transformer = self._transformer(filename=os.path.join(HERE,
             'templates/title_db_entry.txt'))
         id_string = transformer.transform_list(iter_data)
-
-        import pdb; pdb.set_trace()
 
         return expected_resource_name
