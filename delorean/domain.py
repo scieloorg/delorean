@@ -7,6 +7,7 @@ import os
 import tarfile
 import StringIO
 import tempfile
+import collections
 from datetime import datetime
 from abc import (
     ABCMeta,
@@ -91,7 +92,9 @@ class Transformer(object):
         Renders a template using the given list of data.
         ``data_list`` must be list or tuple.
         """
-        if not isinstance(data_list, list) and not isinstance(data_list, tuple):
+        if not isinstance(data_list, list) and not \
+               isinstance(data_list, tuple) and not \
+               isinstance(data_list, collections.Iterable):
             raise TypeError('data must be list or tuple')
 
         res = []
@@ -181,16 +184,9 @@ class DeLorean(object):
     compatible with SciELO legacy apps (ISIS dbs)
     from RESTFul data sources.
     """
-    def __init__(self, datetime_lib=datetime, endpoints=None):
+    def __init__(self, api_uri, datetime_lib=datetime):
         self._datetime_lib = datetime_lib
-
-        if not endpoints:
-            raise TypeError("missing argument 'endpoints'")
-
-        try:
-            self._endpoints = dict(endpoints)
-        except TypeError:
-            raise ValueError('endpoints must be mapping')
+        self._api_uri = api_uri
 
     def _generate_filename(self, prefix, filetype='tar', fmt='%Y%m%d-%H:%M:%S:%f'):
         now = self._datetime_lib.strftime(self._datetime_lib.now(), fmt)
@@ -202,8 +198,14 @@ class DeLorean(object):
         resource name. This method returns asynchronously, so the
         consumer will need to wait until the resource turns available.
         """
-        expected_resource_name = self._generate_filename('title')
+        HERE = os.path.abspath(os.path.dirname(__file__))
 
-        collector = TitleCollector(self._endpoints['title'])
+        expected_resource_name = self._generate_filename('title')
+        iter_data = TitleCollector(self._api_uri)
+        transformer = Transformer(filename=os.path.join(HERE,
+            'templates/title_db_entry.txt'))
+        id_string = transformer.transform_list(iter_data)
+
+        import pdb; pdb.set_trace()
 
         return expected_resource_name

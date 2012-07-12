@@ -129,15 +129,15 @@ class DeLoreanTests(unittest.TestCase):
         return DeLorean(**kwargs)
 
     def test_generate_title_bundle(self):
-        dl = self._makeOne(datetime_lib=dummy_datetime_factory(),
-                           endpoints={'title': 'localhost:8000/api/v1/titles'})
+        dl = self._makeOne('http://localhost:8000/api/v1/',
+                           datetime_lib=dummy_datetime_factory())
         bundle_url = dl.generate_title()
         self.assertEqual(bundle_url,
             'title-20120712-10:07:34:803942.tar')
 
     def test_generate_filename(self):
-        dl = self._makeOne(datetime_lib=dummy_datetime_factory(),
-                           endpoints={'title': 'localhost:8000/api/v1/titles'})
+        dl = self._makeOne('http://localhost:8000/api/v1/',
+                           datetime_lib=dummy_datetime_factory())
         self.assertEqual(dl._generate_filename('title'),
             'title-20120712-10:07:34:803942.tar')
 
@@ -273,6 +273,18 @@ class TransformerTests(unittest.TestCase):
         types = [1, 'str', {}, set()]
         for typ in types:
             self.assertRaises(TypeError, t.transform_list, typ)
+
+    def test_transformation_iterable_data(self):
+        t = self._makeOne(self.tpl_basic)
+
+        def item_factory():
+            for i in range(2):
+                yield {'country': 'Brasil%s' % i}
+
+        result = t.transform_list(item_factory())
+        expected_result = u'Pra frente, Brasil0\nPra frente, Brasil1'
+        self.assertEqual(result, expected_result)
+
 
     def test_transformation_with_callable(self):
         """
