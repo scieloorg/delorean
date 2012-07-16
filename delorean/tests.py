@@ -99,6 +99,32 @@ def dummy_datetime_factory():
     return dummy_datetime
 
 
+def dummy_titlecollector_factory():
+    mocker = Mocker()
+    dummy_titlecollector = mocker.mock()
+
+    dummy_titlecollector(ANY)
+    mocker.result(dummy_titlecollector)
+
+    iter(dummy_titlecollector)
+    mocker.result(({'foo': rec} for rec in range(10)))
+
+    mocker.replay()
+    return dummy_titlecollector
+
+def dummy_transformer_factory():
+    mocker = Mocker()
+    dummy_transformer = mocker.mock()
+
+    dummy_transformer(filename=ANY)
+    mocker.result(dummy_transformer)
+
+    dummy_transformer.transform_list(ANY)
+    mocker.result('!ID 0\n')
+
+    mocker.replay()
+    return dummy_transformer
+
 # Functional tests
 #################
 class ViewTests(unittest.TestCase):
@@ -128,12 +154,14 @@ class DeLoreanTests(unittest.TestCase):
         from delorean.domain import DeLorean
         return DeLorean(*args, **kwargs)
 
-    # def test_generate_title_bundle(self):
-    #     dl = self._makeOne('http://localhost:8000/api/v1/',
-    #                        datetime_lib=dummy_datetime_factory())
-    #     bundle_url = dl.generate_title()
-    #     self.assertEqual(bundle_url,
-    #         'title-20120712-10:07:34:803942.tar')
+    def test_generate_title_bundle(self):
+        dl = self._makeOne('http://localhost:8000/api/v1/',
+                           datetime_lib=dummy_datetime_factory(),
+                           titlecollector=dummy_titlecollector_factory(),
+                           transformer=dummy_transformer_factory())
+        bundle_url = dl.generate_title()
+        self.assertEqual(bundle_url,
+            'title-20120712-10:07:34:803942.tar')
 
     def test_generate_filename(self):
         dl = self._makeOne('http://localhost:8000/api/v1/',

@@ -178,6 +178,27 @@ class TitleCollector(DataCollector):
             sponsors.append(self._api.sponsors(spoid).get()['name'])
         obj['sponsors'] = sponsors
 
+        # pub_status_history
+        pub_status_history = [[]]
+        pub_status_history_reverse = list(reversed(obj['pub_status_history']))
+        for event in pub_status_history_reverse:
+            date = event['date'][:10].replace('-', '')
+            if event['status'] == 'current':
+                status = 'C'
+            elif event['status'] == 'deceased':
+                status = 'D'
+            elif event['status'] == 'suspended':
+                status = 'S'
+            else:
+                status = '?'
+
+            if len(pub_status_history[-1]) < 2:
+                pub_status_history[-1].append({'date': date, 'status': status})
+            else:
+                pub_status_history.append([{'date': date, 'status': status}])
+
+        obj['pub_status_history'] = list(reversed(pub_status_history))
+
         return obj
 
 class DeLorean(object):

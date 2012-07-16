@@ -4,6 +4,10 @@
 !v006!c
 !v010!br1.1
 ##
+% if national_code is not UNDEFINED and national_code:
+!v020!${national_code}
+% endif
+##
 % if scielo_issn is not UNDEFINED and scielo_issn:
 % if scielo_issn == 'print':
 !v035!PRINT
@@ -26,6 +30,16 @@
 % else:
 !v050!?
 % endif
+% endif
+##
+% if pub_status_history is not UNDEFINED and pub_status_history:
+% for events in pub_status_history:
+% if len(events) == 1:
+!v051!^a${events[0]['date']}^b${events[0]['status']}
+% elif len(events) == 2:
+!v051!^a${events[0]['date']}^b${events[0]['status']}^c${events[1]['date']}^d${events[1]['status']}
+% endif
+% endfor
 % endif
 ##
 % if copyrighter is not UNDEFINED and copyrighter:

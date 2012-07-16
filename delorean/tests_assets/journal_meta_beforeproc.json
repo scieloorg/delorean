@@ -7,7 +7,7 @@
     "collections": [
         "/api/v1/collections/1/"
     ],
-    "copyrighter": "",
+    "copyrighter": "Colégio Brasileiro de Cirurgia Digestiva - CBCD",
     "cover": null,
     "created": "2012-07-05T11:36:07.680706",
     "creator": "/api/v1/users/1/",
@@ -92,6 +92,12 @@
     "updated": "2012-07-06T09:33:39.069336",
     "url_journal": null,
     "url_online_submission": null,
+    "national_code": "083653-2",
+    "pub_status_history": [
+        {"date": "2009-09-01T00:00:00", "status": "current"},
+        {"date": "2008-08-01T00:00:00", "status": "suspended"},
+        {"date": "1998-04-30T00:00:00", "status": "current"}
+    ],
     "use_license": {
         "disclaimer": "",
         "id": "1",

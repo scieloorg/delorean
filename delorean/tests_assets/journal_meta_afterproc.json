@@ -1,5 +1,5 @@
 {
-    "copyrighter": "",
+    "copyrighter": "Colégio Brasileiro de Cirurgia Digestiva - CBCD",
     "ctrl_vocabulary": "decs",
     "frequency": "Q",
     "url_journal": null,
@@ -54,6 +54,11 @@
     "logo": null,
     "id": "1",
     "is_trashed": false,
+    "national_code": "083653-2",
+    "pub_status_history": [
+        [{"date": "20090901", "status": "C"}],
+        [{"date": "19980430", "status": "C"}, {"date": "20080801", "status": "S"}]
+    ],
     "other_titles": [
         [
             "other",
