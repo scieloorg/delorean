@@ -46,6 +46,14 @@
 !v062!${copyrighter}
 % endif
 ##
+% if address is not UNDEFINED and address:
+!v063!${address}
+% endif
+##
+% if contact is not UNDEFINED and contact:
+!v064!${contact['email']}
+% endif
+##
 !v066!art
 !v067!na
 ##
@@ -81,6 +89,15 @@
 ##
 % if title_iso is not UNDEFINED and title_iso:
 !v151!${title_iso}
+% endif
+##
+% if other_titles is not UNDEFINED and other_titles:
+% for value in other_titles['paralleltitle']:
+!v230!${value}
+% endfor
+% for value in other_titles['other']:
+!v240!${value}
+% endfor
 % endif
 ##
 % if init_year is not UNDEFINED and init_year:
@@ -141,6 +158,12 @@
 % endfor
 % endif
 ##
+% if study_areas is not UNDEFINED and study_areas:
+% for value in study_areas:
+!v441!${value}
+% endfor
+% endif
+##
 % if index_coverage is not UNDEFINED and index_coverage:
 % for value in index_coverage.split('\n'):
 !v450!${value.upper()}
@@ -157,6 +180,7 @@
 !v540!^t${use_license['disclaimer']}^len
 !v540!^t${use_license['disclaimer']}^les
 !v540!^t${use_license['disclaimer']}^lpt
+!v541!${use_license['license_code']}
 % endif
 ##
 % if previous_title is not UNDEFINED and previous_title:
@@ -171,6 +195,12 @@
 ##
 % if notes is not UNDEFINED and notes:
 !v900!${notes}
+% endif
+##
+% if missions is not UNDEFINED and missions:
+% for value in missions:
+!v901!${value[1] | trim}^l${value[0]}
+% endfor
 % endif
 ##
 % if acronym is not UNDEFINED and acronym:

@@ -199,6 +199,13 @@ class TitleCollector(DataCollector):
 
         obj['pub_status_history'] = list(reversed(pub_status_history))
 
+        # other titles
+        other_titles = {}
+        for title in obj['other_titles']:
+            value = other_titles.setdefault(title[0], [])
+            value.append(title[1])
+        obj['other_titles'] = other_titles
+
         return obj
 
 class DeLorean(object):

@@ -24,12 +24,11 @@
     "scielo_issn": "print",
     "secs_code": "6633",
     "use_license": {
-        "disclaimer": "",
+        "disclaimer": "Licencia Creative Commons",
         "id": "1",
-        "license_code": "###PLACEBO###",
+        "license_code": "BY-NC",
         "reference_url": null,
-        "resource_uri": "/api/v1/uselicenses/1/"
-    },
+        "resource_uri": "/api/v1/uselicenses/1/"},
     "index_coverage": "ll - lilacs",
     "previous_title": null,
     "acronym": "ABCD",
@@ -59,16 +58,14 @@
         [{"date": "20090901", "status": "C"}],
         [{"date": "19980430", "status": "C"}, {"date": "20080801", "status": "S"}]
     ],
-    "other_titles": [
-        [
-            "other",
-            "ABCD, arq. bras. cir. dig."
+    "other_titles": {
+        "other": [
+            "Arquivos Brasileiros de Cirurgia Digestiva"
         ],
-        [
-            "paralleltitle",
+        "paralleltitle": [
             "Brazilian Archives of Digestive Surgery"
         ]
-    ],
+    },
     "missions": [
         [
             "en",
@@ -83,5 +80,12 @@
             "Publicar art\u00edculos de estudios cl\u00ednicos y experimentales que aporten para el desarrollo de la pesquisa, ense\u00f1anza y asistencia en el \u00e1rea gastroenterolog\u00eda quir\u00fargica, cl\u00ednica, endosc\u00f3pica y otras correlacionadas."
         ]
     ],
+    "address": "Av. Brigadeiro Luiz Antonio, 278 - 6° - Salas 10 e 11 01318-901 São Paulo/SP Brasil Tel.: (11) 3288-8174/3289-0741",
+    "email": "cbcd@cbcd.org.br",
+    "study_areas": ["Health Sciences"],
+    "contact": {
+        "email": "cbcd@cbcd.org.br",
+        "name": "Col\u00e9gio Brasileiro de Cirurgia Digestiva"
+    },
     "updated": "20120706"
 }

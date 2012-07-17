@@ -65,7 +65,7 @@
     "other_titles": [
         [
             "other",
-            "ABCD, arq. bras. cir. dig."
+            "Arquivos Brasileiros de Cirurgia Digestiva"
         ],
         [
             "paralleltitle",
@@ -98,11 +98,16 @@
         {"date": "2008-08-01T00:00:00", "status": "suspended"},
         {"date": "1998-04-30T00:00:00", "status": "current"}
     ],
+    "contact": {
+        "email": "cbcd@cbcd.org.br",
+        "name": "Col\u00e9gio Brasileiro de Cirurgia Digestiva"
+    },
+    "study_areas": ["Health Sciences"],
+    "address": "Av. Brigadeiro Luiz Antonio, 278 - 6° - Salas 10 e 11 01318-901 São Paulo/SP Brasil Tel.: (11) 3288-8174/3289-0741",
     "use_license": {
-        "disclaimer": "",
+        "disclaimer": "Licencia Creative Commons",
         "id": "1",
-        "license_code": "###PLACEBO###",
+        "license_code": "BY-NC",
         "reference_url": null,
-        "resource_uri": "/api/v1/uselicenses/1/"
-    }
+        "resource_uri": "/api/v1/uselicenses/1/"}
 }

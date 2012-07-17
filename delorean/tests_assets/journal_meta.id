@@ -9,9 +9,7 @@
 !v051!^a20090901^bC
 !v051!^a19980430^bC^c20080801^dS
 !v062!Colégio Brasileiro de Cirurgia Digestiva - CBCD
-!v063!Av. Brigadeiro Luiz Antonio, 278 - 6° - Salas 10 e 11
-!v063!01318-901 São Paulo/SP Brasil
-!v063!Tel.: (11) 3288-8174/3289-0741
+!v063!Av. Brigadeiro Luiz Antonio, 278 - 6° - Salas 10 e 11 01318-901 São Paulo/SP Brasil Tel.: (11) 3288-8174/3289-0741
 !v064!cbcd@cbcd.org.br
 !v066!art
 !v067!na
@@ -27,10 +25,7 @@
 !v301!1986
 !v302!1
 !v303!1
-!v310!BR
-!v320!SP
 !v330!CT
-!v340!B
 !v350!en
 !v350!pt
 !v360!en
@@ -44,21 +39,16 @@
 !v441!Health Sciences
 !v450!LL - LILACS
 !v480!Colégio Brasileiro de Cirurgia Digestiva
-!v490!São Paulo
-!v540!^t<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc/3.0/80x15.png" /></a> Todo el contenido de esta revista, excepto dónde está identificado, est&#225; bajo una <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">Licencia Creative Commons</a>^les
-!v540!^t<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc/3.0/80x15.png" /></a> Todo o conteúdo deste periódico, exceto onde est&#225 identificado, est&#225; licenciado sob uma <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">Licen&#231;a Creative Commons</a>^lpt
-!v540!^t<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc/3.0/80x15.png" /></a> All the contents of %SITE_NAME%, except where otherwise noted, is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">Creative Commons Attribution License</a>^len
+!v540!^tLicencia Creative Commons^len
+!v540!^tLicencia Creative Commons^les
+!v540!^tLicencia Creative Commons^lpt
 !v541!BY-NC
-!v690!www.scielo.br
-!v691!10000000000000000000000
-!v901!Publicar artículos de estudios clínicos y experimentales que aporten para el desarrollo de la pesquisa, enseñanza y asistencia en el área gastroenterología quirúrgica, clínica, endoscópica y otras correlacionadas.^les
+!v901!To publish articles of clinical and experimental studies that foster the advancement of research, teaching and assistance in surgical, clinical, and endoscopic gastroenterology, and related areas.^len
 !v901!Publicar  artigos de estudos clínicos e experimentais que contribuam para o desenvolvimento da pesquisa, ensino e assistência na área gastroenterologia cirúrgica, clínica, endoscópica e outras correlatas.^lpt
-!v901!To publish articles of clinical and experimental studies that foster the advancement of research, teaching and assistance in surgical, clinical, and endoscopic gastroenterology, and related areas. ^len
+!v901!Publicar artículos de estudios clínicos y experimentales que aporten para el desarrollo de la pesquisa, enseñanza y asistencia en el área gastroenterología quirúrgica, clínica, endoscópica y otras correlacionadas.^les
 !v930!ABCD
 !v935!0102-6720
-!v940!20100323
-!v941!20100514
-!v942!20100323
-!v943!20120515
-!v950!EMS
-!v951!EMS
+!v940!20120705
+!v941!20120706
+!v950!albert.einstein@scielo.org
+!v951!albert.einstein@scielo.org

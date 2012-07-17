@@ -81,7 +81,6 @@ def dummy_slumber_factory(json_data):
         }
     )
 
-
     mocker.replay()
     return dummy_slumber
 
