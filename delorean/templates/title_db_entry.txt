@@ -1,0 +1,229 @@
+<%! from collections import Iterable %>
+!ID 0
+!v005!S
+!v006!c
+!v010!br1.1
+##
+% if national_code is not UNDEFINED and national_code:
+!v020!${national_code}
+% endif
+##
+% if scielo_issn is not UNDEFINED and scielo_issn:
+% if scielo_issn == 'print':
+!v035!PRINT
+% else:
+!v035!ONLIN
+% endif
+%endif
+##
+% if secs_code is not UNDEFINED and secs_code:
+!v037!${secs_code}
+% endif
+##
+% if pub_status is not UNDEFINED and pub_status:
+% if pub_status == 'current':
+!v050!C
+% elif pub_status == 'deceased':
+!v050!D
+% elif pub_status == 'suspended':
+!v050!S
+% else:
+!v050!?
+% endif
+% endif
+##
+% if pub_status_history is not UNDEFINED and pub_status_history:
+% for events in pub_status_history:
+% if len(events) == 1:
+!v051!^a${events[0]['date']}^b${events[0]['status']}
+% elif len(events) == 2:
+!v051!^a${events[0]['date']}^b${events[0]['status']}^c${events[1]['date']}^d${events[1]['status']}
+% endif
+% endfor
+% endif
+##
+% if copyrighter is not UNDEFINED and copyrighter:
+!v062!${copyrighter}
+% endif
+##
+% if address is not UNDEFINED and address:
+!v063!${address}
+% endif
+##
+% if contact is not UNDEFINED and contact:
+!v064!${contact['email']}
+% endif
+##
+!v066!art
+!v067!na
+##
+% if acronym is not UNDEFINED and acronym:
+!v068!${acronym.lower()}
+% endif
+##
+% if url_journal is not UNDEFINED and url_journal:
+!v069!${url_journal}
+% endif
+##
+% if ctrl_vocabulary is not UNDEFINED and ctrl_vocabulary:
+!v085!${ctrl_vocabulary}
+% endif
+##
+% if title is not UNDEFINED and title:
+!v100!${title}
+% endif
+##
+% if editorial_standard is not UNDEFINED and editorial_standard:
+!v117!${editorial_standard}
+% endif
+##
+% if isinstance(sponsors, Iterable):
+% for value in sponsors:
+!v140!${value}
+% endfor
+% endif
+##
+% if short_title is not UNDEFINED and short_title:
+!v150!${short_title}
+% endif
+##
+% if title_iso is not UNDEFINED and title_iso:
+!v151!${title_iso}
+% endif
+##
+% if other_titles is not UNDEFINED and other_titles:
+% for value in other_titles['paralleltitle']:
+!v230!${value}
+% endfor
+% for value in other_titles['other']:
+!v240!${value}
+% endfor
+% endif
+##
+% if init_year is not UNDEFINED and init_year:
+!v301!${init_year}
+% endif
+##
+% if init_vol is not UNDEFINED and init_vol:
+!v302!${init_vol}
+% endif
+##
+% if init_num is not UNDEFINED and init_num:
+!v303!${init_num}
+% endif
+##
+% if final_year is not UNDEFINED and final_year:
+!v304!${final_year}
+% endif
+##
+% if final_vol is not UNDEFINED and final_vol:
+!v305!${final_vol}
+% endif
+##
+% if final_num is not UNDEFINED and final_num:
+!v306!${final_num}
+% endif
+##
+% if pub_level is not UNDEFINED and pub_level:
+!v330!${pub_level}
+% endif
+##
+% if isinstance(languages, Iterable):
+% for value in languages:
+!v350!${value}
+% endfor
+% endif
+##
+% if isinstance(abstract_keyword_languages, Iterable):
+% for value in abstract_keyword_languages:
+!v360!${value}
+% endfor
+% endif
+##
+% if frequency is not UNDEFINED and frequency:
+!v380!${frequency}
+% endif
+##
+% if scielo_issn is not UNDEFINED and scielo_issn:
+% if scielo_issn == 'print':
+!v400!${print_issn}
+% elif electronic_issn is not UNDEFINED and electronic_issn:
+!v400!${eletronic_issn}
+% endif
+% endif
+##
+% if subject_descriptors is not UNDEFINED and subject_descriptors:
+% for value in subject_descriptors.split('\n'):
+!v440!${value.upper()}
+% endfor
+% endif
+##
+% if study_areas is not UNDEFINED and study_areas:
+% for value in study_areas:
+!v441!${value}
+% endfor
+% endif
+##
+% if index_coverage is not UNDEFINED and index_coverage:
+% for value in index_coverage.split('\n'):
+!v450!${value.upper()}
+% endfor
+% endif
+##
+% if isinstance(publishers, Iterable):
+% for value in publishers:
+!v480!${value}
+% endfor
+% endif
+##
+% if use_license is not UNDEFINED and use_license:
+!v540!^t${use_license['disclaimer']}^len
+!v540!^t${use_license['disclaimer']}^les
+!v540!^t${use_license['disclaimer']}^lpt
+!v541!${use_license['license_code']}
+% endif
+##
+% if previous_title is not UNDEFINED and previous_title:
+!v610!${previous_title}
+% elif other_previous_title is not UNDEFINED and other_previous_title:
+!v610!${other_previous_title}
+% endif
+##
+% if url_online_submission is not UNDEFINED and url_online_submission:
+!v692!${url_online_submission}
+% endif
+##
+% if notes is not UNDEFINED and notes:
+!v900!${notes}
+% endif
+##
+% if missions is not UNDEFINED and missions:
+% for value in missions:
+!v901!${value[1] | trim}^l${value[0]}
+% endfor
+% endif
+##
+% if acronym is not UNDEFINED and acronym:
+!v930!${acronym}
+% endif
+##
+% if scielo_issn is not UNDEFINED and scielo_issn:
+% if scielo_issn == 'print' and electronic_issn is not UNDEFINED and electronic_issn:
+!v935!${eletronic_issn}
+% elif print_issn is not UNDEFINED and print_issn:
+!v935!${print_issn}
+% endif
+% endif
+##
+% if created is not UNDEFINED and created:
+!v940!${created}
+% endif
+##
+% if updated is not UNDEFINED and updated:
+!v941!${updated}
+% endif
+##
+% if creator is not UNDEFINED and creator:
+!v950!${creator}
+!v951!${creator}
+% endif
