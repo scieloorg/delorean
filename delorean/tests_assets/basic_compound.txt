@@ -1,0 +1,5 @@
+!ID 0
+!v100!${title}
+% for l in languages:
+!v350!${l['iso_code']}
+% endfor
