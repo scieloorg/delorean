@@ -15,6 +15,7 @@ from abc import (
 )
 
 from mako.template import Template
+from mako.exceptions import RichTraceback
 import slumber
 
 class Bundle(object):
@@ -86,6 +87,12 @@ class Transformer(object):
             return self._template.render(**data)
         except NameError, exc:
             raise ValueError("there are some data missing: {}".format(exc))
+        except:
+            traceback = RichTraceback()
+            for (filename, lineno, function, line) in traceback.traceback:
+                print "File %s, line %s, in %s" % (filename, lineno, function)
+                print line, "\n"
+            print "%s: %s" % (str(traceback.error.__class__.__name__), traceback.error)
 
     def transform_list(self, data_list, callabl=None):
         """
@@ -164,12 +171,9 @@ class TitleCollector(DataCollector):
         userid = obj['creator'].strip('/').split('/')[-1]
         obj['creator'] = self._api.users(userid).get()['username']
 
-        # lookup publishers
-        publishers = []
-        for publisher in obj['publishers']:
-            pubid = publisher.strip('/').split('/')[-1]
-            publishers.append(self._api.publishers(pubid).get()['name'])
-        obj['publishers'] = publishers
+        # lookup publisher
+        pubid = obj['publisher'].strip('/').split('/')[-1]
+        obj['publisher'] = self._api.publishers(pubid).get()['name']
 
         # lookup sponsors
         sponsors = []
@@ -225,7 +229,14 @@ class DeLorean(object):
         self._titlecollector = titlecollector
         self._transformer = transformer
 
-    def _generate_filename(self, prefix, filetype='tar', fmt='%Y%m%d-%H:%M:%S:%f'):
+    def _generate_filename(self,
+                           prefix,
+                           filetype='tar',
+                           fmt='%Y%m%d-%H:%M:%S:%f'):
+        """
+        Generates a string to be used as the bundle filename.
+        Format: <prefix>-<data-fmt>.<filetype>>
+        """
         now = self._datetime_lib.strftime(self._datetime_lib.now(), fmt)
         return '{0}.{1}'.format('-'.join([prefix, now]), filetype)
 

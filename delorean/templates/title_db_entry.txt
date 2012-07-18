@@ -91,10 +91,12 @@
 !v151!${title_iso}
 % endif
 ##
-% if other_titles is not UNDEFINED and other_titles:
+% if other_titles is not UNDEFINED and other_titles.has_key('paralleltitle'):
 % for value in other_titles['paralleltitle']:
 !v230!${value}
 % endfor
+% endif
+% if other_titles is not UNDEFINED and other_titles.has_key('other'):
 % for value in other_titles['other']:
 !v240!${value}
 % endfor
@@ -170,10 +172,8 @@
 % endfor
 % endif
 ##
-% if isinstance(publishers, Iterable):
-% for value in publishers:
-!v480!${value}
-% endfor
+% if publisher is not UNDEFINED and publisher:
+!v480!${publisher}
 % endif
 ##
 % if use_license is not UNDEFINED and use_license:
