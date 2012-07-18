@@ -40,7 +40,7 @@ class Bundle(object):
             for name, data in self._data.items():
                 info = tarfile.TarInfo(name)
                 info.size = len(data)
-                out.addfile(info, StringIO.StringIO(data))
+                out.addfile(info, StringIO.StringIO(data.encode('utf-8')))
         finally:
             out.close()
 
@@ -247,11 +247,19 @@ class DeLorean(object):
         consumer will need to wait until the resource turns available.
         """
         HERE = os.path.abspath(os.path.dirname(__file__))
-
         expected_resource_name = self._generate_filename('title')
+
+        # data generator
         iter_data = self._titlecollector(self._api_uri)
+
+        # id file rendering
         transformer = self._transformer(filename=os.path.join(HERE,
             'templates/title_db_entry.txt'))
         id_string = transformer.transform_list(iter_data)
+
+        # packaging
+        packmeta = [('title.id', id_string)]
+        pack = Bundle(*packmeta)
+        pack.deploy('/tmp/' + expected_resource_name)
 
         return expected_resource_name
