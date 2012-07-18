@@ -240,7 +240,7 @@ class DeLorean(object):
         now = self._datetime_lib.strftime(self._datetime_lib.now(), fmt)
         return '{0}.{1}'.format('-'.join([prefix, now]), filetype)
 
-    def generate_title(self):
+    def generate_title(self, target='/tmp/'):
         """
         Starts the Title bundle generation, and returns the expected
         resource name. This method returns asynchronously, so the
@@ -260,6 +260,6 @@ class DeLorean(object):
         # packaging
         packmeta = [('title.id', id_string)]
         pack = Bundle(*packmeta)
-        pack.deploy('/tmp/' + expected_resource_name)
+        pack.deploy(os.path.join(target, expected_resource_name))
 
         return expected_resource_name

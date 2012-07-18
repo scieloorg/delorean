@@ -133,11 +133,11 @@ class ViewTests(unittest.TestCase):
     def tearDown(self):
         testing.tearDown()
 
-    def test_my_view(self):
-        from .views import my_view
+    def test_app_status(self):
+        from .views import app_status
         request = testing.DummyRequest()
-        info = my_view(request)
-        self.assertEqual(info['project'], 'delorean')
+        info = app_status(request)
+        self.assertEqual(info['app_name'], 'delorean')
 
 
 # Unit tests
