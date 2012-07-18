@@ -1,0 +1,27 @@
+{
+    "cover": null, 
+    "created": "2012-07-18T17:42:13.099864", 
+    "ctrl_vocabulary": "nd", 
+    "editorial_standard": "other", 
+    "id": "16937", 
+    "is_marked_up": true, 
+    "is_press_release": false, 
+    "is_trashed": false, 
+    "journal": "/api/v1/journals/2882/", 
+    "label": "v30n2", 
+    "number": "2", 
+    "publication_end_month": 0, 
+    "publication_start_month": 4, 
+    "publication_year": 1999, 
+    "resource_uri": "/api/v1/issues/16937/", 
+    "sections": [
+        "/api/v1/sections/56858/", 
+        "/api/v1/sections/56853/", 
+        "/api/v1/sections/56863/", 
+        "/api/v1/sections/56862/", 
+        "/api/v1/sections/56859/"
+    ], 
+    "total_documents": 16, 
+    "updated": "2012-07-18T17:42:13.099887", 
+    "volume": "30"
+}
