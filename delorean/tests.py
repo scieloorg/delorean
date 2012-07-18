@@ -417,7 +417,7 @@ class BundleTests(unittest.TestCase):
         for member in t.getmembers():
             self.assertTrue(member.name in data_as_dict)
 
-    def test_zip_data(self):
+    def test_deploy_data(self):
         p = self._makeOne(*self.basic_data)
         p.deploy('/tmp/files/zippedfile.tar')
 
