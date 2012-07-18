@@ -76,9 +76,7 @@
     "pub_level": "CT",
     "pub_status": "current",
     "pub_status_reason": "",
-    "publishers": [
-        "/api/v1/publishers/1/"
-    ],
+    "publisher": "/api/v1/publishers/1/",
     "resource_uri": "/api/v1/journals/1/",
     "scielo_issn": "print",
     "secs_code": "6633",
