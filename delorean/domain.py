@@ -233,6 +233,12 @@ class TitleCollector(DataCollector):
 
         return obj
 
+class IssueCollector(DataCollector):
+    _resource_name = 'issues'
+
+    def get_data(self, obj):
+        return obj
+
 class DeLorean(object):
     """
     Represents a time machine, generating databases

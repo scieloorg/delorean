@@ -33,6 +33,7 @@ def dummy_slumber_factory(json_data):
     mocker = Mocker()
     dummy_slumber = mocker.mock()
     dummy_journal = mocker.mock()
+    dummy_issue = mocker.mock()
     dummy_user = mocker.mock()
     dummy_publisher = mocker.mock()
     dummy_sponsor = mocker.mock()
@@ -46,6 +47,13 @@ def dummy_slumber_factory(json_data):
     mocker.result(dummy_journal)
 
     dummy_journal.get(offset=ANY)
+    mocker.result(json_data)
+
+    # Issue resource
+    dummy_slumber.issues
+    mocker.result(dummy_issue)
+
+    dummy_issue.get(offset=ANY)
     mocker.result(json_data)
 
     # Users resource
@@ -110,6 +118,19 @@ def dummy_titlecollector_factory():
 
     mocker.replay()
     return dummy_titlecollector
+
+def dummy_issuecollector_factory():
+    mocker = Mocker()
+    dummy_issuecollector = mocker.mock()
+
+    dummy_issuecollector(ANY)
+    mocker.result(dummy_issuecollector)
+
+    iter(dummy_issuecollector)
+    mocker.result(({'foo': rec} for rec in range(10)))
+
+    mocker.replay()
+    return dummy_issuecollector
 
 def dummy_transformer_factory():
     mocker = Mocker()
@@ -242,6 +263,58 @@ class TitleCollectorTests(unittest.TestCase):
             for field, value in record.items():
                 self.assertEqual(value, desired_journal_struct[field])
 
+class IssueCollectorTests(unittest.TestCase):
+    issue_res = u'http://manager.scielo.org/api/v1/'
+    valid_microset = {
+        'objects': [
+            {'title': 'ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)'},
+        ],
+        'meta': {'next': None},
+    }
+
+    def setUp(self):
+        self.config = testing.setUp()
+
+    def tearDown(self):
+        testing.tearDown()
+
+    def _makeOne(self, resource_url, **kwargs):
+        from delorean.domain import IssueCollector
+        return IssueCollector(resource_url, **kwargs)
+
+    def test_instantiation(self):
+        from delorean.domain import IssueCollector
+
+        dc = self._makeOne(self.issue_res,
+            slumber_lib=dummy_slumber_factory(self.valid_microset))
+        self.assertTrue(isinstance(dc, IssueCollector))
+
+    def test_gen_iterable(self):
+        from delorean.domain import IssueCollector
+
+        dc = self._makeOne(self.issue_res,
+            slumber_lib=dummy_slumber_factory(self.valid_microset))
+        it = iter(dc)
+        self.assertTrue(hasattr(it, 'next'))
+
+    def test_get_data(self):
+        import os
+        import json
+        from delorean.domain import IssueCollector
+        here = os.path.abspath(os.path.dirname(__file__))
+
+        wrapper_struct = {'meta': {'next': None}, 'objects': []}
+        d = json.load(open(os.path.join(here, 'tests_assets/issue_meta_beforeproc.json')))
+        wrapper_struct['objects'].append(d)
+
+        dc = self._makeOne(self.issue_res,
+            slumber_lib=dummy_slumber_factory(wrapper_struct))
+
+        desired_issue_struct = json.load(open(os.path.join(here, 'tests_assets/issue_meta_afterproc.json')))
+
+        for record in dc:
+            for field, value in record.items():
+                self.assertEqual(value, desired_issue_struct[field])
 
 class TransformerTests(unittest.TestCase):
     tpl_basic = u'Pra frente, ${country}'
