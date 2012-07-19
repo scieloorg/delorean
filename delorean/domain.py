@@ -130,6 +130,10 @@ class DataCollector(object):
         self._api = self._slumber_lib.API(resource_url)
         self.resource = getattr(self._api, self._resource_name)
 
+        # memoization to avoid unecessary field lookups
+        # Ex.: _memo['publishers']['1'] = 'Unesp'
+        self._memo = {}
+
     def __iter__(self):
         offset=0
 
@@ -147,6 +151,22 @@ class DataCollector(object):
                 raise StopIteration()
             else:
                 offset += 20
+
+    def _lookup_field(self, endpoint, res_id, field):
+
+        def http_lookup():
+            return getattr(self._api, endpoint)(res_id).get()[field]
+
+        one_step_before = self._memo.setdefault(
+                endpoint, {}).setdefault(
+                    res_id, {})
+
+        try:
+            return one_step_before[field]
+        except KeyError:
+            one_step_before[field] = http_lookup()
+            return one_step_before[field]
+
 
     @abstractmethod
     def get_data(self, obj):
@@ -169,17 +189,18 @@ class TitleCollector(DataCollector):
 
         # get id from a string like: /api/v1/users/1/
         userid = obj['creator'].strip('/').split('/')[-1]
-        obj['creator'] = self._api.users(userid).get()['username']
+
+        obj['creator'] = self._lookup_field('users', userid, 'username')
 
         # lookup publisher
         pubid = obj['publisher'].strip('/').split('/')[-1]
-        obj['publisher'] = self._api.publishers(pubid).get()['name']
+        obj['publisher'] = self._lookup_field('publishers', pubid, 'name')
 
         # lookup sponsors
         sponsors = []
         for sponsor in obj['sponsors']:
             spoid = sponsor.strip('/').split('/')[-1]
-            sponsors.append(self._api.sponsors(spoid).get()['name'])
+            sponsors.append(self._lookup_field('sponsors', spoid, 'name'))
         obj['sponsors'] = sponsors
 
         # pub_status_history

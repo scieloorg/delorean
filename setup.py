@@ -12,6 +12,9 @@ requires = [
     'waitress',
     'mocker',
     'coverage',
+    'nose',
+    'setuptools-git',
+    'slumber',
     ]
 
 setup(name='delorean',
