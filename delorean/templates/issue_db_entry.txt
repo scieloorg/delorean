@@ -1,34 +1,41 @@
-<%! from collections import Iterable %>
-!ID 0000004
-!v030!Rev. Microbiol.
-!v031!30
-!v032!2
-!v035!0001-3714
-!v036!19992
+!v006!003
+!v030!ABCD, arq. bras. cir. dig.
+!v031!20
+!v032!3
+!v035!0102-6720
+!v036!20073
 !v042!1
-!v043!^les^tRev. Microbiol.^vv.30^nn.2^cS?o Paulo^mabr./jun.^a1999
-!v043!^lpt^tRev. Microbiol.^vv.30^nn.2^cS?o Paulo^mabr./jun.^a1999
-!v043!^len^tRev. Microbiol.^vvol.30^nn.2^cS?o Paulo^mApr./Jun.^a1999
+!v043!^les^tABCD, arq. bras. cir. dig.^vvol.20^nno.3^cS?o Paulo^mjul./set.^a2007
+!v043!^lpt^tABCD, arq. bras. cir. dig.^vvol.20^nno.3^cS?o Paulo^mjul./set.^a2007
+!v043!^len^tABCD, arq. bras. cir. dig.^vvol.20^nno.3^cS?o Paulo^mJuly/Sept.^a2007
 !v048!^les^hSumario
 !v048!^lpt^hSum?rio
 !v048!^len^hTable of Contents
-!v049!^len^cRM120^tFood Microbiology
-!v049!^len^cRM090^tMedical Microbiology
-!v049!^len^cRM150^tBasic Microbiology
-!v049!^len^cRM020^tIndustrial Microbiology
-!v049!^len^cRM040^tEnvironmental Microbiology
-!v065!19990400
-!v085!nd
-!v091!20010604
-!v117!other
-!v122!16
-!v130!Revista de Microbiologia
+!v049!^lpt^cABCD010^tEditorial
+!v049!^lpt^cABCD020^tArtigos Originais
+!v049!^len^cABCD020^tOrginal Articles
+!v049!^lpt^cABCD030^tArtigos de Revis?o
+!v049!^len^cABCD030^tReview Articles
+!v049!^lpt^cABCD040^tRelatos de Casos
+!v049!^len^cABCD040^tCase Reports
+!v065!20070900
+!v085!decs
+!v091!20120403
+!v122!17
+!v130!ABCD. Arquivos Brasileiros de Cirurgia Digestiva (S?o Paulo)
+!v151!ABCD, arq. bras. cir. dig
+!v117!vancouv
 !v200!1
-!v230!Journal of the Brazilian Society for Microbiology
-!v480!Sociedade Brasileira de Microbiologia
+!v230!Brazilian Archives of Digestive Surgery
+!v480!Col?gio Brasileiro de Cirurgia Digestiva
+!v540!^t<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc/3.0/80x15.png" /></a> Todo el contenido de esta revista, excepto d?nde est? identificado, est&#225; bajo una <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">Licencia Creative Commons</a>^les
+!v540!^t<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc/3.0/80x15.png" /></a> Todo o conte?do deste peri?dico, exceto onde est&#225 identificado, est&#225; licenciado sob uma <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">Licen&#231;a Creative Commons</a>^lpt
+!v540!^t<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc/3.0/80x15.png" /></a> All the contents of this journal, except where otherwise noted, is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">Creative Commons Attribution License</a>^len
+!v541!BY-NC
 !v700!0
 !v701!1
 !v706!i
-!v930!RM
+!v930!ABCD
 !v991!1
-!v006!004
+!v935!0102-6720
+!v9999!../bases-work/abcd/abcd

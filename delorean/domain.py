@@ -152,7 +152,7 @@ class DataCollector(object):
             else:
                 offset += 20
 
-    def _lookup_field(self, endpoint, res_id, field):
+    def _lookup_field(self, endpoint, res_id, field, ):
 
         def http_lookup():
             return getattr(self._api, endpoint)(res_id).get()[field]
@@ -166,6 +166,15 @@ class DataCollector(object):
         except KeyError:
             one_step_before[field] = http_lookup()
             return one_step_before[field]
+
+    def _lookup_fields(self, endpoint, res_id, fields):
+        
+        attr_list = {}
+
+        for field in fields:
+            attr_list[field] = self._lookup_field(endpoint, res_id, field)
+            
+        return attr_list
 
 
     @abstractmethod
@@ -237,6 +246,11 @@ class IssueCollector(DataCollector):
     _resource_name = 'issues'
 
     def get_data(self, obj):
+        
+        # lookup publisher
+        journalid = obj['journal'].strip('/').split('/')[-1]
+        obj['journal'] = self._lookup_field('journals', journalid, 'title')
+
         return obj
 
 class DeLorean(object):

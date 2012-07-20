@@ -7,7 +7,15 @@
     "is_marked_up": true, 
     "is_press_release": false, 
     "is_trashed": false, 
-    "journal": "/api/v1/journals/2882/", 
+    "journal": {
+        "title": "Revista de Microbiologia",
+        "short_title": "Rev. Microbiol.",
+        "issn": "0001-3714",
+        "publisher": "Journal of the Brazilian Society for Microbiology",
+        "sponsors": [
+            "Sociedade Brasileira de Microbiologia"
+        ],
+        "resource_uri": "/api/v1/journals/2882/"}, 
     "label": "v30n2", 
     "number": "2", 
     "publication_end_month": 0, 
@@ -15,11 +23,11 @@
     "publication_year": 1999, 
     "resource_uri": "/api/v1/issues/16937/", 
     "sections": [
-        "/api/v1/sections/56858/", 
-        "/api/v1/sections/56853/", 
-        "/api/v1/sections/56863/", 
-        "/api/v1/sections/56862/", 
-        "/api/v1/sections/56859/"
+        "Food Microbiology", 
+        "Medical Microbiology", 
+        "Basic Microbiology", 
+        "Industrial Microbiology", 
+        "Environmental Microbiology"
     ], 
     "total_documents": 16, 
     "updated": "2012-07-18T17:42:13.099887", 

@@ -6,6 +6,8 @@ import unittest
 from mocker import (
     Mocker,
     ANY,
+    ARGS,
+    KWARGS,
 )
 from pyramid import testing
 
@@ -46,7 +48,13 @@ def dummy_slumber_factory(json_data):
     dummy_slumber.journals
     mocker.result(dummy_journal)
 
+    dummy_journal(ANY)
+    mocker.result(json_data) 
+
     dummy_journal.get(offset=ANY)
+    mocker.result(json_data)
+
+    dummy_journal.get()
     mocker.result(json_data)
 
     # Issue resource
@@ -301,6 +309,7 @@ class IssueCollectorTests(unittest.TestCase):
         import os
         import json
         from delorean.domain import IssueCollector
+
         here = os.path.abspath(os.path.dirname(__file__))
 
         wrapper_struct = {'meta': {'next': None}, 'objects': []}
