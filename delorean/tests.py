@@ -49,13 +49,17 @@ def dummy_slumber_factory(json_data):
     mocker.result(dummy_journal)
 
     dummy_journal(ANY)
-    mocker.result(json_data) 
+    mocker.result(dummy_journal)
 
     dummy_journal.get(offset=ANY)
     mocker.result(json_data)
 
     dummy_journal.get()
-    mocker.result(json_data)
+    mocker.result(
+        {
+            'title': 'Revista de Microbiologia',
+        }
+    )
 
     # Issue resource
     dummy_slumber.issues
@@ -96,7 +100,7 @@ def dummy_slumber_factory(json_data):
             'name': 'Colégio Brasileiro de Cirurgia Digestiva - CBCD'
         }
     )
-
+    mocker.count(3)
     mocker.replay()
     return dummy_slumber
 
