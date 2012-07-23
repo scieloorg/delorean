@@ -152,7 +152,6 @@ class DataCollector(object):
         while True:
             try: # handles resource unavailability
                 page = self.resource.get(offset=offset)
-                err_count = 0
             except requests.exceptions.ConnectionError as exc:
                 if err_count < 10:
                     wait_secs = err_count*5
@@ -175,6 +174,7 @@ class DataCollector(object):
                     raise StopIteration()
                 else:
                     offset += 20
+                    err_count = 0
 
     def _lookup_field(self, endpoint, res_id, field):
 
