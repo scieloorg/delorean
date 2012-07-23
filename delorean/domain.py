@@ -1,6 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+import time
 import urllib2
 import json
 import os
@@ -9,14 +10,24 @@ import StringIO
 import tempfile
 import collections
 from datetime import datetime
+import logging
 from abc import (
     ABCMeta,
     abstractmethod,
 )
 
+import requests
 from mako.template import Template
 from mako.exceptions import RichTraceback
 import slumber
+
+
+logger = logging.getLogger(__name__)
+
+class ResourceUnavailableError(Exception):
+    def __init__(self, *args, **kwargs):
+        super(ResourceUnavailableError, self).__init__(*args, **kwargs)
+
 
 class Bundle(object):
     def __init__(self, *args, **kwargs):
@@ -135,22 +146,35 @@ class DataCollector(object):
         self._memo = {}
 
     def __iter__(self):
-        offset=0
+        offset = 0
+        err_count = 0
 
         while True:
-            page = self.resource.get(offset=offset)
-
-            for obj in page['objects']:
-                # we are interested only in non-trashed items.
-                if obj.get('is_trashed'):
+            try: # handles resource unavailability
+                page = self.resource.get(offset=offset)
+                err_count = 0
+            except requests.exceptions.ConnectionError as exc:
+                if err_count < 10:
+                    wait_secs = err_count*5
+                    logger.info('Connection failed. Waiting %ss to retry.' % wait_secs)
+                    time.sleep(wait_secs)
+                    err_count += 1
                     continue
-
-                yield self.get_data(obj)
-
-            if not page['meta']['next']:
-                raise StopIteration()
+                else:
+                    logger.error('Unable to connect to resource (%s).' % exc)
+                    raise ResourceUnavailableError(exc)
             else:
-                offset += 20
+                for obj in page['objects']:
+                    # we are interested only in non-trashed items.
+                    if obj.get('is_trashed'):
+                        continue
+
+                    yield self.get_data(obj)
+
+                if not page['meta']['next']:
+                    raise StopIteration()
+                else:
+                    offset += 20
 
     def _lookup_field(self, endpoint, res_id, field):
 
