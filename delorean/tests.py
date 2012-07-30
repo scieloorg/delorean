@@ -76,7 +76,7 @@ def dummy_slumber_factory(json_data):
     dummy_slumber.issues
     mocker.result(dummy_issue)
 
-    dummy_issue.get(offset=ANY)
+    dummy_issue.get(offset=ANY, limit=ANY)
     mocker.result(json_data)
 
     # Section resource
