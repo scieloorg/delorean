@@ -1,8 +1,6 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import urllib2
-import json
 import os
 import tarfile
 import StringIO
@@ -17,6 +15,7 @@ from abc import (
 from mako.template import Template
 from mako.exceptions import RichTraceback
 import slumber
+
 
 class Bundle(object):
     def __init__(self, *args, **kwargs):
@@ -114,6 +113,7 @@ class Transformer(object):
             res.append(self.transform(data))
         return '\n'.join(res)
 
+
 class DataCollector(object):
     """
     Responsible for collecting data from RESTful interfaces,
@@ -135,7 +135,7 @@ class DataCollector(object):
         self._memo = {}
 
     def __iter__(self):
-        offset=0
+        offset = 0
 
         while True:
             page = self.resource.get(offset=offset)
@@ -168,14 +168,13 @@ class DataCollector(object):
             return one_step_before[field]
 
     def _lookup_fields(self, endpoint, res_id, fields):
-        
+
         attr_list = {}
 
         for field in fields:
             attr_list[field] = self._lookup_field(endpoint, res_id, field)
-            
-        return attr_list
 
+        return attr_list
 
     @abstractmethod
     def get_data(self, obj):
@@ -183,6 +182,39 @@ class DataCollector(object):
         Get data from the specified resource and returns
         it as Python native datastructures.
         """
+
+
+class IssueCollector(DataCollector):
+    _resource_name = 'issues'
+
+    def get_data(self, obj):
+
+        # lookup publisher
+        journalid = obj['journal'].strip('/').split('/')[-1]
+        obj['journal'] = self._lookup_fields('journals', journalid, ['title',
+                                                                     'short_title',
+                                                                     'publisher',
+                                                                     'sponsors',
+                                                                     'print_issn',
+                                                                     'electronic_issn',
+                                                                     'scielo_issn',
+                                                                     'resource_uri'
+                                                                     ])
+        sections = {}
+        # lookup sections
+        for section in obj['sections']:
+            sectionid = section.strip('/').split('/')[-1]
+            x = self._lookup_fields('sections', sectionid, ['code',
+                                                            'titles'])
+
+            for translation in x['titles']:
+                sections.setdefault(translation[0], [])
+                sections[translation[0]].append(translation[1])
+
+        obj['sections'] = sections
+
+        return obj
+
 
 class TitleCollector(DataCollector):
     _resource_name = 'journals'
@@ -242,16 +274,6 @@ class TitleCollector(DataCollector):
 
         return obj
 
-class IssueCollector(DataCollector):
-    _resource_name = 'issues'
-
-    def get_data(self, obj):
-        
-        # lookup publisher
-        journalid = obj['journal'].strip('/').split('/')[-1]
-        obj['journal'] = self._lookup_field('journals', journalid, 'title')
-
-        return obj
 
 class DeLorean(object):
     """

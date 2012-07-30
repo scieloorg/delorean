@@ -1,35 +1,43 @@
 {
     "cover": null, 
-    "created": "2012-07-18T17:42:13.099864", 
-    "ctrl_vocabulary": "nd", 
-    "editorial_standard": "other", 
-    "id": "16937", 
+    "created": "2012-07-18T17:47:09.564504", 
+    "ctrl_vocabulary": "decs", 
+    "editorial_standard": "vancouv", 
+    "id": "22615", 
     "is_marked_up": true, 
     "is_press_release": false, 
     "is_trashed": false, 
     "journal": {
-        "title": "Revista de Microbiologia",
-        "short_title": "Rev. Microbiol.",
-        "issn": "0001-3714",
-        "publisher": "Journal of the Brazilian Society for Microbiology",
+        "title": "ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)",
+        "short_title": "ABCD, arq. bras. cir. dig.",
+        "scielo_issn": "print",
+        "print_issn": "0102-6720",
+        "electronic_issn": "",
+        "publisher": "Colégio Brasileiro de Cirurgia Digestiva",
         "sponsors": [
-            "Sociedade Brasileira de Microbiologia"
+            "Brazilian Archives of Digestive Surgery"
         ],
-        "resource_uri": "/api/v1/journals/2882/"}, 
-    "label": "v30n2", 
-    "number": "2", 
+        "resource_uri": "/api/v1/journals/2647/"},
+    "label": "v23n1", 
+    "number": "1", 
     "publication_end_month": 0, 
-    "publication_start_month": 4, 
-    "publication_year": 1999, 
-    "resource_uri": "/api/v1/issues/16937/", 
-    "sections": [
-        "Food Microbiology", 
-        "Medical Microbiology", 
-        "Basic Microbiology", 
-        "Industrial Microbiology", 
-        "Environmental Microbiology"
-    ], 
+    "publication_start_month": 3, 
+    "publication_year": 2010, 
+    "resource_uri": "/api/v1/issues/22615/", 
+    "sections": {
+        "en": [
+            "Original Articles",
+            "Review Articles",
+            "Case Reports" 
+        ],
+        "pt": [
+            "Editorial",
+            "Artigos Originais",
+            "Artigos de Revisão",
+            "Relatos de Casos"
+        ]
+    }, 
     "total_documents": 16, 
-    "updated": "2012-07-18T17:42:13.099887", 
-    "volume": "30"
+    "updated": "2012-07-18T17:47:09.564531", 
+    "volume": "23"
 }

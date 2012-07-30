@@ -6,8 +6,6 @@ import unittest
 from mocker import (
     Mocker,
     ANY,
-    ARGS,
-    KWARGS,
 )
 from pyramid import testing
 
@@ -31,6 +29,7 @@ def dummy_urllib2_factory(json_data):
 
     return url_handler
 
+
 def dummy_slumber_factory(json_data):
     mocker = Mocker()
     dummy_slumber = mocker.mock()
@@ -39,6 +38,7 @@ def dummy_slumber_factory(json_data):
     dummy_user = mocker.mock()
     dummy_publisher = mocker.mock()
     dummy_sponsor = mocker.mock()
+    dummy_section = mocker.mock()
 
     # Slumber
     dummy_slumber.API(ANY)
@@ -46,19 +46,30 @@ def dummy_slumber_factory(json_data):
 
     # Journals resource
     dummy_slumber.journals
+    mocker.count(10)
     mocker.result(dummy_journal)
 
     dummy_journal(ANY)
+    mocker.count(10)
     mocker.result(dummy_journal)
 
     dummy_journal.get(offset=ANY)
     mocker.result(json_data)
 
     dummy_journal.get()
+    mocker.count(10)
     mocker.result(
-        {
-            'title': 'Revista de Microbiologia',
-        }
+       {
+        "title": "ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)",
+        "short_title": "ABCD, arq. bras. cir. dig.",
+        "electronic_issn": "",
+        "print_issn": "0102-6720",
+        "scielo_issn": "print",
+        "publisher": "Colégio Brasileiro de Cirurgia Digestiva",
+        "sponsors": [
+            "Brazilian Archives of Digestive Surgery"
+        ],
+        "resource_uri": "/api/v1/journals/2647/"}
     )
 
     # Issue resource
@@ -67,6 +78,83 @@ def dummy_slumber_factory(json_data):
 
     dummy_issue.get(offset=ANY)
     mocker.result(json_data)
+
+    # Section resource
+    dummy_slumber.sections(ANY)
+    mocker.count(8)
+    mocker.result(dummy_section)
+
+    # Editorial Section
+    dummy_section.get()
+    mocker.result(
+        {
+            "code": "ABCD010"
+        }
+    )
+    dummy_section.get()
+    mocker.result(
+        {
+        "titles":
+            [
+                ["pt", "Editorial"],
+            ],
+        }
+    )
+
+    # Original Articles Section
+    dummy_section.get()
+    mocker.result(
+        {
+            "code": "ABCD020",
+        }
+    )
+
+    dummy_section.get()
+    mocker.result(
+        {
+        "titles":
+            [
+                ["pt", "Artigos Originais"],
+                ["en", "Original Articles"]
+            ],
+        }
+    )
+
+    # Review Articles Section
+    dummy_section.get()
+    mocker.result(
+        {
+        "code": "ABCD030"
+        }
+    )
+    dummy_section.get()
+    mocker.result(
+        {
+        "titles":
+            [
+                ["pt", "Artigos de Revisão"],
+                ["en", "Review Articles"]
+            ],
+        }
+    )
+
+    # Report Cases Section
+    dummy_section.get()
+    mocker.result(
+        {
+        "code": "ABCD040"
+        }
+    )
+    dummy_section.get()
+    mocker.result(
+        {
+        "titles":
+            [
+                ["pt", "Relatos de Casos"],
+                ["en", "Case Reports"]
+            ],
+        }
+    )
 
     # Users resource
     dummy_slumber.users(ANY)
@@ -100,9 +188,10 @@ def dummy_slumber_factory(json_data):
             'name': 'Colégio Brasileiro de Cirurgia Digestiva - CBCD'
         }
     )
-    mocker.count(3)
+    #mocker.count(3)
     mocker.replay()
     return dummy_slumber
+
 
 def dummy_datetime_factory():
     mocker = Mocker()
@@ -131,6 +220,7 @@ def dummy_titlecollector_factory():
     mocker.replay()
     return dummy_titlecollector
 
+
 def dummy_issuecollector_factory():
     mocker = Mocker()
     dummy_issuecollector = mocker.mock()
@@ -143,6 +233,7 @@ def dummy_issuecollector_factory():
 
     mocker.replay()
     return dummy_issuecollector
+
 
 def dummy_transformer_factory():
     mocker = Mocker()
@@ -158,7 +249,8 @@ def dummy_transformer_factory():
     return dummy_transformer
 
 # Functional tests
-#################
+
+
 class ViewTests(unittest.TestCase):
     def setUp(self):
         self.config = testing.setUp()
@@ -217,8 +309,6 @@ class DataCollectorTests(unittest.TestCase):
         return DataCollector(resource_url, **kwargs)
 
     def test_instantiation(self):
-        from delorean.domain import DataCollector
-
         self.assertRaises(TypeError, lambda: self._makeOne(self.title_res))
 
 
@@ -249,8 +339,6 @@ class TitleCollectorTests(unittest.TestCase):
         self.assertTrue(isinstance(dc, TitleCollector))
 
     def test_gen_iterable(self):
-        from delorean.domain import TitleCollector
-
         dc = self._makeOne(self.title_res,
             slumber_lib=dummy_slumber_factory(self.valid_microset))
         it = iter(dc)
@@ -259,7 +347,7 @@ class TitleCollectorTests(unittest.TestCase):
     def test_get_data(self):
         import os
         import json
-        from delorean.domain import TitleCollector
+
         here = os.path.abspath(os.path.dirname(__file__))
 
         wrapper_struct = {'meta': {'next': None}, 'objects': []}
@@ -274,6 +362,7 @@ class TitleCollectorTests(unittest.TestCase):
         for record in dc:
             for field, value in record.items():
                 self.assertEqual(value, desired_journal_struct[field])
+
 
 class IssueCollectorTests(unittest.TestCase):
     issue_res = u'http://manager.scielo.org/api/v1/'
@@ -302,7 +391,6 @@ class IssueCollectorTests(unittest.TestCase):
         self.assertTrue(isinstance(dc, IssueCollector))
 
     def test_gen_iterable(self):
-        from delorean.domain import IssueCollector
 
         dc = self._makeOne(self.issue_res,
             slumber_lib=dummy_slumber_factory(self.valid_microset))
@@ -312,7 +400,6 @@ class IssueCollectorTests(unittest.TestCase):
     def test_get_data(self):
         import os
         import json
-        from delorean.domain import IssueCollector
 
         here = os.path.abspath(os.path.dirname(__file__))
 
@@ -326,8 +413,18 @@ class IssueCollectorTests(unittest.TestCase):
         desired_issue_struct = json.load(open(os.path.join(here, 'tests_assets/issue_meta_afterproc.json')))
 
         for record in dc:
-            for field, value in record.items():
-                self.assertEqual(value, desired_issue_struct[field])
+            for field, value in desired_issue_struct.items():
+                if not field in ('journal', 'sections'):
+                    self.assertEqual(value, record[field])
+
+                if field == 'journal':
+                    for jfield, jvalue in value.items():
+                        self.assertEqual(jvalue, record['journal'][jfield])
+
+                if field == 'sections':
+                    for sfield, svalue in value.items():
+                        self.assertEqual(sorted(svalue), sorted(record['sections'][sfield]))
+
 
 class TransformerTests(unittest.TestCase):
     tpl_basic = u'Pra frente, ${country}'
@@ -399,7 +496,6 @@ class TransformerTests(unittest.TestCase):
         expected_result = u'Pra frente, Brasil0\nPra frente, Brasil1'
         self.assertEqual(result, expected_result)
 
-
     def test_transformation_with_callable(self):
         """
         !ID 0
@@ -412,7 +508,7 @@ class TransformerTests(unittest.TestCase):
         def add_index(data_list):
             i = 0
             for item in data_list:
-                item.update({'i':i})
+                item.update({'i': i})
                 i += 1
 
         result = t.transform_list(
@@ -454,7 +550,9 @@ class TransformerTests(unittest.TestCase):
         Compares the generated with the expected id file
         line-by-line.
         """
-        import os, json, codecs
+        import os
+        import json
+        import codecs
 
         here = os.path.abspath(os.path.dirname(__file__))
         t = self._makeOne(filename=os.path.join(here, 'templates/title_db_entry.txt'))
@@ -462,15 +560,16 @@ class TransformerTests(unittest.TestCase):
         generated_id = t.transform(d).splitlines()
         canonical_id = codecs.open(os.path.join(here, 'tests_assets/journal_meta.id'), 'r', 'iso8859-1').readlines()
 
-        del(generated_id[0]) #removing a blank line
+        del(generated_id[0])  # removing a blank line
 
         removed_fields = []
         for i in xrange(len(generated_id)):
             if canonical_id[i] in removed_fields:
-               del(canonical_id[i])
+                del(canonical_id[i])
             self.assertEqual(generated_id[i].strip(), canonical_id[i].strip())
 
         self.assertEqual(len(generated_id), len(canonical_id))
+
 
 class BundleTests(unittest.TestCase):
     basic_data = [(u'arq_a', u'Arq A content'),
@@ -506,5 +605,3 @@ class BundleTests(unittest.TestCase):
     def test_deploy_data(self):
         p = self._makeOne(*self.basic_data)
         p.deploy('/tmp/files/zippedfile.tar')
-
-
