@@ -23,6 +23,8 @@ import slumber
 
 
 logger = logging.getLogger(__name__)
+ITEMS_PER_REQUEST = 50
+
 
 class ResourceUnavailableError(Exception):
     def __init__(self, *args, **kwargs):
@@ -123,7 +125,9 @@ class Transformer(object):
 
         for data in data_list:
             res.append(self.transform(data))
+
         return '\n'.join(res)
+
 
 class DataCollector(object):
     """
@@ -147,14 +151,15 @@ class DataCollector(object):
 
     def __iter__(self):
         offset = 0
+        limit = ITEMS_PER_REQUEST
         err_count = 0
 
         while True:
             try: # handles resource unavailability
-                page = self.resource.get(offset=offset)
+                page = self.resource.get(offset=offset, limit=limit)
             except requests.exceptions.ConnectionError as exc:
                 if err_count < 10:
-                    wait_secs = err_count*5
+                    wait_secs = err_count * 5
                     logger.info('Connection failed. Waiting %ss to retry.' % wait_secs)
                     time.sleep(wait_secs)
                     err_count += 1
@@ -173,7 +178,7 @@ class DataCollector(object):
                 if not page['meta']['next']:
                     raise StopIteration()
                 else:
-                    offset += 20
+                    offset += ITEMS_PER_REQUEST
                     err_count = 0
 
     def _lookup_field(self, endpoint, res_id, field):
