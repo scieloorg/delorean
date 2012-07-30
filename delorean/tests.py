@@ -53,7 +53,7 @@ def dummy_slumber_factory(json_data):
     mocker.count(10)
     mocker.result(dummy_journal)
 
-    dummy_journal.get(offset=ANY)
+    dummy_journal.get(offset=ANY, limit=ANY)
     mocker.result(json_data)
 
     dummy_journal.get()

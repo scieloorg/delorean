@@ -1,20 +1,34 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+import time
+import urllib2
+import json
 import os
 import tarfile
 import StringIO
 import tempfile
 import collections
 from datetime import datetime
+import logging
 from abc import (
     ABCMeta,
     abstractmethod,
 )
 
+import requests
 from mako.template import Template
 from mako.exceptions import RichTraceback
 import slumber
+
+
+logger = logging.getLogger(__name__)
+ITEMS_PER_REQUEST = 50
+
+
+class ResourceUnavailableError(Exception):
+    def __init__(self, *args, **kwargs):
+        super(ResourceUnavailableError, self).__init__(*args, **kwargs)
 
 
 class Bundle(object):
@@ -111,6 +125,7 @@ class Transformer(object):
 
         for data in data_list:
             res.append(self.transform(data))
+
         return '\n'.join(res)
 
 
@@ -136,23 +151,37 @@ class DataCollector(object):
 
     def __iter__(self):
         offset = 0
+        limit = ITEMS_PER_REQUEST
+        err_count = 0
 
         while True:
-            page = self.resource.get(offset=offset)
-
-            for obj in page['objects']:
-                # we are interested only in non-trashed items.
-                if obj.get('is_trashed'):
+            try: # handles resource unavailability
+                page = self.resource.get(offset=offset, limit=limit)
+            except requests.exceptions.ConnectionError as exc:
+                if err_count < 10:
+                    wait_secs = err_count * 5
+                    logger.info('Connection failed. Waiting %ss to retry.' % wait_secs)
+                    time.sleep(wait_secs)
+                    err_count += 1
                     continue
-
-                yield self.get_data(obj)
-
-            if not page['meta']['next']:
-                raise StopIteration()
+                else:
+                    logger.error('Unable to connect to resource (%s).' % exc)
+                    raise ResourceUnavailableError(exc)
             else:
-                offset += 20
+                for obj in page['objects']:
+                    # we are interested only in non-trashed items.
+                    if obj.get('is_trashed'):
+                        continue
 
-    def _lookup_field(self, endpoint, res_id, field, ):
+                    yield self.get_data(obj)
+
+                if not page['meta']['next']:
+                    raise StopIteration()
+                else:
+                    offset += ITEMS_PER_REQUEST
+                    err_count = 0
+
+    def _lookup_field(self, endpoint, res_id, field):
 
         def http_lookup():
             return getattr(self._api, endpoint)(res_id).get()[field]
