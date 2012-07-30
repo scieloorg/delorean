@@ -45,7 +45,7 @@ def dummy_slumber_factory(json_data):
     dummy_slumber.journals
     mocker.result(dummy_journal)
 
-    dummy_journal.get(offset=ANY)
+    dummy_journal.get(offset=ANY, limit=ANY)
     mocker.result(json_data)
 
     # Users resource
