@@ -1,11 +1,11 @@
 {
     "cover": null, 
-    "created": "2012-07-18T17:47:09.564504", 
+    "created": "20100601", 
     "ctrl_vocabulary": "decs", 
     "editorial_standard": "vancouv", 
     "id": "22615", 
     "is_marked_up": true, 
-    "is_press_release": false, 
+    "is_press_release": true, 
     "is_trashed": false, 
     "journal": {
         "title": "ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)",
@@ -13,31 +13,80 @@
         "scielo_issn": "print",
         "print_issn": "0102-6720",
         "electronic_issn": "",
-        "publisher": "Colégio Brasileiro de Cirurgia Digestiva",
+        "publisher": {
+            "name": "Colégio Brasileiro de Cirurgia Digestiva",
+            "city": "São Paulo"
+        },
         "sponsors": [
             "Brazilian Archives of Digestive Surgery"
         ],
-        "resource_uri": "/api/v1/journals/2647/"},
+        "resource_uri": "/api/v1/journals/2647/",
+        "acronym": "ABCD",
+        "title_iso": "ABCD, arq. bras. cir. dig",
+        "use_license": {
+            "disclaimer": "Licencia Creative Commons",
+            "id": "1",
+            "license_code": "BY-NC",
+            "reference_url": null,
+            "resource_uri": "/api/v1/uselicenses/1/"}
+    },
     "label": "v23n1", 
     "number": "1", 
-    "publication_end_month": 0, 
-    "publication_start_month": 3, 
+    "publication_end_month": 3, 
+    "publication_start_month": 1, 
     "publication_year": 2010, 
+    "publication_date": "20100300",
+    "display": {
+        "es":"^les^tABCD, arq. bras. cir. dig.^vvol.23^wsupl.2^nno.1^ssupl.2^cSão Paulo^mene./mar.^y2010",
+        "pt":"^lpt^tABCD, arq. bras. cir. dig.^vvol.23^wsupl.2^nno.1^ssupl.2^cSão Paulo^mJan./Mar.^y2010",
+        "en":"^len^tABCD, arq. bras. cir. dig.^vvol.23^wsuppl.2^nn.1^ssuppl.2^cSão Paulo^mJan./Mar.^y2010"
+    },
     "resource_uri": "/api/v1/issues/22615/", 
     "sections": {
-        "en": [
-            "Original Articles",
-            "Review Articles",
-            "Case Reports" 
+        "en":  [
+            {
+                "resource_id": 67227,
+                "title": "Original Articles"
+            },
+            {
+                "resource_id": 67226,
+                "title": "Review Articles"
+            },
+            {
+                "resource_id": 67233,
+                "title": "Case Reports"
+            },
+            {
+                "resource_id": 67221,
+                "title": "Technic"
+            }
         ],
-        "pt": [
-            "Editorial",
-            "Artigos Originais",
-            "Artigos de Revisão",
-            "Relatos de Casos"
+        "pt":  [
+            {
+                "resource_id": 67234,
+                "title": "Editorial"
+            },
+            {
+                "resource_id": 67227,
+                "title": "Artigos Originais"
+            },
+            {
+                "resource_id": 67226,
+                "title": "Artigos de Revisão"
+            },
+            {
+                "resource_id": 67233,
+                "title": "Relatos de Casos"
+            },
+            {
+                "resource_id": 67221,
+                "title": "Técnica"
+            }
         ]
     }, 
+    "suppl_number": "2", 
+    "suppl_volume": "2",
     "total_documents": 16, 
-    "updated": "2012-07-18T17:47:09.564531", 
+    "updated": "20120802",
     "volume": "23"
 }

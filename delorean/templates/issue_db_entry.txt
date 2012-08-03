@@ -1,41 +1,91 @@
-!v006!003
-!v030!ABCD, arq. bras. cir. dig.
-!v031!20
-!v032!3
-!v035!0102-6720
-!v036!20073
+<%! from collections import Iterable %>
+!ID 0
+##
+!v030!${journal['short_title']}
+##
+% if volume is not UNDEFINED and volume:
+!v031!${volume}
+% endif
+##
+% if number is not UNDEFINED and number:
+!v032!${number}
+%endif
+##
+% if journal['scielo_issn'] is not UNDEFINED and journal['scielo_issn']:
+% if journal['scielo_issn'] == 'print':
+!v035!${journal['print_issn']}
+% elif journal['scielo_issn'] is not UNDEFINED and journal['electronic_issn']:
+!v035!${journal['eletronic_issn']}
+% endif
+% endif
+!v036!20101
+% if is_press_release is not UNDEFINED and is_press_release:
+!v041!pr
+% endif
+% if is_trashed is not UNDEFINED and not is_trashed:
 !v042!1
-!v043!^les^tABCD, arq. bras. cir. dig.^vvol.20^nno.3^cS?o Paulo^mjul./set.^a2007
-!v043!^lpt^tABCD, arq. bras. cir. dig.^vvol.20^nno.3^cS?o Paulo^mjul./set.^a2007
-!v043!^len^tABCD, arq. bras. cir. dig.^vvol.20^nno.3^cS?o Paulo^mJuly/Sept.^a2007
+% endif
+##
+!v043!${display['es']}
+##
+!v043!${display['pt']}
+##
+!v043!${display['en']}
+##
 !v048!^les^hSumario
-!v048!^lpt^hSum?rio
+!v048!^lpt^hSumario
 !v048!^len^hTable of Contents
-!v049!^lpt^cABCD010^tEditorial
-!v049!^lpt^cABCD020^tArtigos Originais
-!v049!^len^cABCD020^tOrginal Articles
-!v049!^lpt^cABCD030^tArtigos de Revis?o
-!v049!^len^cABCD030^tReview Articles
-!v049!^lpt^cABCD040^tRelatos de Casos
-!v049!^len^cABCD040^tCase Reports
-!v065!20070900
-!v085!decs
-!v091!20120403
-!v122!17
-!v130!ABCD. Arquivos Brasileiros de Cirurgia Digestiva (S?o Paulo)
-!v151!ABCD, arq. bras. cir. dig
-!v117!vancouv
+##
+% if sections is not UNDEFINED and sections:
+% for language,titles in sections.items():
+% for title in titles:
+!v049!^l${language}^c${title['resource_id']}^t${title['title']}
+% endfor
+% endfor
+% endif
+!v065!${publication_date}  
+!v085!${ctrl_vocabulary}
+!v091!${created}
+!v117!${editorial_standard}
+!v122!${total_documents}
+!v130!${journal['title']}
+##
+% if suppl_volume is not UNDEFINED and suppl_volume:
+!v131!${suppl_volume}
+% endif
+##
+% if suppl_number is not UNDEFINED and suppl_number:
+!v132!${suppl_number}
+% endif
+##
+!v151!${journal['title_iso']}
+##
+% if is_marked_up is not UNDEFINED and is_marked_up == True:
 !v200!1
-!v230!Brazilian Archives of Digestive Surgery
-!v480!Col?gio Brasileiro de Cirurgia Digestiva
-!v540!^t<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc/3.0/80x15.png" /></a> Todo el contenido de esta revista, excepto d?nde est? identificado, est&#225; bajo una <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">Licencia Creative Commons</a>^les
-!v540!^t<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc/3.0/80x15.png" /></a> Todo o conte?do deste peri?dico, exceto onde est&#225 identificado, est&#225; licenciado sob uma <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">Licen&#231;a Creative Commons</a>^lpt
-!v540!^t<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc/3.0/80x15.png" /></a> All the contents of this journal, except where otherwise noted, is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">Creative Commons Attribution License</a>^len
-!v541!BY-NC
-!v700!0
-!v701!1
+% else:
+!v200!0
+% endif
+##
+% if isinstance(journal['sponsors'], Iterable):
+% for value in journal['sponsors']:
+!v230!${value}
+% endfor
+% endif
+##
+% if journal['publisher']['name'] is not UNDEFINED and journal['publisher']['name']:
+!v480!${journal['publisher']['name']}
+% endif
+!v540!^t${journal['use_license']['disclaimer']}^les
+!v540!^t${journal['use_license']['disclaimer']}^lpt
+!v540!^t${journal['use_license']['disclaimer']}^len
+!v541!${journal['use_license']['license_code']}
 !v706!i
-!v930!ABCD
-!v991!1
-!v935!0102-6720
-!v9999!../bases-work/abcd/abcd
+##
+!v930!${journal['acronym']}
+% if journal['scielo_issn'] is not UNDEFINED and journal['scielo_issn']:
+% if journal['scielo_issn'] == 'print' and journal['electronic_issn'] is not UNDEFINED and journal['electronic_issn']:
+!v935!${journal['eletronic_issn']}
+% elif journal['print_issn'] is not UNDEFINED and journal['print_issn']:
+!v935!${journal['print_issn']}
+% endif
+% endif

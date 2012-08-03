@@ -46,18 +46,18 @@ def dummy_slumber_factory(json_data):
 
     # Journals resource
     dummy_slumber.journals
-    mocker.count(10)
+    mocker.count(11)
     mocker.result(dummy_journal)
 
     dummy_journal(ANY)
-    mocker.count(10)
+    mocker.count(11)
     mocker.result(dummy_journal)
 
     dummy_journal.get(offset=ANY, limit=ANY)
     mocker.result(json_data)
 
     dummy_journal.get()
-    mocker.count(10)
+    mocker.count(11)
     mocker.result(
        {
         "title": "ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)",
@@ -65,11 +65,20 @@ def dummy_slumber_factory(json_data):
         "electronic_issn": "",
         "print_issn": "0102-6720",
         "scielo_issn": "print",
-        "publisher": "Colégio Brasileiro de Cirurgia Digestiva",
+        "publisher": "/api/v1/publishers/4253/",
         "sponsors": [
             "Brazilian Archives of Digestive Surgery"
         ],
-        "resource_uri": "/api/v1/journals/2647/"}
+        "resource_uri": "/api/v1/journals/2647/",
+        "acronym": "ABCD",
+        "title_iso": "ABCD, arq. bras. cir. dig",
+        "use_license": {
+            "disclaimer": "Licencia Creative Commons",
+            "id": "1",
+            "license_code": "BY-NC",
+            "reference_url": None,
+            "resource_uri": "/api/v1/uselicenses/1/"}
+        }
     )
 
     # Issue resource
@@ -81,19 +90,15 @@ def dummy_slumber_factory(json_data):
 
     # Section resource
     dummy_slumber.sections(ANY)
-    mocker.count(8)
+    mocker.count(10)
     mocker.result(dummy_section)
 
     # Editorial Section
     dummy_section.get()
+    mocker.count(2)
     mocker.result(
         {
-            "code": "ABCD010"
-        }
-    )
-    dummy_section.get()
-    mocker.result(
-        {
+        "resource_uri": "/api/v1/sections/67234/",
         "titles":
             [
                 ["pt", "Editorial"],
@@ -103,15 +108,10 @@ def dummy_slumber_factory(json_data):
 
     # Original Articles Section
     dummy_section.get()
+    mocker.count(2)
     mocker.result(
         {
-            "code": "ABCD020",
-        }
-    )
-
-    dummy_section.get()
-    mocker.result(
-        {
+        "resource_uri": "/api/v1/sections/67227/",
         "titles":
             [
                 ["pt", "Artigos Originais"],
@@ -122,14 +122,10 @@ def dummy_slumber_factory(json_data):
 
     # Review Articles Section
     dummy_section.get()
+    mocker.count(2)
     mocker.result(
         {
-        "code": "ABCD030"
-        }
-    )
-    dummy_section.get()
-    mocker.result(
-        {
+        "resource_uri": "/api/v1/sections/67226/",
         "titles":
             [
                 ["pt", "Artigos de Revisão"],
@@ -140,18 +136,28 @@ def dummy_slumber_factory(json_data):
 
     # Report Cases Section
     dummy_section.get()
+    mocker.count(2)
     mocker.result(
         {
-        "code": "ABCD040"
-        }
-    )
-    dummy_section.get()
-    mocker.result(
-        {
+        "resource_uri": "/api/v1/sections/67233/",
         "titles":
             [
                 ["pt", "Relatos de Casos"],
                 ["en", "Case Reports"]
+            ],
+        }
+    )
+
+    # Technic Section
+    dummy_section.get()
+    mocker.count(2)
+    mocker.result(
+        {
+        "resource_uri": "/api/v1/sections/67221/",
+        "titles":
+            [
+                ["pt", "Técnica"],
+                ["en", "Technic"]
             ],
         }
     )
@@ -169,12 +175,23 @@ def dummy_slumber_factory(json_data):
 
     # Publishers resource
     dummy_slumber.publishers(ANY)
+    mocker.count(2)
     mocker.result(dummy_publisher)
 
     dummy_publisher.get()
+    mocker.count(2)
     mocker.result(
         {
-            'name': 'Colégio Brasileiro de Cirurgia Digestiva'
+            'name': 'Colégio Brasileiro de Cirurgia Digestiva',
+            'city': 'São Paulo'
+        }
+    )
+
+    dummy_publisher.get(ANY)
+    mocker.result(
+        {
+            'name': 'Colégio Brasileiro de Cirurgia Digestiva',
+            'city': 'São Paulo'
         }
     )
 
@@ -414,7 +431,7 @@ class IssueCollectorTests(unittest.TestCase):
 
         for record in dc:
             for field, value in desired_issue_struct.items():
-                if not field in ('journal', 'sections'):
+                if not field in ('journal', 'sections', 'display'):
                     self.assertEqual(value, record[field])
 
                 if field == 'journal':
@@ -423,7 +440,12 @@ class IssueCollectorTests(unittest.TestCase):
 
                 if field == 'sections':
                     for sfield, svalue in value.items():
-                        self.assertEqual(sorted(svalue), sorted(record['sections'][sfield]))
+                        for idx, title in enumerate(svalue):
+                            self.assertEqual(sorted(title), sorted(record['sections'][sfield][idx]))
+
+                if field == 'display':
+                    for dfield, dvalue in value.items():
+                        self.assertEqual(dvalue, record['display'][dfield])
 
 
 class TransformerTests(unittest.TestCase):
@@ -562,10 +584,29 @@ class TransformerTests(unittest.TestCase):
 
         del(generated_id[0])  # removing a blank line
 
-        removed_fields = []
         for i in xrange(len(generated_id)):
-            if canonical_id[i] in removed_fields:
-                del(canonical_id[i])
+            self.assertEqual(generated_id[i].strip(), canonical_id[i].strip())
+
+        self.assertEqual(len(generated_id), len(canonical_id))
+
+    def test_issue_db_generation(self):
+        """
+        Compares the generated with the expected id file
+        line-by-line.
+        """
+        import os
+        import json
+        import codecs
+
+        here = os.path.abspath(os.path.dirname(__file__))
+        t = self._makeOne(filename=os.path.join(here, 'templates/issue_db_entry.txt'))
+        d = json.load(open(os.path.join(here, 'tests_assets/issue_meta_afterproc.json')))
+        generated_id = t.transform(d).splitlines()
+        canonical_id = codecs.open(os.path.join(here, 'tests_assets/issue_meta.id'), 'r', 'iso8859-1').readlines()
+
+        del(generated_id[0])  # removing a blank line
+
+        for i in xrange(len(canonical_id)):
             self.assertEqual(generated_id[i].strip(), canonical_id[i].strip())
 
         self.assertEqual(len(generated_id), len(canonical_id))

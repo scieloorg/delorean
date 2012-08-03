@@ -2,8 +2,6 @@
 from __future__ import unicode_literals
 
 import time
-import urllib2
-import json
 import os
 import tarfile
 import StringIO
@@ -155,7 +153,7 @@ class DataCollector(object):
         err_count = 0
 
         while True:
-            try: # handles resource unavailability
+            try:  # handles resource unavailability
                 page = self.resource.get(offset=offset, limit=limit)
             except requests.exceptions.ConnectionError as exc:
                 if err_count < 10:
@@ -217,8 +215,14 @@ class IssueCollector(DataCollector):
     _resource_name = 'issues'
 
     def get_data(self, obj):
+        import locale
+        import calendar
 
-        # lookup publisher
+        # Formating date from 2012-07-18T17:47:09.564504 to 20120718
+        obj['created'] = obj['created'][:10].replace('-', '')
+        obj['updated'] = obj['updated'][:10].replace('-', '')
+
+        # lookup journal
         journalid = obj['journal'].strip('/').split('/')[-1]
         obj['journal'] = self._lookup_fields('journals', journalid, ['title',
                                                                      'short_title',
@@ -227,20 +231,98 @@ class IssueCollector(DataCollector):
                                                                      'print_issn',
                                                                      'electronic_issn',
                                                                      'scielo_issn',
-                                                                     'resource_uri'
+                                                                     'resource_uri',
+                                                                     'acronym',
+                                                                     'title_iso',
+                                                                     'use_license'
                                                                      ])
+
+        # lookup publisher
+        pubid = obj['journal']['publisher'].strip('/').split('/')[-1]
+        obj['journal']['publisher'] = self._lookup_fields('publishers', pubid, ['name',
+                                                                               'city'
+                                                                               ])
+
+        # Formating publication date, must have 00 for the days digits.
+        pub_month = "%02d" % obj['publication_end_month']
+        obj['publication_date'] = str(obj['publication_year']) + pub_month + '00'
+
         sections = {}
         # lookup sections
         for section in obj['sections']:
             sectionid = section.strip('/').split('/')[-1]
-            x = self._lookup_fields('sections', sectionid, ['code',
-                                                            'titles'])
+            x = self._lookup_fields('sections', sectionid, ['resource_uri',
+                                                            'titles'
+                                                            ])
 
             for translation in x['titles']:
                 sections.setdefault(translation[0], [])
-                sections[translation[0]].append(translation[1])
+                title = {
+                    "title": translation[1],
+                    "resource_id": x['resource_uri'].strip('/').split('/')[-1]
+                }
+                sections[translation[0]].append(title)
 
         obj['sections'] = sections
+
+        # Issue Label ShortTitle
+
+        obj['display'] = {}
+        obj['display']['pt'] = "^lpt"
+        obj['display']['en'] = "^len"
+        obj['display']['es'] = "^les"
+
+        # Short Title
+        if 'short_title' in obj['journal']:
+            obj['display']['pt'] += '^t' + obj['journal']['short_title']
+            obj['display']['en'] += '^t' + obj['journal']['short_title']
+            obj['display']['es'] += '^t' + obj['journal']['short_title']
+
+        # Volume
+        if 'volume' in obj:
+            obj['display']['pt'] += '^vvol.' + obj['volume']
+            obj['display']['en'] += '^vvol.' + obj['volume']
+            obj['display']['es'] += '^vvol.' + obj['volume']
+
+        # Volume Supplement
+        if 'suppl_volume' in obj:
+            obj['display']['pt'] += '^wsupl.' + obj['suppl_volume']
+            obj['display']['en'] += '^wsuppl.' + obj['suppl_volume']
+            obj['display']['es'] += '^wsupl.' + obj['suppl_volume']
+
+        # Number
+        if 'number' in obj:
+            obj['display']['pt'] += '^nno.' + obj['number']
+            obj['display']['en'] += '^nn.' + obj['number']
+            obj['display']['es'] += '^nno.' + obj['number']
+
+        # Number Supplement
+        if 'suppl_number' in obj:
+            obj['display']['pt'] += '^ssupl.' + obj['suppl_number']
+            obj['display']['en'] += '^ssuppl.' + obj['suppl_number']
+            obj['display']['es'] += '^ssupl.' + obj['suppl_number']
+
+        # City
+        if 'city' in obj['journal']['publisher']:
+            obj['display']['pt'] += '^c' + obj['journal']['publisher']['city']
+            obj['display']['en'] += '^c' + obj['journal']['publisher']['city']
+            obj['display']['es'] += '^c' + obj['journal']['publisher']['city']
+
+        # Period
+        locale.setlocale(locale.LC_ALL, 'pt_BR'.encode('utf8'))
+        obj['display']['pt'] += '^m' + calendar.month_abbr[obj['publication_start_month']] + './' + calendar.month_abbr[obj['publication_end_month']] + '.'
+        locale.setlocale(locale.LC_ALL, 'en_US'.encode('utf8'))
+        obj['display']['en'] += '^m' + calendar.month_abbr[obj['publication_start_month']] + './' + calendar.month_abbr[obj['publication_end_month']] + '.'
+        locale.setlocale(locale.LC_ALL, 'es_ES'.encode('utf8'))
+        obj['display']['es'] += '^m' + calendar.month_abbr[obj['publication_start_month']] + './' + calendar.month_abbr[obj['publication_end_month']] + '.'
+
+        # Resetando locale para default.
+        locale.setlocale(locale.LC_ALL, '')
+
+        # Year
+        obj['display']['pt'] += '^y' + str(obj['publication_year'])
+        obj['display']['en'] += '^y' + str(obj['publication_year'])
+        obj['display']['es'] += '^y' + str(obj['publication_year'])
 
         return obj
 

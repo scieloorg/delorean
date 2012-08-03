@@ -1,41 +1,42 @@
-!v006!009
+!ID 0
 !v030!ABCD, arq. bras. cir. dig.
 !v031!23
 !v032!1
 !v035!0102-6720
 !v036!20101
+!v041!pr
 !v042!1
-!v043!^les^tABCD, arq. bras. cir. dig.^vvol.20^nno.3^cSão Paulo^mjul./set.^a2007
-!v043!^lpt^tABCD, arq. bras. cir. dig.^vvol.20^nno.3^cSão Paulo^mjul./set.^a2007
-!v043!^len^tABCD, arq. bras. cir. dig.^vvol.20^nno.3^cSão Paulo^mJuly/Sept.^a2007
+!v043!^les^tABCD, arq. bras. cir. dig.^vvol.23^wsupl.2^nno.1^ssupl.2^cSão Paulo^mene./mar.^y2010
+!v043!^lpt^tABCD, arq. bras. cir. dig.^vvol.23^wsupl.2^nno.1^ssupl.2^cSão Paulo^mJan./Mar.^y2010
+!v043!^len^tABCD, arq. bras. cir. dig.^vvol.23^wsuppl.2^nn.1^ssuppl.2^cSão Paulo^mJan./Mar.^y2010
 !v048!^les^hSumario
-!v048!^lpt^hSumário
+!v048!^lpt^hSumario
 !v048!^len^hTable of Contents
-!v049!^lpt^cABCD010^tEditorial
-!v049!^lpt^cABCD020^tArtigos Originais
-!v049!^len^cABCD020^tOriginal Articles
-!v049!^lpt^cABCD030^tArtigos de Revisão
-!v049!^len^cABCD030^tReview Articles
-!v049!^lpt^cABCD040^tRelatos de Casos
-!v049!^len^cABCD040^tCase Reports
+!v049!^len^c67227^tOriginal Articles
+!v049!^len^c67226^tReview Articles
+!v049!^len^c67233^tCase Reports
+!v049!^len^c67221^tTechnic
+!v049!^lpt^c67234^tEditorial
+!v049!^lpt^c67227^tArtigos Originais
+!v049!^lpt^c67226^tArtigos de Revisão
+!v049!^lpt^c67233^tRelatos de Casos
+!v049!^lpt^c67221^tTécnica
 !v065!20100300
 !v085!decs
-!v091!20100622
+!v091!20100601
+!v117!vancouv
 !v122!16
 !v130!ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)
+!v131!2
+!v132!2
 !v151!ABCD, arq. bras. cir. dig
-!v117!vancouv
 !v200!1
 !v230!Brazilian Archives of Digestive Surgery
-!v480!ColÃ©gio Brasileiro de Cirurgia Digestiva
-!v540!^t<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc/3.0/80x15.png" /></a> Todo el contenido de esta revista, excepto dónde está identificado, est&#225; bajo una <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">Licencia Creative Commons</a>^les
-!v540!^t<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc/3.0/80x15.png" /></a> Todo o conteúdo deste periódico, exceto onde est&#225 identificado, est&#225; licenciado sob uma <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">Licen&#231;a Creative Commons</a>^lpt
-!v540!^t<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc/3.0/80x15.png" /></a> All the contents of this journal, except where otherwise noted, is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">Creative Commons Attribution License</a>^len
+!v480!Colégio Brasileiro de Cirurgia Digestiva
+!v540!^tLicencia Creative Commons^les
+!v540!^tLicencia Creative Commons^lpt
+!v540!^tLicencia Creative Commons^len
 !v541!BY-NC
-!v700!0
-!v701!1
 !v706!i
 !v930!ABCD
-!v991!1
 !v935!0102-6720
-!v9999!../bases-work/abcd/abcd
