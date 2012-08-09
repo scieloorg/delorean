@@ -1,6 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
-
+import os
+import json
 import unittest
 
 from mocker import (
@@ -361,7 +362,7 @@ class DataCollectorTests(unittest.TestCase):
         self.assertRaises(TypeError, lambda: self._makeOne(self.title_res))
 
 
-class TitleCollectorTests(unittest.TestCase):
+class TitleCollectorTests(MockerTestCase):
     title_res = u'http://manager.scielo.org/api/v1/'
     valid_microset = {
         'objects': [
@@ -383,28 +384,95 @@ class TitleCollectorTests(unittest.TestCase):
     def test_instantiation(self):
         from delorean.domain import TitleCollector
 
+        dummy_slumber = self.mocker.mock()
+        dummy_journal = self.mocker.mock()
+
+        dummy_slumber.API(ANY)
+        self.mocker.result(dummy_slumber)
+
+        dummy_slumber.journals
+        self.mocker.result(dummy_journal)
+
+        self.mocker.replay()
+
         dc = self._makeOne(self.title_res,
-            slumber_lib=dummy_slumber_factory(self.valid_microset))
+            slumber_lib=dummy_slumber)
         self.assertTrue(isinstance(dc, TitleCollector))
 
     def test_gen_iterable(self):
+        dummy_slumber = self.mocker.mock()
+        dummy_journal = self.mocker.mock()
+
+        dummy_slumber.API(ANY)
+        self.mocker.result(dummy_slumber)
+
+        dummy_slumber.journals
+        self.mocker.result(dummy_journal)
+
+        self.mocker.replay()
+
         dc = self._makeOne(self.title_res,
-            slumber_lib=dummy_slumber_factory(self.valid_microset))
+            slumber_lib=dummy_slumber)
         it = iter(dc)
         self.assertTrue(hasattr(it, 'next'))
 
     def test_get_data(self):
-        import os
-        import json
-
         here = os.path.abspath(os.path.dirname(__file__))
+        journal_data = {'meta': {'next': None}, 'objects': []}
+        d = json.load(open(os.path.join(here,
+            'tests_assets/journal_meta_beforeproc.json')))
+        journal_data['objects'].append(d)
 
-        wrapper_struct = {'meta': {'next': None}, 'objects': []}
-        d = json.load(open(os.path.join(here, 'tests_assets/journal_meta_beforeproc.json')))
-        wrapper_struct['objects'].append(d)
+        dummy_slumber = self.mocker.mock()
+        dummy_journal = self.mocker.mock()
+        dummy_user = self.mocker.mock()
+        dummy_publisher = self.mocker.mock()
+        dummy_sponsor = self.mocker.mock()
+
+        dummy_slumber.API(ANY)
+        self.mocker.result(dummy_slumber)
+
+        dummy_slumber.journals
+        self.mocker.result(dummy_journal)
+
+        dummy_journal.get(offset=ANY, limit=ANY)
+        self.mocker.result(journal_data)
+
+        dummy_slumber.users(ANY)
+        self.mocker.result(dummy_user)
+
+        dummy_user.get()
+        self.mocker.result(
+            {
+                'username': 'albert.einstein@scielo.org',
+            }
+        )
+
+        dummy_slumber.publishers(ANY)
+        self.mocker.result(dummy_publisher)
+
+        dummy_publisher.get()
+        self.mocker.result(
+            {
+                'name': 'Colégio Brasileiro de Cirurgia Digestiva',
+                'city': 'São Paulo'
+            }
+        )
+
+        dummy_slumber.sponsors(ANY)
+        self.mocker.result(dummy_sponsor)
+
+        dummy_sponsor.get()
+        self.mocker.result(
+            {
+                'name': 'Colégio Brasileiro de Cirurgia Digestiva - CBCD'
+            }
+        )
+
+        self.mocker.replay()
 
         dc = self._makeOne(self.title_res,
-            slumber_lib=dummy_slumber_factory(wrapper_struct))
+            slumber_lib=dummy_slumber)
 
         desired_journal_struct = json.load(open(os.path.join(here, 'tests_assets/journal_meta_afterproc.json')))
 
@@ -413,7 +481,7 @@ class TitleCollectorTests(unittest.TestCase):
                 self.assertEqual(value, desired_journal_struct[field])
 
 
-class IssueCollectorTests(unittest.TestCase):
+class IssueCollectorTests(MockerTestCase):
     issue_res = u'http://manager.scielo.org/api/v1/'
     valid_microset = {
         'objects': [
@@ -435,29 +503,124 @@ class IssueCollectorTests(unittest.TestCase):
     def test_instantiation(self):
         from delorean.domain import IssueCollector
 
+        dummy_slumber = self.mocker.mock()
+        dummy_issues = self.mocker.mock()
+
+        dummy_slumber.API(ANY)
+        self.mocker.result(dummy_slumber)
+
+        dummy_slumber.issues
+        self.mocker.result(dummy_issues)
+
+        self.mocker.replay()
+
         dc = self._makeOne(self.issue_res,
-            slumber_lib=dummy_slumber_factory(self.valid_microset))
+            slumber_lib=dummy_slumber)
         self.assertTrue(isinstance(dc, IssueCollector))
 
     def test_gen_iterable(self):
+        dummy_slumber = self.mocker.mock()
+        dummy_issues = self.mocker.mock()
+
+        dummy_slumber.API(ANY)
+        self.mocker.result(dummy_slumber)
+
+        dummy_slumber.issues
+        self.mocker.result(dummy_issues)
+
+        self.mocker.replay()
 
         dc = self._makeOne(self.issue_res,
-            slumber_lib=dummy_slumber_factory(self.valid_microset))
+            slumber_lib=dummy_slumber)
         it = iter(dc)
         self.assertTrue(hasattr(it, 'next'))
 
     def test_get_data(self):
-        import os
-        import json
 
         here = os.path.abspath(os.path.dirname(__file__))
 
-        wrapper_struct = {'meta': {'next': None}, 'objects': []}
+        issue_data = {'meta': {'next': None}, 'objects': []}
         d = json.load(open(os.path.join(here, 'tests_assets/issue_meta_beforeproc.json')))
-        wrapper_struct['objects'].append(d)
+        issue_data['objects'].append(d)
+
+        journal_data = {
+            "title": "ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)",
+            "short_title": "ABCD, arq. bras. cir. dig.",
+            "electronic_issn": "",
+            "print_issn": "0102-6720",
+            "scielo_issn": "print",
+            "publisher": "/api/v1/publishers/4253/",
+            "sponsors": [
+                "Brazilian Archives of Digestive Surgery"
+            ],
+            "resource_uri": "/api/v1/journals/2647/",
+            "acronym": "ABCD",
+            "title_iso": "ABCD, arq. bras. cir. dig",
+            "use_license": {
+                "disclaimer": "Licencia Creative Commons",
+                "id": "1",
+                "license_code": "BY-NC",
+                "reference_url": None,
+                "resource_uri": "/api/v1/uselicenses/1/"}
+            }
+
+        publisher_data = {
+            'name': 'Colégio Brasileiro de Cirurgia Digestiva',
+            'city': 'São Paulo'
+        }
+
+        section_data = {
+            "resource_uri": "/api/v1/sections/67221/",
+            "titles":
+                [
+                    ["pt", "Técnica"],
+                    ["en", "Technic"]
+                ],
+        }
+
+        dummy_slumber = self.mocker.mock()
+        dummy_issue = self.mocker.mock()
+        dummy_journal = self.mocker.mock()
+        dummy_publisher = self.mocker.mock()
+        dummy_section = self.mocker.mock()
+
+        dummy_slumber.API(ANY)
+        self.mocker.result(dummy_slumber)
+
+        dummy_slumber.issues
+        self.mocker.result(dummy_issue)
+
+        dummy_issue.get(offset=ANY, limit=ANY)
+        self.mocker.result(issue_data)
+
+        dummy_slumber.journals(ANY)
+        self.mocker.result(dummy_journal)
+        self.mocker.count(11)
+
+        dummy_journal.get()
+        self.mocker.result(journal_data)
+        self.mocker.count(11)
+
+        dummy_slumber.publishers(ANY)
+        self.mocker.result(dummy_publisher)
+        self.mocker.count(2)
+
+        dummy_publisher.get()
+        self.mocker.result(publisher_data)
+        self.mocker.count(2)
+
+        dummy_slumber.sections(ANY)
+        self.mocker.result(dummy_section)
+        self.mocker.count(10)
+
+        dummy_section.get()
+        self.mocker.result(section_data)
+        self.mocker.count(10)
+
+        self.mocker.replay()
 
         dc = self._makeOne(self.issue_res,
-            slumber_lib=dummy_slumber_factory(wrapper_struct))
+            slumber_lib=dummy_slumber)
 
         desired_issue_struct = json.load(open(os.path.join(here, 'tests_assets/issue_meta_afterproc.json')))
 
