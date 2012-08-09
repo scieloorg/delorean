@@ -146,6 +146,7 @@ class DataCollector(object):
         # memoization to avoid unecessary field lookups
         # Ex.: _memo['publishers']['1'] = 'Unesp'
         self._memo = {}
+        self._last_resource = {}
 
     def __iter__(self):
         offset = 0
@@ -182,7 +183,18 @@ class DataCollector(object):
     def _lookup_field(self, endpoint, res_id, field):
 
         def http_lookup():
-            return getattr(self._api, endpoint)(res_id).get()[field]
+            """
+            The last accessed resource is cached,
+            in order to improve multiple fields lookup
+            on the same resouce.
+            """
+            res_lookup_key = '%s-%s' % (endpoint, res_id)
+            if res_lookup_key not in self._last_resource:
+                self._last_resource = {}  # release the memory
+                self._last_resource[res_lookup_key] = getattr(
+                    self._api, endpoint)(res_id).get()
+
+            return self._last_resource[res_lookup_key]
 
         one_step_before = self._memo.setdefault(
                 endpoint, {}).setdefault(
@@ -191,7 +203,7 @@ class DataCollector(object):
         try:
             return one_step_before[field]
         except KeyError:
-            one_step_before[field] = http_lookup()
+            one_step_before[field] = http_lookup()[field]
             return one_step_before[field]
 
     def _lookup_fields(self, endpoint, res_id, fields):

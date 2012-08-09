@@ -340,27 +340,27 @@ class IssueCollectorTests(MockerTestCase):
 
         dummy_slumber.journals(ANY)
         self.mocker.result(dummy_journal)
-        self.mocker.count(11)
+        self.mocker.count(1)
 
         dummy_journal.get()
         self.mocker.result(journal_data)
-        self.mocker.count(11)
+        self.mocker.count(1)
 
         dummy_slumber.publishers(ANY)
         self.mocker.result(dummy_publisher)
-        self.mocker.count(2)
+        self.mocker.count(1)
 
         dummy_publisher.get()
         self.mocker.result(publisher_data)
-        self.mocker.count(2)
+        self.mocker.count(1)
 
         dummy_slumber.sections(ANY)
         self.mocker.result(dummy_section)
-        self.mocker.count(10)
+        self.mocker.count(5)
 
         dummy_section.get()
         self.mocker.result(section_data)
-        self.mocker.count(10)
+        self.mocker.count(5)
 
         self.mocker.replay()
 
