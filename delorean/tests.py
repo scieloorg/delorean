@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 import os
 import json
 import unittest
+import codecs
+import tarfile
 
 from mocker import (
     MockerTestCase,
@@ -748,7 +750,6 @@ class TransformerTests(unittest.TestCase):
             u'!ID 0\n!v100!ABCD. Arquivos Brasileiros\n!v350!en\n!v350!pt\n'.split('\n'))
 
     def test_compound_transformation_filebased(self):
-        import os
         here = os.path.abspath(os.path.dirname(__file__))
         t = self._makeOne(filename=os.path.join(here, 'tests_assets/basic_compound.txt'))
         d = {
@@ -767,10 +768,6 @@ class TransformerTests(unittest.TestCase):
         Compares the generated with the expected id file
         line-by-line.
         """
-        import os
-        import json
-        import codecs
-
         here = os.path.abspath(os.path.dirname(__file__))
         t = self._makeOne(filename=os.path.join(here, 'templates/title_db_entry.txt'))
         d = json.load(open(os.path.join(here, 'tests_assets/journal_meta_afterproc.json')))
@@ -789,10 +786,6 @@ class TransformerTests(unittest.TestCase):
         Compares the generated with the expected id file
         line-by-line.
         """
-        import os
-        import json
-        import codecs
-
         here = os.path.abspath(os.path.dirname(__file__))
         t = self._makeOne(filename=os.path.join(here, 'templates/issue_db_entry.txt'))
         d = json.load(open(os.path.join(here, 'tests_assets/issue_meta_afterproc.json')))
@@ -827,7 +820,6 @@ class BundleTests(unittest.TestCase):
         self.assertTrue(isinstance(p, Bundle))
 
     def test_generate_tarball(self):
-        import tarfile
         data_as_dict = dict(self.basic_data)
         p = self._makeOne(*self.basic_data)
         tar_handler = p._tar()
