@@ -1,0 +1,91 @@
+<%! from collections import Iterable %>
+!ID 0
+##
+!v030!${journal['short_title']}
+##
+% if volume is not UNDEFINED and volume:
+!v031!${volume}
+% endif
+##
+% if number is not UNDEFINED and number:
+!v032!${number}
+%endif
+##
+% if journal['scielo_issn'] is not UNDEFINED and journal['scielo_issn']:
+% if journal['scielo_issn'] == 'print':
+!v035!${journal['print_issn']}
+% elif journal['scielo_issn'] is not UNDEFINED and journal['electronic_issn']:
+!v035!${journal['eletronic_issn']}
+% endif
+% endif
+!v036!20101
+% if is_press_release is not UNDEFINED and is_press_release:
+!v041!pr
+% endif
+% if is_trashed is not UNDEFINED and not is_trashed:
+!v042!1
+% endif
+##
+!v043!${display['es']}
+##
+!v043!${display['pt']}
+##
+!v043!${display['en']}
+##
+!v048!^les^hSumario
+!v048!^lpt^hSumario
+!v048!^len^hTable of Contents
+##
+% if sections is not UNDEFINED and sections:
+% for language,titles in sections.items():
+% for title in titles:
+!v049!^l${language}^c${title['resource_id']}^t${title['title']}
+% endfor
+% endfor
+% endif
+!v065!${publication_date}  
+!v085!${ctrl_vocabulary}
+!v091!${created}
+!v117!${editorial_standard}
+!v122!${total_documents}
+!v130!${journal['title']}
+##
+% if suppl_volume is not UNDEFINED and suppl_volume:
+!v131!${suppl_volume}
+% endif
+##
+% if suppl_number is not UNDEFINED and suppl_number:
+!v132!${suppl_number}
+% endif
+##
+!v151!${journal['title_iso']}
+##
+% if is_marked_up is not UNDEFINED and is_marked_up == True:
+!v200!1
+% else:
+!v200!0
+% endif
+##
+% if isinstance(journal['sponsors'], Iterable):
+% for value in journal['sponsors']:
+!v230!${value}
+% endfor
+% endif
+##
+% if journal['publisher']['name'] is not UNDEFINED and journal['publisher']['name']:
+!v480!${journal['publisher']['name']}
+% endif
+!v540!^t${journal['use_license']['disclaimer']}^les
+!v540!^t${journal['use_license']['disclaimer']}^lpt
+!v540!^t${journal['use_license']['disclaimer']}^len
+!v541!${journal['use_license']['license_code']}
+!v706!i
+##
+!v930!${journal['acronym']}
+% if journal['scielo_issn'] is not UNDEFINED and journal['scielo_issn']:
+% if journal['scielo_issn'] == 'print' and journal['electronic_issn'] is not UNDEFINED and journal['electronic_issn']:
+!v935!${journal['eletronic_issn']}
+% elif journal['print_issn'] is not UNDEFINED and journal['print_issn']:
+!v935!${journal['print_issn']}
+% endif
+% endif
