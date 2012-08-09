@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import unittest
 
 from mocker import (
+    MockerTestCase,
     Mocker,
     ANY,
 )
@@ -284,7 +285,7 @@ class ViewTests(unittest.TestCase):
 
 # Unit tests
 #################
-class DeLoreanTests(unittest.TestCase):
+class DeLoreanTests(MockerTestCase):
     def setUp(self):
         self.config = testing.setUp()
 
@@ -296,16 +297,47 @@ class DeLoreanTests(unittest.TestCase):
         return DeLorean(*args, **kwargs)
 
     def test_generate_filename(self):
+        dummy_datetime = self.mocker.mock()
+
+        dummy_datetime.now()
+        self.mocker.result(None)
+
+        dummy_datetime.strftime(ANY, ANY)
+        self.mocker.result('20120712-10:07:34:803942')
+
+        self.mocker.replay()
+
         dl = self._makeOne('http://localhost:8000/api/v1/',
-                           datetime_lib=dummy_datetime_factory())
+                           datetime_lib=dummy_datetime)
         self.assertEqual(dl._generate_filename('title'),
             'title-20120712-10:07:34:803942.tar')
 
     def test_generate_title_bundle(self):
+        dummy_datetime = self.mocker.mock()
+        dummy_titlecollector = self.mocker.mock()
+        dummy_transformer = self.mocker.mock()
+
+        dummy_datetime.now()
+        self.mocker.result(None)
+
+        dummy_datetime.strftime(ANY, ANY)
+        self.mocker.result('20120712-10:07:34:803942')
+
+        dummy_titlecollector(ANY)
+        self.mocker.result(dummy_titlecollector)
+
+        dummy_transformer(filename=ANY)
+        self.mocker.result(dummy_transformer)
+
+        dummy_transformer.transform_list(ANY)
+        self.mocker.result('!ID 0\n')
+
+        self.mocker.replay()
+
         dl = self._makeOne('http://localhost:8000/api/v1/',
-                           datetime_lib=dummy_datetime_factory(),
-                           titlecollector=dummy_titlecollector_factory(),
-                           transformer=dummy_transformer_factory())
+                           datetime_lib=dummy_datetime,
+                           titlecollector=dummy_titlecollector,
+                           transformer=dummy_transformer)
         bundle_url = dl.generate_title()
         self.assertEqual(bundle_url,
             'title-20120712-10:07:34:803942.tar')
