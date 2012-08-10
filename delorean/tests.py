@@ -282,7 +282,8 @@ class IssueCollectorTests(MockerTestCase):
             "electronic_issn": "",
             "print_issn": "0102-6720",
             "scielo_issn": "print",
-            "publisher": "/api/v1/publishers/4253/",
+            "publisher_name": "Colégio Brasileiro de Cirurgia Digestiva",
+            "publication_city": "São Paulo",
             "sponsors": [
                 "Brazilian Archives of Digestive Surgery"
             ],
@@ -297,11 +298,6 @@ class IssueCollectorTests(MockerTestCase):
                 "resource_uri": "/api/v1/uselicenses/1/"}
             }
 
-        publisher_data = {
-            'name': 'Colégio Brasileiro de Cirurgia Digestiva',
-            'city': 'São Paulo'
-        }
-
         section_data = {
             "resource_uri": "/api/v1/sections/67221/",
             "titles":
@@ -314,7 +310,6 @@ class IssueCollectorTests(MockerTestCase):
         dummy_slumber = self.mocker.mock()
         dummy_issue = self.mocker.mock()
         dummy_journal = self.mocker.mock()
-        dummy_publisher = self.mocker.mock()
         dummy_section = self.mocker.mock()
 
         dummy_slumber.API(ANY)
@@ -332,14 +327,6 @@ class IssueCollectorTests(MockerTestCase):
 
         dummy_journal.get()
         self.mocker.result(journal_data)
-        self.mocker.count(1)
-
-        dummy_slumber.publishers(ANY)
-        self.mocker.result(dummy_publisher)
-        self.mocker.count(1)
-
-        dummy_publisher.get()
-        self.mocker.result(publisher_data)
         self.mocker.count(1)
 
         dummy_slumber.sections(ANY)

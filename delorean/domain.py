@@ -238,7 +238,8 @@ class IssueCollector(DataCollector):
         journalid = obj['journal'].strip('/').split('/')[-1]
         obj['journal'] = self._lookup_fields('journals', journalid, ['title',
                                                                      'short_title',
-                                                                     'publisher',
+                                                                     'publisher_name',
+                                                                     'publication_city',
                                                                      'sponsors',
                                                                      'print_issn',
                                                                      'electronic_issn',
@@ -248,12 +249,6 @@ class IssueCollector(DataCollector):
                                                                      'title_iso',
                                                                      'use_license'
                                                                      ])
-
-        # lookup publisher
-        pubid = obj['journal']['publisher'].strip('/').split('/')[-1]
-        obj['journal']['publisher'] = self._lookup_fields('publishers', pubid, ['name',
-                                                                               'city'
-                                                                               ])
 
         # Formating publication date, must have 00 for the days digits.
         pub_month = "%02d" % obj['publication_end_month']
@@ -315,10 +310,10 @@ class IssueCollector(DataCollector):
             obj['display']['es'] += '^ssupl.' + obj['suppl_number']
 
         # City
-        if 'city' in obj['journal']['publisher']:
-            obj['display']['pt'] += '^c' + obj['journal']['publisher']['city']
-            obj['display']['en'] += '^c' + obj['journal']['publisher']['city']
-            obj['display']['es'] += '^c' + obj['journal']['publisher']['city']
+        if 'publication_city' in obj['journal']:
+            obj['display']['pt'] += '^c' + obj['journal']['publication_city']
+            obj['display']['en'] += '^c' + obj['journal']['publication_city']
+            obj['display']['es'] += '^c' + obj['journal']['publication_city']
 
         # Period
         locale.setlocale(locale.LC_ALL, 'pt_BR'.encode('utf8'))

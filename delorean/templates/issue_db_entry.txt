@@ -72,8 +72,8 @@
 % endfor
 % endif
 ##
-% if journal['publisher']['name'] is not UNDEFINED and journal['publisher']['name']:
-!v480!${journal['publisher']['name']}
+% if journal['publisher_name'] is not UNDEFINED and journal['publisher_name']:
+!v480!${journal['publisher_name']}
 % endif
 !v540!^t${journal['use_license']['disclaimer']}^les
 !v540!^t${journal['use_license']['disclaimer']}^lpt
