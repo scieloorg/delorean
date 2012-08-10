@@ -7,6 +7,7 @@
     "collections": [
         "/api/v1/collections/1/"
     ],
+    "contact": null,
     "copyrighter": "Colégio Brasileiro de Cirurgia Digestiva - CBCD",
     "cover": null,
     "created": "2012-07-05T11:36:07.680706",
@@ -76,7 +77,10 @@
     "pub_level": "CT",
     "pub_status": "current",
     "pub_status_reason": "",
-    "publisher": "/api/v1/publishers/1/",
+    "publisher_name": "Colégio Brasileiro de Cirurgia Digestiva",
+    "publisher_state": "SP",
+    "publisher_country": "BR",
+    "publication_city": "São Paulo",
     "resource_uri": "/api/v1/journals/1/",
     "scielo_issn": "print",
     "secs_code": "6633",
@@ -96,12 +100,9 @@
         {"date": "2008-08-01T00:00:00", "status": "suspended"},
         {"date": "1998-04-30T00:00:00", "status": "current"}
     ],
-    "contact": {
-        "email": "cbcd@cbcd.org.br",
-        "name": "Col\u00e9gio Brasileiro de Cirurgia Digestiva"
-    },
     "study_areas": ["Health Sciences"],
-    "address": "Av. Brigadeiro Luiz Antonio, 278 - 6° - Salas 10 e 11 01318-901 São Paulo/SP Brasil Tel.: (11) 3288-8174/3289-0741",
+    "editor_address": "Av. Brigadeiro Luiz Antonio, 278 - 6° - Salas 10 e 11 01318-901 São Paulo/SP Brasil Tel.: (11) 3288-8174/3289-0741",
+    "editor_email": "cbcd@cbcd.org.br",
     "use_license": {
         "disclaimer": "Licencia Creative Commons",
         "id": "1",

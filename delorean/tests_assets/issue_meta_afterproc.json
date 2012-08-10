@@ -13,10 +13,8 @@
         "scielo_issn": "print",
         "print_issn": "0102-6720",
         "electronic_issn": "",
-        "publisher": {
-            "name": "Colégio Brasileiro de Cirurgia Digestiva",
-            "city": "São Paulo"
-        },
+        "publisher_name": "Colégio Brasileiro de Cirurgia Digestiva",
+        "publication_city": "São Paulo",
         "sponsors": [
             "Brazilian Archives of Digestive Surgery"
         ],
