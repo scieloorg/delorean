@@ -1,2 +1,2 @@
 #!/usr/bin/env sh
-~/prj/envs/delorean/bin/nosetests --cover-package=delorean --cover-erase --with-coverage
+~/Trabalho/delorean/delorean-env/bin/nosetests --cover-package=delorean --cover-erase --with-coverage

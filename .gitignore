@@ -1,3 +1,4 @@
+runtests.sh
 *.egg-info/
 *-env/
 *.pyc

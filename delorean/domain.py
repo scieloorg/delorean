@@ -356,10 +356,6 @@ class TitleCollector(DataCollector):
 
         obj['creator'] = self._lookup_field('users', userid, 'username')
 
-        # lookup publisher
-        pubid = obj['publisher'].strip('/').split('/')[-1]
-        obj['publisher'] = self._lookup_field('publishers', pubid, 'name')
-
         # lookup sponsors
         sponsors = []
         for sponsor in obj['sponsors']:

@@ -35,7 +35,10 @@
     "init_year": "1986",
     "other_previous_title": "",
     "init_num": "1",
-    "publisher": "Colégio Brasileiro de Cirurgia Digestiva",
+    "publisher_name": "Colégio Brasileiro de Cirurgia Digestiva",
+    "publisher_state": "SP",
+    "publisher_country": "BR",
+    "publication_city": "São Paulo",
     "pub_level": "CT",
     "final_vol": "",
     "cover": null,
@@ -78,12 +81,9 @@
             "Publicar art\u00edculos de estudios cl\u00ednicos y experimentales que aporten para el desarrollo de la pesquisa, ense\u00f1anza y asistencia en el \u00e1rea gastroenterolog\u00eda quir\u00fargica, cl\u00ednica, endosc\u00f3pica y otras correlacionadas."
         ]
     ],
-    "address": "Av. Brigadeiro Luiz Antonio, 278 - 6° - Salas 10 e 11 01318-901 São Paulo/SP Brasil Tel.: (11) 3288-8174/3289-0741",
-    "email": "cbcd@cbcd.org.br",
+    "editor_address": "Av. Brigadeiro Luiz Antonio, 278 - 6° - Salas 10 e 11 01318-901 São Paulo/SP Brasil Tel.: (11) 3288-8174/3289-0741",
+    "editor_email": "cbcd@cbcd.org.br",
     "study_areas": ["Health Sciences"],
-    "contact": {
-        "email": "cbcd@cbcd.org.br",
-        "name": "Col\u00e9gio Brasileiro de Cirurgia Digestiva"
-    },
+    "contact": null,
     "updated": "20120706"
 }

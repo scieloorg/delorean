@@ -171,7 +171,6 @@ class TitleCollectorTests(MockerTestCase):
         dummy_slumber = self.mocker.mock()
         dummy_journal = self.mocker.mock()
         dummy_user = self.mocker.mock()
-        dummy_publisher = self.mocker.mock()
         dummy_sponsor = self.mocker.mock()
 
         dummy_slumber.API(ANY)
@@ -190,17 +189,6 @@ class TitleCollectorTests(MockerTestCase):
         self.mocker.result(
             {
                 'username': 'albert.einstein@scielo.org',
-            }
-        )
-
-        dummy_slumber.publishers(ANY)
-        self.mocker.result(dummy_publisher)
-
-        dummy_publisher.get()
-        self.mocker.result(
-            {
-                'name': 'Colégio Brasileiro de Cirurgia Digestiva',
-                'city': 'São Paulo'
             }
         )
 
