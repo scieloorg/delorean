@@ -46,12 +46,12 @@
 !v062!${copyrighter}
 % endif
 ##
-% if address is not UNDEFINED and address:
-!v063!${address}
+% if editor_address is not UNDEFINED and editor_address:
+!v063!${editor_address}
 % endif
 ##
-% if contact is not UNDEFINED and contact:
-!v064!${contact['email']}
+% if editor_email is not UNDEFINED and editor_email:
+!v064!${editor_email}
 % endif
 ##
 !v066!art
@@ -126,6 +126,14 @@
 !v306!${final_num}
 % endif
 ##
+% if publisher_country is not UNDEFINED and publisher_country:
+!v310!${publisher_country}
+% endif
+##
+% if publisher_state is not UNDEFINED and publisher_state:
+!v320!${publisher_state}
+% endif
+##
 % if pub_level is not UNDEFINED and pub_level:
 !v330!${pub_level}
 % endif
@@ -172,8 +180,12 @@
 % endfor
 % endif
 ##
-% if publisher is not UNDEFINED and publisher:
-!v480!${publisher}
+% if publisher_name is not UNDEFINED and publisher_name:
+!v480!${publisher_name}
+% endif
+##
+% if publication_city is not UNDEFINED and publication_city:
+!v490!${publication_city}
 % endif
 ##
 % if use_license is not UNDEFINED and use_license:
