@@ -214,6 +214,104 @@ class TitleCollectorTests(MockerTestCase):
                 self.assertEqual(value, desired_journal_struct[field])
 
 
+class SectionCollectorTests(MockerTestCase):
+    section_res = u'http://manager.scielo.org/api/v1/'
+
+    def setUp(self):
+        self.config = testing.setUp()
+
+    def tearDown(self):
+        testing.tearDown()
+
+    def _makeOne(self, resource_url, **kwargs):
+        from delorean.domain import SectionCollector
+        return SectionCollector(resource_url, **kwargs)
+
+    def test_instantiation(self):
+        from delorean.domain import SectionCollector
+
+        dummy_slumber = self.mocker.mock()
+        dummy_journal = self.mocker.mock()
+
+        dummy_slumber.API(ANY)
+        self.mocker.result(dummy_slumber)
+
+        dummy_slumber.journals
+        self.mocker.result(dummy_journal)
+
+        self.mocker.replay()
+
+        dc = self._makeOne(self.section_res,
+            slumber_lib=dummy_slumber)
+        self.assertTrue(isinstance(dc, SectionCollector))
+
+    def test_gen_iterable(self):
+        dummy_slumber = self.mocker.mock()
+        dummy_journal = self.mocker.mock()
+
+        dummy_slumber.API(ANY)
+        self.mocker.result(dummy_slumber)
+
+        dummy_slumber.journals
+        self.mocker.result(dummy_journal)
+
+        self.mocker.replay()
+
+        dc = self._makeOne(self.section_res,
+            slumber_lib=dummy_slumber)
+        it = iter(dc)
+        self.assertTrue(hasattr(it, 'next'))
+
+    def test_get_data(self):
+        here = os.path.abspath(os.path.dirname(__file__))
+        journal_data = {'meta': {'next': None}, 'objects': []}
+
+        d = json.load(open(os.path.join(here, 'tests_assets/section_meta_beforeproc.json')))
+        journal_data['objects'].append(d)
+
+        section_data = {
+                "code": "ABCD030",
+                "titles": [
+                    ["pt", "Artigos de Revisão"],
+                    ["en", "Review Articles"]
+                ],
+                "id": "5676"
+            }
+
+        dummy_slumber = self.mocker.mock()
+        dummy_journal = self.mocker.mock()
+        dummy_section = self.mocker.mock()
+
+        dummy_slumber.API(ANY)
+        self.mocker.result(dummy_slumber)
+
+        dummy_slumber.journals
+        self.mocker.result(dummy_journal)
+
+        dummy_journal.get(offset=ANY, limit=ANY)
+        self.mocker.result(journal_data)
+
+        dummy_slumber.sections(ANY)
+        self.mocker.result(dummy_section)
+        self.mocker.count(10)
+
+        dummy_section.get()
+        self.mocker.result(section_data)
+        self.mocker.count(10)
+
+        self.mocker.replay()
+
+        dc = self._makeOne(self.section_res,
+            slumber_lib=dummy_slumber)
+
+        desired_section_struct = json.load(open(os.path.join(here, 'tests_assets/section_meta_afterproc.json')))
+
+        for record in dc:
+            for field, value in desired_section_struct.items():
+                if field == 'sections':
+                        self.assertTrue(record['sections'][0] in value)
+
+
 class IssueCollectorTests(MockerTestCase):
     issue_res = u'http://manager.scielo.org/api/v1/'
     valid_microset = {
@@ -509,6 +607,24 @@ class TransformerTests(unittest.TestCase):
         d = json.load(open(os.path.join(here, 'tests_assets/issue_meta_afterproc.json')))
         generated_id = t.transform(d).splitlines()
         canonical_id = codecs.open(os.path.join(here, 'tests_assets/issue_meta.id'), 'r', 'iso8859-1').readlines()
+
+        del(generated_id[0])  # removing a blank line
+
+        for i in xrange(len(canonical_id)):
+            self.assertEqual(generated_id[i].strip(), canonical_id[i].strip())
+
+        self.assertEqual(len(generated_id), len(canonical_id))
+
+    def test_section_db_generation(self):
+        """
+        Compares the generated with the expected id file
+        line-by-line.
+        """
+        here = os.path.abspath(os.path.dirname(__file__))
+        t = self._makeOne(filename=os.path.join(here, 'templates/section_db_entry.txt'))
+        d = json.load(open(os.path.join(here, 'tests_assets/section_meta_afterproc.json')))
+        generated_id = t.transform(d).splitlines()
+        canonical_id = codecs.open(os.path.join(here, 'tests_assets/section_meta.id'), 'r', 'iso8859-1').readlines()
 
         del(generated_id[0])  # removing a blank line
 

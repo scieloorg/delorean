@@ -390,7 +390,24 @@ class TitleCollector(DataCollector):
 
 
 class SectionCollector(DataCollector):
-    _resource_name = 'sections'
+    _resource_name = 'journals'
+
+    def get_data(self, obj):
+        del(obj['collections'])
+        del(obj['issues'])
+        del(obj['resource_uri'])
+        del(obj['sponsors'])
+        del(obj['creator'])
+        del(obj['pub_status_history'])
+
+        # lookup sections
+        sections = []
+        for section in obj['sections']:
+            sectionid = section.strip('/').split('/')[-1]
+            sections.append(self._lookup_fields('sections', sectionid, ['id', 'code', 'titles']))
+        obj['sections'] = sections
+
+        return obj
 
 
 class DeLorean(object):
@@ -448,7 +465,7 @@ class DeLorean(object):
 
     def generate_section(self, target='/tmp/'):
         """
-        Starts the Title bundle generation, and returns the expected
+        Starts the Section bundle generation, and returns the expected
         resource name.
         """
         HERE = os.path.abspath(os.path.dirname(__file__))
@@ -457,15 +474,15 @@ class DeLorean(object):
         # data generator
         iter_data = self._sectioncollector(self._api_uri)
 
-        # # id file rendering
-        # transformer = self._transformer(filename=os.path.join(HERE,
-        #     'templates/section_db_entry.txt'))
-        # id_string = transformer.transform_list(iter_data)
+        # id file rendering
+        transformer = self._transformer(filename=os.path.join(HERE,
+            'templates/section_db_entry.txt'))
+        id_string = transformer.transform_list(iter_data)
 
-        # # packaging
-        # packmeta = [('section.id', id_string)]
-        # pack = Bundle(*packmeta)
-        # pack.deploy(os.path.join(target, expected_resource_name))
+        # packaging
+        packmeta = [('section.id', id_string)]
+        pack = Bundle(*packmeta)
+        pack.deploy(os.path.join(target, expected_resource_name))
 
         return expected_resource_name
 

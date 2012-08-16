@@ -1,0 +1,41 @@
+## -*- coding: utf-8 -*-
+<%! from collections import Iterable %>
+!ID 0
+##
+% if short_title is not UNDEFINED and short_title:
+!v030!${short_title}
+% endif 
+##
+% if scielo_issn is not UNDEFINED and scielo_issn:
+% if scielo_issn == 'print':
+!v035!${print_issn}
+% elif electronic_issn is not UNDEFINED and electronic_issn:
+!v035!${eletronic_issn}
+% endif
+% endif
+##
+!v048!^les^hSumario
+!v048!^lpt^hSumario
+!v048!^len^hTable of Contents
+##
+% if sections is not UNDEFINED and sections:
+% for section in sections:
+% for lang, sec_title in section['titles']:
+!v049!^l${lang}^c${section['code']}^t${sec_title}
+% endfor
+% endfor
+% endif
+##
+!v091!00000000
+##
+% if title is not UNDEFINED and title:
+!v100!${title}
+% endif
+##
+% if short_title is not UNDEFINED and short_title:
+!v150!${short_title}
+% endif
+##
+% if acronym is not UNDEFINED and acronym:
+!v930!${acronym}
+% endif

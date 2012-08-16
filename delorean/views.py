@@ -27,12 +27,12 @@ def bundle_generator(request):
     resource_name = request.matchdict.get('resource')
 
     dl = DeLorean(SCIELOMANAGER_API_URI)
-    import pdb; pdb.set_trace()
+
     try:
         bundle_url = getattr(dl, RESOURCE_HANDLERS[resource_name])(
             os.path.join(HERE, 'public'))
-    except KeyError as exc:
-        raise httpexceptions.HTTPNotFound() 
+    except KeyError:
+        raise httpexceptions.HTTPNotFound()
 
     return {
         'resource_name': resource_name,
