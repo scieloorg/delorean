@@ -389,6 +389,27 @@ class TitleCollector(DataCollector):
         return obj
 
 
+class SectionCollector(DataCollector):
+    _resource_name = 'journals'
+
+    def get_data(self, obj):
+        del(obj['collections'])
+        del(obj['issues'])
+        del(obj['resource_uri'])
+        del(obj['sponsors'])
+        del(obj['creator'])
+        del(obj['pub_status_history'])
+
+        # lookup sections
+        sections = []
+        for section in obj['sections']:
+            sectionid = section.strip('/').split('/')[-1]
+            sections.append(self._lookup_fields('sections', sectionid, ['id', 'code', 'titles']))
+        obj['sections'] = sections
+
+        return obj
+
+
 class DeLorean(object):
     """
     Represents a time machine, generating databases
@@ -399,11 +420,13 @@ class DeLorean(object):
                  api_uri,
                  datetime_lib=datetime,
                  titlecollector=TitleCollector,
+                 sectioncollector=SectionCollector,
                  transformer=Transformer):
 
         self._datetime_lib = datetime_lib
         self._api_uri = api_uri
         self._titlecollector = titlecollector
+        self._sectioncollector = sectioncollector
         self._transformer = transformer
 
     def _generate_filename(self,
@@ -420,8 +443,7 @@ class DeLorean(object):
     def generate_title(self, target='/tmp/'):
         """
         Starts the Title bundle generation, and returns the expected
-        resource name. This method returns asynchronously, so the
-        consumer will need to wait until the resource turns available.
+        resource name.
         """
         HERE = os.path.abspath(os.path.dirname(__file__))
         expected_resource_name = self._generate_filename('title')
@@ -440,3 +462,44 @@ class DeLorean(object):
         pack.deploy(os.path.join(target, expected_resource_name))
 
         return expected_resource_name
+
+    def generate_section(self, target='/tmp/'):
+        """
+        Starts the Section bundle generation, and returns the expected
+        resource name.
+        """
+        HERE = os.path.abspath(os.path.dirname(__file__))
+        expected_resource_name = self._generate_filename('section')
+
+        # data generator
+        iter_data = self._sectioncollector(self._api_uri)
+
+        # id file rendering
+        transformer = self._transformer(filename=os.path.join(HERE,
+            'templates/section_db_entry.txt'))
+        id_string = transformer.transform_list(iter_data)
+
+        # packaging
+        packmeta = [('section.id', id_string)]
+        pack = Bundle(*packmeta)
+        pack.deploy(os.path.join(target, expected_resource_name))
+
+        return expected_resource_name
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

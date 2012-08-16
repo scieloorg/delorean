@@ -1,0 +1,215 @@
+{
+    "copyrighter": "Colégio Brasileiro de Cirurgia Digestiva - CBCD",
+    "ctrl_vocabulary": "decs",
+    "frequency": "Q",
+    "url_journal": null,
+    "final_num": "",
+    "eletronic_issn": "",
+    "url_online_submission": null,
+    "init_vol": "1",
+    "title": "ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)",
+    "final_year": null,
+    "editorial_standard": "vancouv",
+    "languages": [
+        "en",
+        "pt"
+    ],
+    "abstract_keyword_languages": [
+        "en",
+        "pt"
+    ],
+    "sections": [
+        {
+            "code": "ABCD010",
+            "id": "5684",
+            "titles": [
+            [
+              "pt",
+              "Editorial"
+            ]
+            ]
+        },
+        {
+            "code": "ABCD020",
+            "id": "5677",
+            "titles": [
+            [
+              "pt",
+              "Artigos Originais"
+            ],
+            [
+              "en",
+              "Orginal Articles"
+            ]
+            ]
+        },
+        {
+            "code": "ABCD030",
+            "id": "5676",
+            "titles": [
+            [
+              "pt",
+              "Artigos de Revisão"
+            ],
+            [
+              "en",
+              "Review Articles"
+            ]
+            ]
+        },
+        {
+            "code": "ABCD040",
+            "id": "5683",
+            "titles": [
+            [
+              "pt",
+              "Relatos de Casos"
+            ],
+            [
+              "en",
+              "Case Reports"
+            ]
+            ]
+        },
+        {
+            "code": "ABCD050",
+            "id": "5682",
+            "titles": [
+            [
+              "pt",
+              "Técnica"
+            ],
+            [
+              "en",
+              "Technic"
+            ]
+            ]
+        },
+        {
+            "code": "ABCD060",
+            "id": "5680",
+            "titles": [
+            [
+              "pt",
+              "Artigo Original"
+            ],
+            [
+              "en",
+              "Original Article"
+            ]
+            ]
+        },
+        {
+            "code": "ABCD070",
+            "id": "5685",
+            "titles": [
+            [
+              "pt",
+              "Artigo de Revisão"
+            ],
+            [
+              "en",
+              "Review Article"
+            ]
+            ]
+        },
+        {
+          "code": "ABCD080",
+          "id": "5681",
+          "titles": [
+            [
+              "pt",
+              "Relato de Caso"
+            ],
+            [
+              "en",
+              "Case Report"
+            ]
+          ]
+        },
+        {
+            "code": "ABCD090",
+            "id": "5679",
+            "titles": [
+            [
+              "pt",
+              "In Memoriam"
+            ]
+            ]
+        },
+        {
+            "code": "ABCD100",
+            "id": "5678",
+            "titles": [
+            [
+              "pt",
+              "Cartas ao Editor"
+            ],
+            [
+              "en",
+              "Letters to the Editor"
+            ]
+            ]
+        }
+   ],  
+    "scielo_issn": "print",
+    "secs_code": "6633",
+    "use_license": {
+        "disclaimer": "Licencia Creative Commons",
+        "id": "1",
+        "license_code": "BY-NC",
+        "reference_url": null,
+        "resource_uri": "/api/v1/uselicenses/1/"},
+    "index_coverage": "ll - lilacs",
+    "previous_title": null,
+    "acronym": "ABCD",
+    "init_year": "1986",
+    "other_previous_title": "",
+    "init_num": "1",
+    "publisher_name": "Colégio Brasileiro de Cirurgia Digestiva",
+    "publisher_state": "SP",
+    "publisher_country": "BR",
+    "publication_city": "São Paulo",
+    "pub_level": "CT",
+    "final_vol": "",
+    "cover": null,
+    "short_title": "ABCD, arq. bras. cir. dig.",
+    "subject_descriptors": "medicina\ncirurgia\ngastroenterologia\ngastroenterologia",
+    "pub_status": "current",
+    "pub_status_reason": "",
+    "title_iso": "ABCD, arq. bras. cir. dig",
+    "print_issn": "0102-6720",
+    "notes": "",
+    "created": "20120705",
+    "logo": null,
+    "id": "1",
+    "is_trashed": false,
+    "national_code": "083653-2",
+    "other_titles": {
+        "other": [
+            "Arquivos Brasileiros de Cirurgia Digestiva"
+        ],
+        "paralleltitle": [
+            "Brazilian Archives of Digestive Surgery"
+        ]
+    },
+    "missions": [
+        [
+            "en",
+            "To publish articles of clinical and experimental studies that foster the advancement of research, teaching and assistance in surgical, clinical, and endoscopic gastroenterology, and related areas."
+        ],
+        [
+            "pt",
+            "Publicar  artigos de estudos cl\u00ednicos e experimentais que contribuam para o desenvolvimento da pesquisa, ensino e assist\u00eancia na \u00e1rea gastroenterologia cir\u00fargica, cl\u00ednica, endosc\u00f3pica e outras correlatas."
+        ],
+        [
+            "es",
+            "Publicar art\u00edculos de estudios cl\u00ednicos y experimentales que aporten para el desarrollo de la pesquisa, ense\u00f1anza y asistencia en el \u00e1rea gastroenterolog\u00eda quir\u00fargica, cl\u00ednica, endosc\u00f3pica y otras correlacionadas."
+        ]
+    ],
+    "editor_address": "Av. Brigadeiro Luiz Antonio, 278 - 6° - Salas 10 e 11, 01318-901 São Paulo/SP Brasil, Tel.: (11) 3288-8174/3289-0741",
+    "editor_email": "cbcd@cbcd.org.br",
+    "study_areas": ["Health Sciences"],
+    "contact": null,
+    "updated": "20120706"
+}

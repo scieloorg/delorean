@@ -11,12 +11,15 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 SCIELOMANAGER_API_URI = 'http://localhost:8000/api/v1/'
 RESOURCE_HANDLERS = {
     'title': 'generate_title',
+    'section': 'generate_section'
 }
+
 
 @view_config(route_name='home', renderer='jsonp')
 def app_status(request):
     # scielomanager availability
-    return {'app_name':'delorean'}
+    return {'app_name': 'delorean'}
+
 
 @view_config(route_name="generate", renderer='jsonp')
 def bundle_generator(request):
