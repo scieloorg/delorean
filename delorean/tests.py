@@ -69,7 +69,7 @@ class DeLoreanTests(MockerTestCase):
         dummy_datetime.strftime(ANY, ANY)
         self.mocker.result('20120712-10:07:34:803942')
 
-        dummy_titlecollector(ANY)
+        dummy_titlecollector(ANY, collection=ANY)
         self.mocker.result(dummy_titlecollector)
 
         dummy_transformer(filename=ANY)
@@ -84,7 +84,7 @@ class DeLoreanTests(MockerTestCase):
                            datetime_lib=dummy_datetime,
                            titlecollector=dummy_titlecollector,
                            transformer=dummy_transformer)
-        bundle_url = dl.generate_title()
+        bundle_url = dl.generate_title(collection='brasil')
         self.assertEqual(bundle_url,
             'title-20120712-10:07:34:803942.tar')
 
@@ -141,7 +141,8 @@ class TitleCollectorTests(MockerTestCase):
         self.mocker.replay()
 
         dc = self._makeOne(self.title_res,
-            slumber_lib=dummy_slumber)
+                           slumber_lib=dummy_slumber,
+                           collection='brasil')
         self.assertTrue(isinstance(dc, TitleCollector))
 
     def test_gen_iterable(self):
