@@ -9,6 +9,7 @@ import tarfile
 from mocker import (
     MockerTestCase,
     ANY,
+    KWARGS,
 )
 from pyramid import testing
 
@@ -69,7 +70,7 @@ class DeLoreanTests(MockerTestCase):
         dummy_datetime.strftime(ANY, ANY)
         self.mocker.result('20120712-10:07:34:803942')
 
-        dummy_titlecollector(ANY)
+        dummy_titlecollector(ANY, collection=ANY)
         self.mocker.result(dummy_titlecollector)
 
         dummy_transformer(filename=ANY)
@@ -84,14 +85,20 @@ class DeLoreanTests(MockerTestCase):
                            datetime_lib=dummy_datetime,
                            titlecollector=dummy_titlecollector,
                            transformer=dummy_transformer)
-        bundle_url = dl.generate_title()
+        bundle_url = dl.generate_title(collection='brasil')
         self.assertEqual(bundle_url,
             'title-20120712-10:07:34:803942.tar')
 
 
-class DataCollectorTests(unittest.TestCase):
+class DataCollectorTests(MockerTestCase):
     title_res = u'http://manager.scielo.org/api/v1/journal/brasil/0102-6720'
     valid_microset = u"""{"title": "ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)"}"""
+    valid_full_microset = {
+        'objects': [
+            {'title': 'ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)'},
+        ],
+        'meta': {'next': None},
+    }
 
     def setUp(self):
         self.config = testing.setUp()
@@ -101,10 +108,65 @@ class DataCollectorTests(unittest.TestCase):
 
     def _makeOne(self, resource_url, **kwargs):
         from delorean.domain import DataCollector
-        return DataCollector(resource_url, **kwargs)
+
+        class ConcreteDataCollector(DataCollector):
+            _resource_name = 'journals'
+
+            def get_data(self, data):
+                return data
+
+        return ConcreteDataCollector(resource_url, **kwargs)
 
     def test_instantiation(self):
-        self.assertRaises(TypeError, lambda: self._makeOne(self.title_res))
+        from delorean.domain import DataCollector
+        self.assertRaises(TypeError, lambda: DataCollector(self.title_res))
+
+    def test_fetch_all_data(self):
+        dummy_slumber = self.mocker.mock()
+        dummy_journal = self.mocker.mock()
+
+        dummy_slumber.API(ANY)
+        self.mocker.result(dummy_slumber)
+
+        dummy_slumber.journals
+        self.mocker.result(dummy_journal)
+
+        dummy_journal.get(offset=0, limit=50)
+        self.mocker.result(self.valid_full_microset)
+
+        self.mocker.replay()
+
+        dc = self._makeOne(self.title_res,
+                           slumber_lib=dummy_slumber)
+
+        res = dc.fetch_data(0, 50)
+        self.assertIsInstance(res, dict)
+        self.assertTrue('objects' in res)
+        self.assertTrue(len(res['objects']), 1)
+
+    def test_fetch_data_from_collection(self):
+        dummy_slumber = self.mocker.mock()
+        dummy_journal = self.mocker.mock()
+
+        dummy_slumber.API(ANY)
+        self.mocker.result(dummy_slumber)
+
+        dummy_slumber.journals
+        self.mocker.result(dummy_journal)
+
+        dummy_journal.get(offset=0, limit=50, collection='brasil')
+        self.mocker.result(self.valid_full_microset)
+
+        self.mocker.replay()
+
+        dc = self._makeOne(self.title_res,
+                           slumber_lib=dummy_slumber,
+                           collection='brasil')
+
+        res = dc.fetch_data(0, 50, collection='brasil')
+        self.assertIsInstance(res, dict)
+        self.assertTrue('objects' in res)
+        self.assertTrue(len(res['objects']), 1)
 
 
 class TitleCollectorTests(MockerTestCase):
@@ -141,7 +203,8 @@ class TitleCollectorTests(MockerTestCase):
         self.mocker.replay()
 
         dc = self._makeOne(self.title_res,
-            slumber_lib=dummy_slumber)
+                           slumber_lib=dummy_slumber,
+                           collection='brasil')
         self.assertTrue(isinstance(dc, TitleCollector))
 
     def test_gen_iterable(self):
@@ -667,3 +730,9 @@ class BundleTests(unittest.TestCase):
     def test_deploy_data(self):
         p = self._makeOne(*self.basic_data)
         p.deploy('/tmp/files/zippedfile.tar')
+
+class ResourceUnavailableErrorTests(unittest.TestCase):
+
+    def test_raise(self):
+        from delorean.domain import ResourceUnavailableError
+        self.assertTrue(issubclass(ResourceUnavailableError, BaseException))
