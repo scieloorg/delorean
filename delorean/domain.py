@@ -136,17 +136,27 @@ class DataCollector(object):
     """
     __metaclass__ = ABCMeta
 
-    def __init__(self, resource_url, slumber_lib=slumber):
+    def __init__(self, resource_url, slumber_lib=slumber, collection=None):
         self._resource_url = resource_url
         self._slumber_lib = slumber_lib
 
         self._api = self._slumber_lib.API(resource_url)
         self.resource = getattr(self._api, self._resource_name)
 
+        self._collection = collection
+
         # memoization to avoid unecessary field lookups
         # Ex.: _memo['publishers']['1'] = 'Unesp'
         self._memo = {}
         self._last_resource = {}
+
+    def fetch_data(self, offset, limit, collection=None):
+        kwargs = {}
+
+        if collection:
+            kwargs['collection'] = collection
+
+        return self.resource.get(offset=offset, limit=limit, **kwargs)
 
     def __iter__(self):
         offset = 0
@@ -155,7 +165,7 @@ class DataCollector(object):
 
         while True:
             try:  # handles resource unavailability
-                page = self.resource.get(offset=offset, limit=limit)
+                page = self.fetch_data(offset=offset, limit=limit, collection=self._collection)
             except requests.exceptions.ConnectionError as exc:
                 if err_count < 10:
                     wait_secs = err_count * 5
@@ -440,7 +450,7 @@ class DeLorean(object):
         now = self._datetime_lib.strftime(self._datetime_lib.now(), fmt)
         return '{0}.{1}'.format('-'.join([prefix, now]), filetype)
 
-    def generate_title(self, target='/tmp/'):
+    def generate_title(self, target='/tmp/', collection=None):
         """
         Starts the Title bundle generation, and returns the expected
         resource name.
@@ -449,7 +459,7 @@ class DeLorean(object):
         expected_resource_name = self._generate_filename('title')
 
         # data generator
-        iter_data = self._titlecollector(self._api_uri)
+        iter_data = self._titlecollector(self._api_uri, collection=collection)
 
         # id file rendering
         transformer = self._transformer(filename=os.path.join(HERE,
@@ -463,7 +473,7 @@ class DeLorean(object):
 
         return expected_resource_name
 
-    def generate_issue(self, target='/tmp/'):
+    def generate_issue(self, target='/tmp/', collection=None):
         """
         Starts the Issue bundle generation, and returns the expected
         resource name.
@@ -472,7 +482,7 @@ class DeLorean(object):
         expected_resource_name = self._generate_filename('issue')
 
         # data generator
-        iter_data = self._titlecollector(self._api_uri)
+        iter_data = self._titlecollector(self._api_uri, collection=None)
 
         # id file rendering
         transformer = self._transformer(filename=os.path.join(HERE,

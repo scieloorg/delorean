@@ -26,12 +26,13 @@ def app_status(request):
 def bundle_generator(request):
     start_time = time.time()
     resource_name = request.matchdict.get('resource')
+    collection = request.GET.get('collection', None)
 
     dl = DeLorean(SCIELOMANAGER_API_URI)
 
     try:
         bundle_url = getattr(dl, RESOURCE_HANDLERS[resource_name])(
-            os.path.join(HERE, 'public'))
+            os.path.join(HERE, 'public'), collection=collection)
     except KeyError:
         raise httpexceptions.HTTPNotFound()
 
