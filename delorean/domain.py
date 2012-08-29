@@ -473,7 +473,30 @@ class DeLorean(object):
 
         return expected_resource_name
 
-    def generate_section(self, target='/tmp/', collection=None):
+    def generate_issue(self, target='/tmp/', collection=None):
+        """
+        Starts the Issue bundle generation, and returns the expected
+        resource name.
+        """
+        HERE = os.path.abspath(os.path.dirname(__file__))
+        expected_resource_name = self._generate_filename('issue')
+
+        # data generator
+        iter_data = self._titlecollector(self._api_uri, collection=None)
+
+        # id file rendering
+        transformer = self._transformer(filename=os.path.join(HERE,
+            'templates/issue_db_entry.txt'))
+        id_string = transformer.transform_list(iter_data)
+
+        # packaging
+        packmeta = [('issue.id', id_string)]
+        pack = Bundle(*packmeta)
+        pack.deploy(os.path.join(target, expected_resource_name))
+
+        return expected_resource_name
+
+    def generate_section(self, target='/tmp/'):
         """
         Starts the Section bundle generation, and returns the expected
         resource name.
