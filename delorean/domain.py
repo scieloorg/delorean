@@ -126,7 +126,6 @@ class Transformer(object):
 
         return '\n'.join(res)
 
-
 class DataCollector(object):
     """
     Responsible for collecting data from RESTful interfaces,
@@ -252,7 +251,7 @@ class IssueCollector(DataCollector):
                                                                      'publication_city',
                                                                      'sponsors',
                                                                      'print_issn',
-                                                                     'electronic_issn',
+                                                                     'eletronic_issn',
                                                                      'scielo_issn',
                                                                      'resource_uri',
                                                                      'acronym',
@@ -262,7 +261,7 @@ class IssueCollector(DataCollector):
 
         # Formating publication date, must have 00 for the days digits.
         pub_month = "%02d" % obj['publication_end_month']
-        obj['publication_date'] = str(obj['publication_year']) + pub_month + '00'
+        obj['publication_date'] = unicode(obj['publication_year']) + pub_month + u'00'
 
         sections = {}
         # lookup sections
@@ -285,61 +284,61 @@ class IssueCollector(DataCollector):
         # Issue Label ShortTitle
 
         obj['display'] = {}
-        obj['display']['pt'] = "^lpt"
-        obj['display']['en'] = "^len"
-        obj['display']['es'] = "^les"
+        obj['display']['pt'] = u"^lpt"
+        obj['display']['en'] = u"^len"
+        obj['display']['es'] = u"^les"
 
         # Short Title
-        if 'short_title' in obj['journal']:
-            obj['display']['pt'] += '^t' + obj['journal']['short_title']
-            obj['display']['en'] += '^t' + obj['journal']['short_title']
-            obj['display']['es'] += '^t' + obj['journal']['short_title']
+        if 'short_title' in obj['journal'] and obj['journal']['short_title']:
+            obj['display']['pt'] += u'^t' + unicode(obj['journal']['short_title'])
+            obj['display']['en'] += u'^t' + unicode(obj['journal']['short_title'])
+            obj['display']['es'] += u'^t' + unicode(obj['journal']['short_title'])
 
         # Volume
-        if 'volume' in obj:
-            obj['display']['pt'] += '^vvol.' + obj['volume']
-            obj['display']['en'] += '^vvol.' + obj['volume']
-            obj['display']['es'] += '^vvol.' + obj['volume']
+        if 'volume' in obj  and obj['volume']:
+            obj['display']['pt'] += u'^vvol.' + unicode(obj['volume'])
+            obj['display']['en'] += u'^vvol.' + unicode(obj['volume'])
+            obj['display']['es'] += u'^vvol.' + unicode(obj['volume'])
 
         # Volume Supplement
-        if 'suppl_volume' in obj:
-            obj['display']['pt'] += '^wsupl.' + obj['suppl_volume']
-            obj['display']['en'] += '^wsuppl.' + obj['suppl_volume']
-            obj['display']['es'] += '^wsupl.' + obj['suppl_volume']
+        if 'suppl_volume' in obj and obj['suppl_volume']:
+            obj['display']['pt'] += u'^wsupl.' + unicode(obj['suppl_volume'])
+            obj['display']['en'] += u'^wsuppl.' + unicode(obj['suppl_volume'])
+            obj['display']['es'] += u'^wsupl.' + unicode(obj['suppl_volume'])
 
         # Number
-        if 'number' in obj:
-            obj['display']['pt'] += '^nno.' + obj['number']
-            obj['display']['en'] += '^nn.' + obj['number']
-            obj['display']['es'] += '^nno.' + obj['number']
+        if 'number' in obj and obj['number']:
+            obj['display']['pt'] += u'^nno.' + unicode(obj['number'])
+            obj['display']['en'] += u'^nn.' + unicode(obj['number'])
+            obj['display']['es'] += u'^nno.' + unicode(obj['number'])
 
         # Number Supplement
-        if 'suppl_number' in obj:
-            obj['display']['pt'] += '^ssupl.' + obj['suppl_number']
-            obj['display']['en'] += '^ssuppl.' + obj['suppl_number']
-            obj['display']['es'] += '^ssupl.' + obj['suppl_number']
+        if 'suppl_number' in obj and obj['suppl_number']:
+            obj['display']['pt'] += u'^ssupl.' + unicode(obj['suppl_number'])
+            obj['display']['en'] += u'^ssuppl.' + unicode(obj['suppl_number'])
+            obj['display']['es'] += u'^ssupl.' + unicode(obj['suppl_number'])
 
         # City
-        if 'publication_city' in obj['journal']:
-            obj['display']['pt'] += '^c' + obj['journal']['publication_city']
-            obj['display']['en'] += '^c' + obj['journal']['publication_city']
-            obj['display']['es'] += '^c' + obj['journal']['publication_city']
+        if 'publication_city' in obj['journal'] and obj['journal']['publication_city']:
+            obj['display']['pt'] += u'^c' + unicode(obj['journal']['publication_city'])
+            obj['display']['en'] += u'^c' + unicode(obj['journal']['publication_city'])
+            obj['display']['es'] += u'^c' + unicode(obj['journal']['publication_city'])
 
         # Period
         locale.setlocale(locale.LC_ALL, 'pt_BR'.encode('utf8'))
-        obj['display']['pt'] += '^m' + calendar.month_abbr[obj['publication_start_month']] + './' + calendar.month_abbr[obj['publication_end_month']] + '.'
+        obj['display']['pt'] += u'^m' + calendar.month_abbr[obj['publication_start_month']] + u'./' + calendar.month_abbr[obj['publication_end_month']] + u'.'
         locale.setlocale(locale.LC_ALL, 'en_US'.encode('utf8'))
-        obj['display']['en'] += '^m' + calendar.month_abbr[obj['publication_start_month']] + './' + calendar.month_abbr[obj['publication_end_month']] + '.'
+        obj['display']['en'] += u'^m' + calendar.month_abbr[obj['publication_start_month']] + u'./' + calendar.month_abbr[obj['publication_end_month']] + u'.'
         locale.setlocale(locale.LC_ALL, 'es_ES'.encode('utf8'))
-        obj['display']['es'] += '^m' + calendar.month_abbr[obj['publication_start_month']] + './' + calendar.month_abbr[obj['publication_end_month']] + '.'
+        obj['display']['es'] += u'^m' + calendar.month_abbr[obj['publication_start_month']] + u'./' + calendar.month_abbr[obj['publication_end_month']] + u'.'
 
         # Resetando locale para default.
         locale.setlocale(locale.LC_ALL, '')
 
         # Year
-        obj['display']['pt'] += '^y' + str(obj['publication_year'])
-        obj['display']['en'] += '^y' + str(obj['publication_year'])
-        obj['display']['es'] += '^y' + str(obj['publication_year'])
+        obj['display']['pt'] += u'^y' + unicode(obj['publication_year'])
+        obj['display']['en'] += u'^y' + unicode(obj['publication_year'])
+        obj['display']['es'] += u'^y' + unicode(obj['publication_year'])
 
         return obj
 
@@ -430,12 +429,14 @@ class DeLorean(object):
                  api_uri,
                  datetime_lib=datetime,
                  titlecollector=TitleCollector,
+                 issuecollector=IssueCollector,
                  sectioncollector=SectionCollector,
                  transformer=Transformer):
 
         self._datetime_lib = datetime_lib
         self._api_uri = api_uri
         self._titlecollector = titlecollector
+        self._issuecollector = issuecollector
         self._sectioncollector = sectioncollector
         self._transformer = transformer
 
@@ -482,7 +483,7 @@ class DeLorean(object):
         expected_resource_name = self._generate_filename('issue')
 
         # data generator
-        iter_data = self._titlecollector(self._api_uri, collection=None)
+        iter_data = self._issuecollector(self._api_uri, collection=collection)
 
         # id file rendering
         transformer = self._transformer(filename=os.path.join(HERE,
@@ -518,21 +519,3 @@ class DeLorean(object):
         pack.deploy(os.path.join(target, expected_resource_name))
 
         return expected_resource_name
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

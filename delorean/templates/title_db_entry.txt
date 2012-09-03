@@ -157,7 +157,7 @@
 % if scielo_issn is not UNDEFINED and scielo_issn:
 % if scielo_issn == 'print':
 !v400!${print_issn}
-% elif electronic_issn is not UNDEFINED and electronic_issn:
+% elif eletronic_issn is not UNDEFINED and eletronic_issn:
 !v400!${eletronic_issn}
 % endif
 % endif
@@ -220,7 +220,7 @@
 % endif
 ##
 % if scielo_issn is not UNDEFINED and scielo_issn:
-% if scielo_issn == 'print' and electronic_issn is not UNDEFINED and electronic_issn:
+% if scielo_issn == 'print' and eletronic_issn is not UNDEFINED and eletronic_issn:
 !v935!${eletronic_issn}
 % elif print_issn is not UNDEFINED and print_issn:
 !v935!${print_issn}

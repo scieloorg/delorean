@@ -12,7 +12,7 @@
         "short_title": "ABCD, arq. bras. cir. dig.",
         "scielo_issn": "print",
         "print_issn": "0102-6720",
-        "electronic_issn": "",
+        "eletronic_issn": "",
         "publisher_name": "Colégio Brasileiro de Cirurgia Digestiva",
         "publication_city": "São Paulo",
         "sponsors": [
@@ -86,5 +86,6 @@
     "suppl_volume": "2",
     "total_documents": 16, 
     "updated": "20120802",
-    "volume": "23"
+    "volume": "23",
+    "order": "20101"
 }
