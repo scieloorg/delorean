@@ -51,7 +51,7 @@ class Bundle(object):
             for name, data in self._data.items():
                 info = tarfile.TarInfo(name)
                 info.size = len(data)
-                out.addfile(info, StringIO.StringIO(data.encode('utf-8')))
+                out.addfile(info, StringIO.StringIO(data.encode('cp1252', 'replace')))
         finally:
             out.close()
 
@@ -495,21 +495,3 @@ class DeLorean(object):
         pack.deploy(os.path.join(target, expected_resource_name))
 
         return expected_resource_name
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
