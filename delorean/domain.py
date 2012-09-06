@@ -519,4 +519,3 @@ class DeLorean(object):
         pack.deploy(os.path.join(target, expected_resource_name))
 
         return expected_resource_name
->>>>>>> 6e24c209cad5223367de86455a781d11f66d26a1

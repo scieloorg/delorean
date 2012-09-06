@@ -48,7 +48,7 @@
 % endfor
 % endif
 % if publication_date is not UNDEFINED and publication_date:
-!v065!${publication_date}  
+!v065!${publication_date}
 % endif
 % if ctrl_vocabulary is not UNDEFINED and ctrl_vocabulary:
 !v085!${ctrl_vocabulary}
