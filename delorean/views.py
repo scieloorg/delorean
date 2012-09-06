@@ -11,6 +11,7 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 SCIELOMANAGER_API_URI = 'http://localhost:8000/api/v1/'
 RESOURCE_HANDLERS = {
     'title': 'generate_title',
+    'issue': 'generate_issue',
     'section': 'generate_section'
 }
 

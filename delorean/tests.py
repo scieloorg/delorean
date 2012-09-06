@@ -440,7 +440,7 @@ class IssueCollectorTests(MockerTestCase):
         journal_data = {
             "title": "ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)",
             "short_title": "ABCD, arq. bras. cir. dig.",
-            "electronic_issn": "",
+            "eletronic_issn": "",
             "print_issn": "0102-6720",
             "scielo_issn": "print",
             "publisher_name": "Colégio Brasileiro de Cirurgia Digestiva",

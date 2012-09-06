@@ -1,7 +1,9 @@
 <%! from collections import Iterable %>
 !ID 0
 ##
+% if journal['short_title'] is not UNDEFINED and journal['short_title']:
 !v030!${journal['short_title']}
+% endif
 ##
 % if volume is not UNDEFINED and volume:
 !v031!${volume}
@@ -9,16 +11,18 @@
 ##
 % if number is not UNDEFINED and number:
 !v032!${number}
-%endif
+% endif
 ##
 % if journal['scielo_issn'] is not UNDEFINED and journal['scielo_issn']:
 % if journal['scielo_issn'] == 'print':
 !v035!${journal['print_issn']}
-% elif journal['scielo_issn'] is not UNDEFINED and journal['electronic_issn']:
+% elif journal['scielo_issn'] is not UNDEFINED and journal['eletronic_issn']:
 !v035!${journal['eletronic_issn']}
 % endif
 % endif
-!v036!20101
+% if order is not UNDEFINED and order:
+!v036!${order}
+% endif
 % if is_press_release is not UNDEFINED and is_press_release:
 !v041!pr
 % endif
@@ -43,12 +47,24 @@
 % endfor
 % endfor
 % endif
+% if publication_date is not UNDEFINED and publication_date:
 !v065!${publication_date}  
+% endif
+% if ctrl_vocabulary is not UNDEFINED and ctrl_vocabulary:
 !v085!${ctrl_vocabulary}
+% endif
+% if created is not UNDEFINED and created:
 !v091!${created}
+% endif
+% if editorial_standard is not UNDEFINED and editorial_standard:
 !v117!${editorial_standard}
+% endif
+% if total_documents is not UNDEFINED and total_documents:
 !v122!${total_documents}
+% endif
+% if journal['title'] is not UNDEFINED and journal['title']:
 !v130!${journal['title']}
+% endif
 ##
 % if suppl_volume is not UNDEFINED and suppl_volume:
 !v131!${suppl_volume}
@@ -58,7 +74,9 @@
 !v132!${suppl_number}
 % endif
 ##
+% if journal['title_iso'] is not UNDEFINED and journal['title_iso']:
 !v151!${journal['title_iso']}
+% endif
 ##
 % if is_marked_up is not UNDEFINED and is_marked_up == True:
 !v200!1
@@ -78,12 +96,16 @@
 !v540!^t${journal['use_license']['disclaimer']}^les
 !v540!^t${journal['use_license']['disclaimer']}^lpt
 !v540!^t${journal['use_license']['disclaimer']}^len
+% if journal['use_license']['license_code'] is not UNDEFINED and journal['use_license']['license_code']:
 !v541!${journal['use_license']['license_code']}
+% endif
 !v706!i
 ##
+% if journal['acronym'] is not UNDEFINED and journal['acronym']:
 !v930!${journal['acronym']}
+% endif
 % if journal['scielo_issn'] is not UNDEFINED and journal['scielo_issn']:
-% if journal['scielo_issn'] == 'print' and journal['electronic_issn'] is not UNDEFINED and journal['electronic_issn']:
+% if journal['scielo_issn'] == 'print' and journal['eletronic_issn'] is not UNDEFINED and journal['eletronic_issn']:
 !v935!${journal['eletronic_issn']}
 % elif journal['print_issn'] is not UNDEFINED and journal['print_issn']:
 !v935!${journal['print_issn']}

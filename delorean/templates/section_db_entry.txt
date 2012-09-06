@@ -9,7 +9,7 @@
 % if scielo_issn is not UNDEFINED and scielo_issn:
 % if scielo_issn == 'print':
 !v035!${print_issn}
-% elif electronic_issn is not UNDEFINED and electronic_issn:
+% elif eletronic_issn is not UNDEFINED and eletronic_issn:
 !v035!${eletronic_issn}
 % endif
 % endif
