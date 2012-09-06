@@ -22,7 +22,7 @@ import slumber
 
 logger = logging.getLogger(__name__)
 ITEMS_PER_REQUEST = 50
-LOCALES = {'es_ES': {1: 'ene', 2: 'feb', 3: 'mar', 4: 'abr',
+MONTH_ABBREVS = {'es_ES': {1: 'ene', 2: 'feb', 3: 'mar', 4: 'abr',
         5: 'may', 6: 'jun', 7: 'jul', 8: 'ago', 9: 'sep', 10: 'oct',
         11: 'nov', 12: 'dic'}, 'en_US': {1: 'Jan', 2: 'Feb', 3: 'Mar',
         4: 'Apr', 5: 'May', 6: 'Jun', 7: 'Jul', 8: 'Aug', 9: 'Sep', 10: 'Oct',
@@ -330,7 +330,7 @@ class IssueCollector(DataCollector):
             obj['display']['es'] += u'^c' + unicode(obj['journal']['publication_city'])
 
         for lang in ['pt_BR', 'en_US', 'es_ES']:
-            obj['display'][lang[:2]] += u'^m' + LOCALES[lang][obj['publication_start_month']] + u'./' + LOCALES[lang][obj['publication_end_month']] + u'.'
+            obj['display'][lang[:2]] += u'^m' + MONTH_ABBREVS[lang][obj['publication_start_month']] + u'./' + MONTH_ABBREVS[lang][obj['publication_end_month']] + u'.'
 
         # Year
         obj['display']['pt'] += u'^y' + unicode(obj['publication_year'])
