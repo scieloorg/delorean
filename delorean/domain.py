@@ -22,6 +22,13 @@ import slumber
 
 logger = logging.getLogger(__name__)
 ITEMS_PER_REQUEST = 50
+LOCALES = {'es_ES': {1: 'ene', 2: 'feb', 3: 'mar', 4: 'abr',
+        5: 'may', 6: 'jun', 7: 'jul', 8: 'ago', 9: 'sep', 10: 'oct',
+        11: 'nov', 12: 'dic'}, 'en_US': {1: 'Jan', 2: 'Feb', 3: 'Mar',
+        4: 'Apr', 5: 'May', 6: 'Jun', 7: 'Jul', 8: 'Aug', 9: 'Sep', 10: 'Oct',
+        11: 'Nov', 12: 'Dec'}, 'pt_BR': {1: 'Jan', 2: 'Fev', 3: 'Mar',
+        4: 'Abr', 5: 'Mai', 6: 'Jun', 7: 'Jul', 8: 'Ago', 9: 'Set', 10: 'Out',
+        11: 'Nov', 12: 'Dez'}}
 
 
 class ResourceUnavailableError(Exception):
@@ -236,8 +243,6 @@ class IssueCollector(DataCollector):
     _resource_name = 'issues'
 
     def get_data(self, obj):
-        import locale
-        import calendar
 
         # Formating date from 2012-07-18T17:47:09.564504 to 20120718
         obj['created'] = obj['created'][:10].replace('-', '')
@@ -324,16 +329,8 @@ class IssueCollector(DataCollector):
             obj['display']['en'] += u'^c' + unicode(obj['journal']['publication_city'])
             obj['display']['es'] += u'^c' + unicode(obj['journal']['publication_city'])
 
-        # Period
-        locale.setlocale(locale.LC_ALL, 'pt_BR'.encode('utf8'))
-        obj['display']['pt'] += u'^m' + calendar.month_abbr[obj['publication_start_month']] + u'./' + calendar.month_abbr[obj['publication_end_month']] + u'.'
-        locale.setlocale(locale.LC_ALL, 'en_US'.encode('utf8'))
-        obj['display']['en'] += u'^m' + calendar.month_abbr[obj['publication_start_month']] + u'./' + calendar.month_abbr[obj['publication_end_month']] + u'.'
-        locale.setlocale(locale.LC_ALL, 'es_ES'.encode('utf8'))
-        obj['display']['es'] += u'^m' + calendar.month_abbr[obj['publication_start_month']] + u'./' + calendar.month_abbr[obj['publication_end_month']] + u'.'
-
-        # Resetando locale para default.
-        locale.setlocale(locale.LC_ALL, '')
+        for lang in ['pt_BR', 'en_US', 'es_ES']:
+            obj['display'][lang[:2]] += u'^m' + LOCALES[lang][obj['publication_start_month']] + u'./' + LOCALES[lang][obj['publication_end_month']] + u'.'
 
         # Year
         obj['display']['pt'] += u'^y' + unicode(obj['publication_year'])
