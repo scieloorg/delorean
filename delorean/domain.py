@@ -330,7 +330,22 @@ class IssueCollector(DataCollector):
             obj['display']['es'] += u'^c' + unicode(obj['journal']['publication_city'])
 
         for lang in ['pt_BR', 'en_US', 'es_ES']:
-            obj['display'][lang[:2]] += u'^m' + MONTH_ABBREVS[lang][obj['publication_start_month']] + u'./' + MONTH_ABBREVS[lang][obj['publication_end_month']] + u'.'
+            numeric_start_month = obj['publication_start_month']
+            numeric_end_month = obj['publication_end_month']
+
+            if numeric_start_month in range(1, 13):
+                start_month = MONTH_ABBREVS[lang][numeric_start_month]
+            else:
+                start_month = ''
+
+            if numeric_end_month in range(1, 13):
+                end_month = MONTH_ABBREVS[lang][numeric_end_month]
+            else:
+                end_month = ''
+
+            sub_m = './'.join([month for month in [start_month, end_month] if month])
+
+            obj['display'][lang[:2]] += u'^m' + sub_m + u'.'
 
         # Year
         obj['display']['pt'] += u'^y' + unicode(obj['publication_year'])
@@ -494,7 +509,7 @@ class DeLorean(object):
 
         return expected_resource_name
 
-    def generate_section(self, target='/tmp/'):
+    def generate_section(self, target='/tmp/', collection=None):
         """
         Starts the Section bundle generation, and returns the expected
         resource name.
@@ -503,7 +518,7 @@ class DeLorean(object):
         expected_resource_name = self._generate_filename('section')
 
         # data generator
-        iter_data = self._sectioncollector(self._api_uri)
+        iter_data = self._sectioncollector(self._api_uri, collection=collection)
 
         # id file rendering
         transformer = self._transformer(filename=os.path.join(HERE,
