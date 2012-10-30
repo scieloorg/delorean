@@ -352,6 +352,8 @@ class IssueCollector(DataCollector):
         obj['display']['en'] += u'^y' + unicode(obj['publication_year'])
         obj['display']['es'] += u'^y' + unicode(obj['publication_year'])
 
+        obj['order'] = str(obj['publication_year']) + obj['order']
+
         return obj
 
 
