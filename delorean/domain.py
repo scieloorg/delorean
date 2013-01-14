@@ -142,7 +142,12 @@ class DataCollector(object):
     """
     __metaclass__ = ABCMeta
 
-    def __init__(self, resource_url, slumber_lib=slumber, collection=None):
+    def __init__(self,
+                 resource_url,
+                 slumber_lib=slumber,
+                 collection=None,
+                 username=None,
+                 api_key=None):
         self._resource_url = resource_url
         self._slumber_lib = slumber_lib
 
@@ -150,6 +155,9 @@ class DataCollector(object):
         self.resource = getattr(self._api, self._resource_name)
 
         self._collection = collection
+
+        self._username = username
+        self._api_key = api_key
 
         # memoization to avoid unecessary field lookups
         # Ex.: _memo['publishers']['1'] = 'Unesp'
@@ -161,6 +169,10 @@ class DataCollector(object):
 
         if collection:
             kwargs['collection'] = collection
+
+        if all([self._username, self._api_key]):
+            kwargs['username'] = self._username
+            kwargs['api_key'] = self._api_key
 
         return self.resource.get(offset=offset, limit=limit, **kwargs)
 
@@ -206,9 +218,16 @@ class DataCollector(object):
             """
             res_lookup_key = '%s-%s' % (endpoint, res_id)
             if res_lookup_key not in self._last_resource:
+
+                # authorization params
+                kwargs = {}
+                if all([self._username, self._api_key]):
+                    kwargs['username'] = self._username
+                    kwargs['api_key'] = self._api_key
+
                 self._last_resource = {}  # release the memory
                 self._last_resource[res_lookup_key] = getattr(
-                    self._api, endpoint)(res_id).get()
+                    self._api, endpoint)(res_id).get(**kwargs)
 
             return self._last_resource[res_lookup_key]
 
@@ -441,6 +460,8 @@ class DeLorean(object):
     """
     def __init__(self,
                  api_uri,
+                 username=None,
+                 api_key=None,
                  datetime_lib=datetime,
                  titlecollector=TitleCollector,
                  issuecollector=IssueCollector,
@@ -453,6 +474,8 @@ class DeLorean(object):
         self._issuecollector = issuecollector
         self._sectioncollector = sectioncollector
         self._transformer = transformer
+        self.username = username
+        self.api_key = api_key
 
     def _generate_filename(self,
                            prefix,
@@ -474,7 +497,10 @@ class DeLorean(object):
         expected_resource_name = self._generate_filename('title')
 
         # data generator
-        iter_data = self._titlecollector(self._api_uri, collection=collection)
+        iter_data = self._titlecollector(self._api_uri,
+                                         collection=collection,
+                                         username=self.username,
+                                         api_key=self.api_key)
 
         # id file rendering
         transformer = self._transformer(filename=os.path.join(HERE,
@@ -497,7 +523,10 @@ class DeLorean(object):
         expected_resource_name = self._generate_filename('issue')
 
         # data generator
-        iter_data = self._issuecollector(self._api_uri, collection=collection)
+        iter_data = self._issuecollector(self._api_uri,
+                                         collection=collection,
+                                         username=self.username,
+                                         api_key=self.api_key)
 
         # id file rendering
         transformer = self._transformer(filename=os.path.join(HERE,
@@ -520,7 +549,10 @@ class DeLorean(object):
         expected_resource_name = self._generate_filename('section')
 
         # data generator
-        iter_data = self._sectioncollector(self._api_uri, collection=collection)
+        iter_data = self._sectioncollector(self._api_uri,
+                                           collection=collection,
+                                           username=self.username,
+                                           api_key=self.api_key)
 
         # id file rendering
         transformer = self._transformer(filename=os.path.join(HERE,

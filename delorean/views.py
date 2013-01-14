@@ -8,7 +8,6 @@ from pyramid.view import view_config
 from pyramid import httpexceptions
 
 HERE = os.path.abspath(os.path.dirname(__file__))
-SCIELOMANAGER_API_URI = 'http://localhost:8000/api/v1/'
 RESOURCE_HANDLERS = {
     'title': 'generate_title',
     'issue': 'generate_issue',
@@ -27,8 +26,15 @@ def bundle_generator(request):
     start_time = time.time()
     resource_name = request.matchdict.get('resource')
     collection = request.GET.get('collection', None)
+    username = request.registry.settings.get('delorean.manager_access_username', None)
+    api_key = request.registry.settings.get('delorean.manager_access_api_key', None)
+    api_uri = request.registry.settings.get('delorean.manager_access_uri', None)
 
-    dl = DeLorean(SCIELOMANAGER_API_URI)
+    if not all([username, api_key, api_uri]):
+        raise httpexceptions.HTTPInternalServerError(
+            comment='missing configuration')
+
+    dl = DeLorean(api_uri, username=username, api_key=api_key)
 
     try:
         bundle_url = getattr(dl, RESOURCE_HANDLERS[resource_name])(

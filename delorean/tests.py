@@ -70,7 +70,7 @@ class DeLoreanTests(MockerTestCase):
         dummy_datetime.strftime(ANY, ANY)
         self.mocker.result('20120712-10:07:34:803942')
 
-        dummy_titlecollector(ANY, collection=ANY)
+        dummy_titlecollector(ANY, collection=ANY, username=None, api_key=None)
         self.mocker.result(dummy_titlecollector)
 
         dummy_transformer(filename=ANY)
