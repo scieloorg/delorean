@@ -43,7 +43,7 @@
 % if sections is not UNDEFINED and sections:
 % for language,titles in sections.items():
 % for title in titles:
-!v049!^l${language}^c${title['resource_id']}^t${title['title']}
+!v049!^l${language}^c${title['code']}^t${title['title']}
 % endfor
 % endfor
 % endif
