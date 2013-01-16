@@ -1,12 +1,12 @@
 {
-    "cover": null, 
-    "created": "20100601", 
-    "ctrl_vocabulary": "decs", 
-    "editorial_standard": "vancouv", 
-    "id": "22615", 
-    "is_marked_up": true, 
-    "is_press_release": true, 
-    "is_trashed": false, 
+    "cover": null,
+    "created": "20100601",
+    "ctrl_vocabulary": "decs",
+    "editorial_standard": "vancouv",
+    "id": "22615",
+    "is_marked_up": true,
+    "is_press_release": true,
+    "is_trashed": false,
     "journal": {
         "title": "ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)",
         "short_title": "ABCD, arq. bras. cir. dig.",
@@ -28,63 +28,72 @@
             "reference_url": null,
             "resource_uri": "/api/v1/uselicenses/1/"}
     },
-    "label": "v23n1", 
-    "number": "1", 
-    "publication_end_month": 3, 
-    "publication_start_month": 1, 
-    "publication_year": 2010, 
+    "label": "v23n1",
+    "number": "1",
+    "publication_end_month": 3,
+    "publication_start_month": 1,
+    "publication_year": 2010,
     "publication_date": "20100300",
     "display": {
         "es":"^les^tABCD, arq. bras. cir. dig.^vvol.23^wsupl.2^nno.1^ssupl.2^cSão Paulo^mene./mar.^y2010",
         "pt":"^lpt^tABCD, arq. bras. cir. dig.^vvol.23^wsupl.2^nno.1^ssupl.2^cSão Paulo^mJan./Mar.^y2010",
         "en":"^len^tABCD, arq. bras. cir. dig.^vvol.23^wsuppl.2^nn.1^ssuppl.2^cSão Paulo^mJan./Mar.^y2010"
     },
-    "resource_uri": "/api/v1/issues/22615/", 
+    "resource_uri": "/api/v1/issues/22615/",
     "sections": {
         "en":  [
             {
                 "resource_id": 67227,
-                "title": "Original Articles"
+                "title": "Original Articles",
+                "code": "ABCD-f28r"
             },
             {
                 "resource_id": 67226,
-                "title": "Review Articles"
+                "title": "Review Articles",
+                "code": "ABCD-f29r"
             },
             {
                 "resource_id": 67233,
-                "title": "Case Reports"
+                "title": "Case Reports",
+                "code": "ABCD-f30r"
             },
             {
                 "resource_id": 67221,
-                "title": "Technic"
+                "title": "Technic",
+                "code": "ABCD-f31r"
             }
         ],
         "pt":  [
             {
                 "resource_id": 67234,
-                "title": "Editorial"
+                "title": "Editorial",
+                "code": "ABCD-f32r"
             },
             {
                 "resource_id": 67227,
-                "title": "Artigos Originais"
+                "title": "Artigos Originais",
+                "code": "ABCD-f33r"
             },
             {
                 "resource_id": 67226,
-                "title": "Artigos de Revisão"
+                "title": "Artigos de Revisão",
+                "code": "ABCD-f34r"
             },
             {
                 "resource_id": 67233,
-                "title": "Relatos de Casos"
+                "title": "Relatos de Casos",
+                "code": "ABCD-f35r"
             },
             {
                 "resource_id": 67221,
-                "title": "Técnica"
+                "title": "Técnica",
+                "code": "ABCD-f36r"
             }
         ]
-    }, 
-    "suppl_number": "2", 
+    },
+    "suppl_number": "2",
     "suppl_volume": "2",
-    "total_documents": 16, 
+    "total_documents": 16,
     "updated": "20120802",
     "volume": "23",
     "order": "20101"
