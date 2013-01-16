@@ -466,6 +466,7 @@ class IssueCollectorTests(MockerTestCase):
                     ["pt", "Técnica"],
                     ["en", "Technic"]
                 ],
+            "code": "CBCD-f28r"
         }
 
         dummy_slumber = self.mocker.mock()

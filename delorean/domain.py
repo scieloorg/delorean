@@ -292,14 +292,16 @@ class IssueCollector(DataCollector):
         for section in obj['sections']:
             sectionid = section.strip('/').split('/')[-1]
             x = self._lookup_fields('sections', sectionid, ['resource_uri',
-                                                            'titles'
+                                                            'titles',
+                                                            'code'
                                                             ])
 
             for translation in x['titles']:
                 sections.setdefault(translation[0], [])
                 title = {
                     "title": translation[1],
-                    "resource_id": x['resource_uri'].strip('/').split('/')[-1]
+                    "resource_id": x['resource_uri'].strip('/').split('/')[-1],
+                    "code": x['code']
                 }
                 sections[translation[0]].append(title)
 
