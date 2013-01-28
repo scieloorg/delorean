@@ -364,14 +364,17 @@ class IssueCollector(DataCollector):
             else:
                 end_month = ''
 
-            sub_m = './'.join([month for month in [start_month, end_month] if month])
+            if numeric_start_month != numeric_end_month:
+                sub_m = './'.join([month for month in [start_month, end_month] if month])
+            else:
+                sub_m = start_month
 
             obj['display'][lang[:2]] += u'^m' + sub_m + u'.'
 
         # Year
-        obj['display']['pt'] += u'^y' + unicode(obj['publication_year'])
-        obj['display']['en'] += u'^y' + unicode(obj['publication_year'])
-        obj['display']['es'] += u'^y' + unicode(obj['publication_year'])
+        obj['display']['pt'] += u'^a' + unicode(obj['publication_year'])
+        obj['display']['en'] += u'^a' + unicode(obj['publication_year'])
+        obj['display']['es'] += u'^a' + unicode(obj['publication_year'])
 
         obj['order'] = str(obj['publication_year']) + str(obj['order'])
 
