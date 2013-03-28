@@ -26,5 +26,6 @@
     "total_documents": 16,
     "updated": "2012-08-02T10:39:35.325916",
     "volume": "23",
-    "order": 1
+    "order": 1,
+    "thematic_titles": {"en": "Thematic Title"}
 }

@@ -13,6 +13,12 @@
 !v032!${number}
 % endif
 ##
+% if thematic_titles is not UNDEFINED:
+% for value in thematic_titles:
+!v033!${thematic_titles[value]}^l${value}
+% endfor
+% endif
+##
 % if journal['scielo_issn'] is not UNDEFINED and journal['scielo_issn']:
 % if journal['scielo_issn'] == 'print':
 !v035!${journal['print_issn']}
