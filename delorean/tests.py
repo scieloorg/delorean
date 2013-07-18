@@ -756,6 +756,25 @@ class TransformerTests(unittest.TestCase):
 
         self.assertEqual(len(generated_id), len(canonical_id))
 
+    def test_title_db_generation_with_no_public_status(self):
+        """
+        Compares the generated with the expected id file
+        line-by-line.
+        """
+        here = os.path.abspath(os.path.dirname(__file__))
+        t = self._makeOne(filename=os.path.join(here, 'templates/title_db_entry.txt'))
+        d = json.load(open(os.path.join(here, 'tests_assets/journal_meta_afterproc.json')))
+        d['pub_status'] = u'inprogress'
+        generated_id = t.transform(d).splitlines()
+        canonical_id = codecs.open(os.path.join(here, 'tests_assets/journal_meta_notpublic.id'), 'r', 'iso8859-1').readlines()
+
+        del(generated_id[0])  # removing a blank line
+
+        for i in xrange(len(generated_id)):
+            self.assertEqual(generated_id[i].strip(), canonical_id[i].strip())
+
+        self.assertEqual(len(generated_id), len(canonical_id))
+
     def test_issue_db_generation(self):
         """
         Compares the generated with the expected id file

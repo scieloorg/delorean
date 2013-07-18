@@ -21,14 +21,10 @@
 % endif
 ##
 % if pub_status is not UNDEFINED and pub_status:
-% if pub_status == 'current':
-!v050!C
-% elif pub_status == 'deceased':
-!v050!D
-% elif pub_status == 'suspended':
-!v050!S
-% else:
+% if pub_status == 'inprogress':
 !v050!?
+% else:
+!v050!C
 % endif
 % endif
 ##
