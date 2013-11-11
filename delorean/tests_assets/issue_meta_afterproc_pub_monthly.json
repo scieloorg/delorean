@@ -30,14 +30,14 @@
     },
     "label": "v23n1",
     "number": "1",
-    "publication_end_month": 3,
+    "publication_end_month": 1,
     "publication_start_month": 1,
     "publication_year": 2010,
-    "publication_date": "20100300",
+    "publication_date": "20100100",
     "display": {
-        "es":"^les^tABCD, arq. bras. cir. dig.^vvol.23^wsupl.2^nno.1^ssupl.2^cSão Paulo^mene./mar.^a2010",
-        "pt":"^lpt^tABCD, arq. bras. cir. dig.^vvol.23^wsupl.2^nno.1^ssupl.2^cSão Paulo^mJan./Mar.^a2010",
-        "en":"^len^tABCD, arq. bras. cir. dig.^vvol.23^wsuppl.2^nn.1^ssuppl.2^cSão Paulo^mJan./Mar.^a2010"
+        "es":"^les^tABCD, arq. bras. cir. dig.^vvol.23^wsupl.2^nno.1^ssupl.2^cSão Paulo^mene.^a2010",
+        "pt":"^lpt^tABCD, arq. bras. cir. dig.^vvol.23^wsupl.2^nno.1^ssupl.2^cSão Paulo^mJan.^a2010",
+        "en":"^len^tABCD, arq. bras. cir. dig.^vvol.23^wsuppl.2^nn.1^ssuppl.2^cSão Paulo^mJan.^a2010"
     },
     "resource_uri": "/api/v1/issues/22615/",
     "sections": {
@@ -96,6 +96,5 @@
     "total_documents": 16,
     "updated": "20120802",
     "volume": "23",
-    "thematic_titles": {"en": "Thematic Title"},
     "order": "20101"
 }

@@ -10,7 +10,7 @@
     "journal": "/api/v1/journals/2647/",
     "label": "v23n1",
     "number": "1",
-    "publication_end_month": 3,
+    "publication_end_month": 1,
     "publication_start_month": 1,
     "publication_year": 2010,
     "resource_uri": "/api/v1/issues/22615/",
@@ -26,6 +26,5 @@
     "total_documents": 16,
     "updated": "2012-08-02T10:39:35.325916",
     "volume": "23",
-    "order": 1,
-    "thematic_titles": {"en": "Thematic Title"}
+    "order": 1
 }

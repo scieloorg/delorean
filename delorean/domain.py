@@ -378,9 +378,9 @@ class IssueCollector(DataCollector):
 
 
         # Year
-        obj['display']['pt'] += u'^y' + unicode(obj['publication_year'])
-        obj['display']['en'] += u'^y' + unicode(obj['publication_year'])
-        obj['display']['es'] += u'^y' + unicode(obj['publication_year'])
+        obj['display']['pt'] += u'^a' + unicode(obj['publication_year'])
+        obj['display']['en'] += u'^a' + unicode(obj['publication_year'])
+        obj['display']['es'] += u'^a' + unicode(obj['publication_year'])
 
         obj['order'] = str(obj['publication_year']) + str(obj['order'])
 
