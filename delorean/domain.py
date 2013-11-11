@@ -284,7 +284,7 @@ class IssueCollector(DataCollector):
                                                                      ])
 
         # Formating publication date, must have 00 for the days digits.
-        pub_month = "%02d" % obj['publication_end_month']
+        pub_month = "%02d" % obj['publication_end_month'] if obj['publication_end_month'] else ''
         obj['publication_date'] = unicode(obj['publication_year']) + pub_month + u'00'
 
         sections = {}
@@ -350,9 +350,10 @@ class IssueCollector(DataCollector):
             obj['display']['en'] += u'^c' + unicode(obj['journal']['publication_city'])
             obj['display']['es'] += u'^c' + unicode(obj['journal']['publication_city'])
 
+
         for lang in ['pt_BR', 'en_US', 'es_ES']:
-            numeric_start_month = obj['publication_start_month']
-            numeric_end_month = obj['publication_end_month']
+            numeric_start_month = obj['publication_start_month'] if obj['publication_start_month'] else ''
+            numeric_end_month = obj['publication_end_month'] if obj['publication_end_month'] else ''
 
             if numeric_start_month in range(1, 13):
                 start_month = MONTH_ABBREVS[lang][numeric_start_month]
@@ -364,12 +365,17 @@ class IssueCollector(DataCollector):
             else:
                 end_month = ''
 
-            if numeric_start_month != numeric_end_month:
-                sub_m = './'.join([month for month in [start_month, end_month] if month])
-            else:
+            #Verify if the start_month is equal to end_month
+            if start_month == end_month:
                 sub_m = start_month
+            else:
+                sub_m = './'.join([month for month in [start_month, end_month] if month])
 
-            obj['display'][lang[:2]] += u'^m' + sub_m + u'.'
+            if sub_m:
+                obj['display'][lang[:2]] += u'^m' + sub_m + u'.'
+            else:
+                obj['display'][lang[:2]] += u'^m'
+
 
         # Year
         obj['display']['pt'] += u'^a' + unicode(obj['publication_year'])
