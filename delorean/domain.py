@@ -284,7 +284,7 @@ class IssueCollector(DataCollector):
                                                                      ])
 
         # Formating publication date, must have 00 for the days digits.
-        pub_month = "%02d" % obj['publication_end_month'] or u'00'
+        pub_month = "%02d" % obj['publication_end_month'] if obj['publication_end_month'] else  u'00'
         obj['publication_date'] = unicode(obj['publication_year']) + pub_month + u'00'
 
         sections = {}
