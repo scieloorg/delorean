@@ -284,7 +284,7 @@ class IssueCollector(DataCollector):
                                                                      ])
 
         # Formating publication date, must have 00 for the days digits.
-        pub_month = "%02d" % obj['publication_end_month'] if obj['publication_end_month'] else ''
+        pub_month = "%02d" % obj['publication_end_month'] or u'00'
         obj['publication_date'] = unicode(obj['publication_year']) + pub_month + u'00'
 
         sections = {}
@@ -352,8 +352,8 @@ class IssueCollector(DataCollector):
 
 
         for lang in ['pt_BR', 'en_US', 'es_ES']:
-            numeric_start_month = obj['publication_start_month'] if obj['publication_start_month'] else ''
-            numeric_end_month = obj['publication_end_month'] if obj['publication_end_month'] else ''
+            numeric_start_month = obj['publication_start_month'] or 0
+            numeric_end_month = obj['publication_end_month'] or 0
 
             if numeric_start_month in range(1, 13):
                 start_month = MONTH_ABBREVS[lang][numeric_start_month]
