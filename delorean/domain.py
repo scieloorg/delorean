@@ -307,6 +307,10 @@ class IssueCollector(DataCollector):
 
         obj['sections'] = sections
 
+
+        if obj['type'] == 'special':
+            obj['number'] = 'spe.%s' % obj.get('spe_text', '')
+
         # Issue Label ShortTitle
 
         obj['display'] = {}
@@ -321,7 +325,7 @@ class IssueCollector(DataCollector):
             obj['display']['es'] += u'^t' + unicode(obj['journal']['short_title'])
 
         # Volume
-        if 'volume' in obj  and obj['volume']:
+        if 'volume' in obj and obj['volume']:
             obj['display']['pt'] += u'^vvol.' + unicode(obj['volume'])
             obj['display']['en'] += u'^vvol.' + unicode(obj['volume'])
             obj['display']['es'] += u'^vvol.' + unicode(obj['volume'])
@@ -334,9 +338,14 @@ class IssueCollector(DataCollector):
 
         # Number
         if 'number' in obj and obj['number']:
-            obj['display']['pt'] += u'^nno.' + unicode(obj['number'])
-            obj['display']['en'] += u'^nn.' + unicode(obj['number'])
-            obj['display']['es'] += u'^nno.' + unicode(obj['number'])
+            if obj['type'] == 'special':
+                obj['display']['pt'] += u'^n' + unicode(obj['number'])
+                obj['display']['en'] += u'^n' + unicode(obj['number'])
+                obj['display']['es'] += u'^n' + unicode(obj['number'])
+            else:
+                obj['display']['pt'] += u'^nno.' + unicode(obj['number'])
+                obj['display']['en'] += u'^nn.' + unicode(obj['number'])
+                obj['display']['es'] += u'^nno.' + unicode(obj['number'])
 
         # Number Supplement
         if 'suppl_number' in obj and obj['suppl_number']:
@@ -349,7 +358,6 @@ class IssueCollector(DataCollector):
             obj['display']['pt'] += u'^c' + unicode(obj['journal']['publication_city'])
             obj['display']['en'] += u'^c' + unicode(obj['journal']['publication_city'])
             obj['display']['es'] += u'^c' + unicode(obj['journal']['publication_city'])
-
 
         for lang in ['pt_BR', 'en_US', 'es_ES']:
             numeric_start_month = obj['publication_start_month'] or 0

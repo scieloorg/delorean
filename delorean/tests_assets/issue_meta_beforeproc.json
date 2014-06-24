@@ -27,5 +27,6 @@
     "updated": "2012-08-02T10:39:35.325916",
     "volume": "23",
     "order": 1,
-    "thematic_titles": {"en": "Thematic Title"}
+    "thematic_titles": {"en": "Thematic Title"},
+    "type": "regular"
 }
