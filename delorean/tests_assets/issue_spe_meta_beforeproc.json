@@ -8,9 +8,9 @@
     "is_press_release": true,
     "is_trashed": false,
     "journal": "/api/v1/journals/2647/",
-    "label": "v23n1",
-    "number": "1",
-    "publication_end_month": 1,
+    "label": "v23 spe.1",
+    "number": "",
+    "publication_end_month": 3,
     "publication_start_month": 1,
     "publication_year": 2010,
     "resource_uri": "/api/v1/issues/22615/",
@@ -21,11 +21,11 @@
         "/api/v1/sections/67233/",
         "/api/v1/sections/67221/"
     ],
-    "suppl_number": "2",
-    "suppl_volume": "2",
+    "spe_text": "1",
     "total_documents": 16,
     "updated": "2012-08-02T10:39:35.325916",
     "volume": "23",
     "order": 1,
-    "type": "regular"
+    "thematic_titles": {"en": "Thematic Title"},
+    "type": "special"
 }
