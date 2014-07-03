@@ -133,6 +133,7 @@ class Transformer(object):
 
         return '\n'.join(res)
 
+
 class DataCollector(object):
     """
     Responsible for collecting data from RESTful interfaces,
@@ -402,6 +403,13 @@ class TitleCollector(DataCollector):
         del(obj['collections'])
         del(obj['issues'])
         del(obj['resource_uri'])
+
+        # lookup previous journal
+        journalid = obj['previous_title'].strip('/').split('/')[-1]
+        obj['previous_title'] = self._lookup_fields('journals', journalid, ['title'])
+
+        if 'title' in obj['previous_title']:
+            obj['previous_title'] = obj['previous_title']['title']
 
         # dateiso format
         obj['created'] = obj['created'][:10].replace('-', '')

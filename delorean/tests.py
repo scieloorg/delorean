@@ -229,6 +229,7 @@ class TitleCollectorTests(MockerTestCase):
         journal_data = {'meta': {'next': None}, 'objects': []}
         d = json.load(open(os.path.join(here,
             'tests_assets/journal_meta_beforeproc.json')))
+
         journal_data['objects'].append(d)
 
         dummy_slumber = self.mocker.mock()
@@ -242,8 +243,14 @@ class TitleCollectorTests(MockerTestCase):
         dummy_slumber.journals
         self.mocker.result(dummy_journal)
 
-        dummy_journal.get(offset=ANY, limit=ANY)
+        dummy_journal.get(limit=50, offset=0) # Journal Metadata request
         self.mocker.result(journal_data)
+
+        dummy_slumber.journals(ANY)
+        self.mocker.result(dummy_journal)
+
+        dummy_journal.get()
+        self.mocker.result({'title': 'Previous title'})
 
         dummy_slumber.users(ANY)
         self.mocker.result(dummy_user)
