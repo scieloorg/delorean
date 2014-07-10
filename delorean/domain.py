@@ -405,11 +405,12 @@ class TitleCollector(DataCollector):
         del(obj['resource_uri'])
 
         # lookup previous journal
-        journalid = obj['previous_title'].strip('/').split('/')[-1]
-        obj['previous_title'] = self._lookup_fields('journals', journalid, ['title'])
+        if 'previous_title' in obj:
+            journalid = obj['previous_title'].strip('/').split('/')[-1]
+            obj['previous_title'] = self._lookup_fields('journals', journalid, ['title'])
 
-        if 'title' in obj['previous_title']:
-            obj['previous_title'] = obj['previous_title']['title']
+            if 'title' in obj['previous_title']:
+                obj['previous_title'] = obj['previous_title']['title']
 
         # dateiso format
         obj['created'] = obj['created'][:10].replace('-', '')
