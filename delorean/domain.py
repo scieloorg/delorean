@@ -405,7 +405,7 @@ class TitleCollector(DataCollector):
         del(obj['resource_uri'])
 
         # lookup previous journal
-        if 'previous_title' in obj:
+        if obj['previous_title']:
             journalid = obj['previous_title'].strip('/').split('/')[-1]
             obj['previous_title'] = self._lookup_fields('journals', journalid, ['title'])
 
