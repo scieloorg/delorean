@@ -415,25 +415,25 @@ class TitleCollector(DataCollector):
 
         joined_editor_address = []
 
-        if 'editor_address' in obj and obj['editor_address'] != '':
+        if 'editor_address' in obj and obj['editor_address']:
             joined_editor_address.append(obj['editor_address'])
 
-        if 'editor_address_city' in obj and obj['editor_address_city'] != '':
+        if 'editor_address_city' in obj and obj['editor_address_city']:
             joined_editor_address.append(obj['editor_address_city'])
 
-        if 'editor_address_state' in obj and obj['editor_address_state'] != '':
+        if 'editor_address_state' in obj and obj['editor_address_state']:
             joined_editor_address.append(obj['editor_address_state'])
 
-        if 'editor_address_country' in obj and obj['editor_address_country'] != '':
+        if 'editor_address_country' in obj and obj['editor_address_country']:
             joined_editor_address.append(obj['editor_address_country'])
 
-        if 'editor_address_zip' in obj and obj['editor_address_zip'] != '':
+        if 'editor_address_zip' in obj and obj['editor_address_zip']:
             joined_editor_address.append(obj['editor_address_zip'])
 
-        if 'editor_phone1' in obj and obj['editor_phone1'] != '':
+        if 'editor_phone1' in obj and obj['editor_phone1']:
             joined_editor_address.append(obj['editor_phone1'])
 
-        if 'editor_phone2' in obj and obj['editor_phone2'] != '':
+        if 'editor_phone2' in obj and obj['editor_phone2']:
             joined_editor_address.append(obj['editor_phone2'])
 
 
