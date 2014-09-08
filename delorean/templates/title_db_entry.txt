@@ -43,7 +43,7 @@
 % endif
 ##
 % if editor_address is not UNDEFINED and editor_address:
-!v063!${editor_address}
+!v063!${editor_address_joined}
 % endif
 ##
 % if editor_email is not UNDEFINED and editor_email:
