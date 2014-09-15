@@ -8,12 +8,10 @@
 !v020!${national_code}
 % endif
 ##
-% if scielo_issn is not UNDEFINED and scielo_issn:
-% if scielo_issn == 'print':
-!v035!PRINT
-% else:
+% if eletronic_issn is not UNDEFINED and eletronic_issn
 !v035!ONLIN
-% endif
+% else:
+!v035!PRINT
 %endif
 ##
 % if secs_code is not UNDEFINED and secs_code:
