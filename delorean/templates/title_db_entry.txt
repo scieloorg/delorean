@@ -8,11 +8,11 @@
 !v020!${national_code}
 % endif
 ##
-% if eletronic_issn is not UNDEFINED and eletronic_issn
+% if eletronic_issn is not UNDEFINED and eletronic_issn:
 !v035!ONLIN
 % else:
 !v035!PRINT
-%endif
+% endif
 ##
 % if secs_code is not UNDEFINED and secs_code:
 !v037!${secs_code}
