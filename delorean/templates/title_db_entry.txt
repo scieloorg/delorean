@@ -199,6 +199,20 @@
 !v692!${url_online_submission}
 % endif
 ##
+% if is_indexed_scie is not UNDEFINED and is_indexed_scie:
+!v851!SCIE
+% endif %
+% if is_indexed_ssci is not UNDEFINED and is_indexed_ssci:
+!v852!SSCI
+% endif %
+% if is_indexed_aehci is not UNDEFINED and is_indexed_aehci:
+!v853!A&HCI
+% endif %
+% if subject_categories is not UNDEFINED and subject_categories:
+% for value in subject_categories:
+!v854!${value}
+% endfor
+% endif
 % if notes is not UNDEFINED and notes:
 !v900!${notes}
 % endif
