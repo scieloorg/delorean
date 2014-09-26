@@ -102,6 +102,14 @@
         {"date": "1998-04-30T00:00:00", "status": "current"}
     ],
     "study_areas": ["Health Sciences"],
+    "subject_categories": [
+    "Humanities, Multidisciplinary",
+    "Social Sciences, Interdisciplinary",
+    "Sociology"
+    ],
+    "is_indexed_aehci": true,
+    "is_indexed_scie": true,
+    "is_indexed_ssci": true,
     "editor_address": "Av. Brigadeiro Luiz Antonio, 278 - 6° - Salas 10 e 11 01318-901 São Paulo/SP Brasil Tel.: (11) 3288-8174/3289-0741",
     "editor_email": "cbcd@cbcd.org.br",
     "use_license": {
