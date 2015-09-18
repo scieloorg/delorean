@@ -99,7 +99,8 @@
     "pub_status_history": [
         {"date": "2009-09-01T00:00:00", "status": "current"},
         {"date": "2008-08-01T00:00:00", "status": "suspended"},
-        {"date": "1998-04-30T00:00:00", "status": "current"}
+        {"date": "1998-04-30T00:00:00", "status": "current"},
+        {"date": "1997-05-01T00:00:00", "status": "?"}
     ],
     "study_areas": ["Health Sciences"],
     "subject_categories": [

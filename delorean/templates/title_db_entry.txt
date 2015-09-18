@@ -156,6 +156,14 @@
 % endif
 % endif
 ##
+% if eletronic_issn is not UNDEFINED and eletronic_issn:
+!v435!${eletronic_issn}^tONLIN
+% endif
+##
+% if print_issn is not UNDEFINED and print_issn:
+!v435!${print_issn}^tPRINT
+% endif
+##
 % if subject_descriptors is not UNDEFINED and subject_descriptors:
 % for value in subject_descriptors.split('\n'):
 !v440!${value.upper()}

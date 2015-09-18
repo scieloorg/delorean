@@ -468,6 +468,7 @@ class TitleCollector(DataCollector):
             elif event['status'] == 'suspended':
                 status = 'S'
             else:
+                continue
                 status = '?'
 
             if len(pub_status_history[-1]) < 2:
