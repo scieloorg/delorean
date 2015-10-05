@@ -72,12 +72,18 @@
 !v130!${journal['title']}
 % endif
 ##
+% if number is UNDEFINED or (number is not UNDEFINED and not number):
+% if volume is not UNDEFINED and volume:
 % if suppl_volume is not UNDEFINED and suppl_volume:
 !v131!${suppl_volume}
 % endif
+% endif
+% endif
 ##
+% if number is not UNDEFINED and number:
 % if suppl_number is not UNDEFINED and suppl_number:
 !v132!${suppl_number}
+% endif
 % endif
 ##
 % if journal['title_iso'] is not UNDEFINED and journal['title_iso']:
