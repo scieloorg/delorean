@@ -272,6 +272,7 @@ class IssueCollector(DataCollector):
         journalid = obj['journal'].strip('/').split('/')[-1]
         obj['journal'] = self._lookup_fields('journals', journalid, ['title',
                                                                      'short_title',
+                                                                     'medline_title',
                                                                      'publisher_name',
                                                                      'publication_city',
                                                                      'sponsors',

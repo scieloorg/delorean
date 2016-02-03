@@ -102,6 +102,9 @@
 % endfor
 % endif
 ##
+% if journal['medline_title'] is not UNDEFINED and journal['medline_title']:
+!v421!${journal['medline_title']}
+% endif
 % if journal['publisher_name'] is not UNDEFINED and journal['publisher_name']:
 !v480!${journal['publisher_name']}
 % endif

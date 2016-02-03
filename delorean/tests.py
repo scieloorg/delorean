@@ -458,6 +458,7 @@ class IssueCollectorTests(MockerTestCase):
             "resource_uri": "/api/v1/journals/2647/",
             "acronym": "ABCD",
             "title_iso": "ABCD, arq. bras. cir. dig",
+            "medline_title": "ABCD arq bras cir dig",
             "use_license": {
                 "disclaimer": "Licencia Creative Commons",
                 "id": "1",
@@ -553,6 +554,7 @@ class IssueCollectorTests(MockerTestCase):
             "resource_uri": "/api/v1/journals/2647/",
             "acronym": "ABCD",
             "title_iso": "ABCD, arq. bras. cir. dig",
+            "medline_title": "ABCD arq bras cir dig",
             "use_license": {
                 "disclaimer": "Licencia Creative Commons",
                 "id": "1",
@@ -648,6 +650,7 @@ class IssueCollectorTests(MockerTestCase):
             "resource_uri": "/api/v1/journals/2647/",
             "acronym": "ABCD",
             "title_iso": "ABCD, arq. bras. cir. dig",
+            "medline_title": "ABCD arq bras cir dig",
             "use_license": {
                 "disclaimer": "Licencia Creative Commons",
                 "id": "1",

@@ -86,6 +86,7 @@
     "scielo_issn": "print",
     "secs_code": "6633",
     "short_title": "ABCD, arq. bras. cir. dig.",
+    "medline_title": "ABCD arq bras cir dig",
     "sponsors": [
         "/api/v1/sponsors/2/"
     ],
