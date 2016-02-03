@@ -156,6 +156,10 @@
 % endif
 % endif
 ##
+% if medline_title is not UNDEFINED and medline_title:
+!v421!${medline_title}
+% endif
+##
 % if eletronic_issn is not UNDEFINED and eletronic_issn:
 !v435!${eletronic_issn}^tONLIN
 % endif
