@@ -105,6 +105,15 @@
 % if journal['medline_title'] is not UNDEFINED and journal['medline_title']:
 !v421!${journal['medline_title']}
 % endif
+##
+% if journal['eletronic_issn'] is not UNDEFINED and journal['eletronic_issn']:
+!v435!${journal['eletronic_issn']}^tONLIN
+% endif
+##
+% if journal['print_issn'] is not UNDEFINED and journal['print_issn']:
+!v435!${journal['print_issn']}^tPRINT
+% endif
+##
 % if journal['publisher_name'] is not UNDEFINED and journal['publisher_name']:
 !v480!${journal['publisher_name']}
 % endif
