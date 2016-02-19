@@ -289,6 +289,9 @@ class IssueCollector(DataCollector):
         pub_month = "%02d" % obj['publication_end_month'] if obj['publication_end_month'] else  u'00'
         obj['publication_date'] = unicode(obj['publication_year']) + pub_month + u'00'
 
+        if not obj.get('use_license', None) and obj['journal'].get('use_license', None):
+            obj['use_license'] = obj['journal']['use_license']
+
         sections = {}
         # lookup sections
         for section in obj['sections']:

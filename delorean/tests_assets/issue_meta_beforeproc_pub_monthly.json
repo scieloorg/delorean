@@ -27,5 +27,12 @@
     "updated": "2012-08-02T10:39:35.325916",
     "volume": "23",
     "order": 1,
-    "type": "regular"
+    "type": "regular",
+    "use_license": {
+        "disclaimer": "Licencia Creative Commons",
+        "id": "1",
+        "license_code": "BY-NC",
+        "reference_url": null,
+        "resource_uri": "/api/v1/uselicenses/1/"
+    }
 }

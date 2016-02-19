@@ -117,11 +117,21 @@
 % if journal['publisher_name'] is not UNDEFINED and journal['publisher_name']:
 !v480!${journal['publisher_name']}
 % endif
-!v540!^t${journal['use_license']['disclaimer']}^les
-!v540!^t${journal['use_license']['disclaimer']}^lpt
-!v540!^t${journal['use_license']['disclaimer']}^len
-% if journal['use_license']['license_code'] is not UNDEFINED and journal['use_license']['license_code']:
-!v541!${journal['use_license']['license_code']}
+##
+% if use_license['disclaimer'] is not UNDEFINED and use_license['disclaimer']:
+!v540!^t${use_license['disclaimer']}^les
+% endif
+##
+% if use_license['disclaimer'] is not UNDEFINED and use_license['disclaimer']:
+!v540!^t${use_license['disclaimer']}^lpt
+% endif
+##
+% if use_license['disclaimer'] is not UNDEFINED and use_license['disclaimer']:
+!v540!^t${use_license['disclaimer']}^len
+% endif
+##
+% if use_license['license_code'] is not UNDEFINED and use_license['license_code']:
+!v541!${use_license['license_code']}
 % endif
 !v706!i
 ##

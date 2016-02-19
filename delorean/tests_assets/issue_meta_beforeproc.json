@@ -28,5 +28,12 @@
     "volume": "23",
     "order": 1,
     "thematic_titles": {"en": "Thematic Title"},
-    "type": "regular"
+    "type": "regular",
+    "use_license": {
+        "disclaimer": "Licencia Creative Commons",
+        "id": "1",
+        "license_code": "BY-NC-ND",
+        "reference_url": null,
+        "resource_uri": "/api/v1/uselicenses/1/"
+    }
 }

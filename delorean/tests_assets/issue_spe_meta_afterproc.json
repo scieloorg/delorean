@@ -98,5 +98,12 @@
     "volume": "23",
     "thematic_titles": {"en": "Thematic Title"},
     "order": "20101",
-    "type": "special"
+    "type": "special",
+    "use_license": {
+        "disclaimer": "Licencia Creative Commons",
+        "id": "1",
+        "license_code": "BY-NC",
+        "reference_url": null,
+        "resource_uri": "/api/v1/uselicenses/1/"
+    }
 }
