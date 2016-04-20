@@ -133,6 +133,7 @@ class Transformer(object):
 
         return '\n'.join(res)
 
+
 class DataCollector(object):
     """
     Responsible for collecting data from RESTful interfaces,
@@ -224,6 +225,7 @@ class DataCollector(object):
                 if all([self._username, self._api_key]):
                     kwargs['username'] = self._username
                     kwargs['api_key'] = self._api_key
+                    kwargs['collection'] = self._collection
 
                 self._last_resource = {}  # release the memory
                 self._last_resource[res_lookup_key] = getattr(
