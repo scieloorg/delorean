@@ -62,6 +62,7 @@
         ]
     ],
     "notes": "",
+    "previous_title": "/api/v1/journals/99",
     "other_previous_title": "",
     "other_titles": [
         [
@@ -85,6 +86,7 @@
     "scielo_issn": "print",
     "secs_code": "6633",
     "short_title": "ABCD, arq. bras. cir. dig.",
+    "medline_title": "ABCD arq bras cir dig",
     "sponsors": [
         "/api/v1/sponsors/2/"
     ],
@@ -98,9 +100,18 @@
     "pub_status_history": [
         {"date": "2009-09-01T00:00:00", "status": "current"},
         {"date": "2008-08-01T00:00:00", "status": "suspended"},
-        {"date": "1998-04-30T00:00:00", "status": "current"}
+        {"date": "1998-04-30T00:00:00", "status": "current"},
+        {"date": "1997-05-01T00:00:00", "status": "?"}
     ],
     "study_areas": ["Health Sciences"],
+    "subject_categories": [
+    "Humanities, Multidisciplinary",
+    "Social Sciences, Interdisciplinary",
+    "Sociology"
+    ],
+    "is_indexed_aehci": true,
+    "is_indexed_scie": true,
+    "is_indexed_ssci": true,
     "editor_address": "Av. Brigadeiro Luiz Antonio, 278 - 6° - Salas 10 e 11 01318-901 São Paulo/SP Brasil Tel.: (11) 3288-8174/3289-0741",
     "editor_email": "cbcd@cbcd.org.br",
     "use_license": {

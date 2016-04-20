@@ -8,27 +8,21 @@
 !v020!${national_code}
 % endif
 ##
-% if scielo_issn is not UNDEFINED and scielo_issn:
-% if scielo_issn == 'print':
-!v035!PRINT
-% else:
+% if eletronic_issn is not UNDEFINED and eletronic_issn:
 !v035!ONLIN
+% else:
+!v035!PRINT
 % endif
-%endif
 ##
 % if secs_code is not UNDEFINED and secs_code:
 !v037!${secs_code}
 % endif
 ##
 % if pub_status is not UNDEFINED and pub_status:
-% if pub_status == 'current':
-!v050!C
-% elif pub_status == 'deceased':
-!v050!D
-% elif pub_status == 'suspended':
-!v050!S
-% else:
+% if pub_status == 'inprogress':
 !v050!?
+% else:
+!v050!C
 % endif
 % endif
 ##
@@ -47,7 +41,7 @@
 % endif
 ##
 % if editor_address is not UNDEFINED and editor_address:
-!v063!${editor_address}
+!v063!${editor_address_joined}
 % endif
 ##
 % if editor_email is not UNDEFINED and editor_email:
@@ -162,6 +156,18 @@
 % endif
 % endif
 ##
+% if medline_title is not UNDEFINED and medline_title:
+!v421!${medline_title}
+% endif
+##
+% if eletronic_issn is not UNDEFINED and eletronic_issn:
+!v435!${eletronic_issn}^tONLIN
+% endif
+##
+% if print_issn is not UNDEFINED and print_issn:
+!v435!${print_issn}^tPRINT
+% endif
+##
 % if subject_descriptors is not UNDEFINED and subject_descriptors:
 % for value in subject_descriptors.split('\n'):
 !v440!${value.upper()}
@@ -205,6 +211,20 @@
 !v692!${url_online_submission}
 % endif
 ##
+% if is_indexed_scie is not UNDEFINED and is_indexed_scie:
+!v851!SCIE
+% endif %
+% if is_indexed_ssci is not UNDEFINED and is_indexed_ssci:
+!v852!SSCI
+% endif %
+% if is_indexed_aehci is not UNDEFINED and is_indexed_aehci:
+!v853!A&HCI
+% endif %
+% if subject_categories is not UNDEFINED and subject_categories:
+% for value in subject_categories:
+!v854!${value}
+% endfor
+% endif
 % if notes is not UNDEFINED and notes:
 !v900!${notes}
 % endif

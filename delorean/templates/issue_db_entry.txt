@@ -13,6 +13,12 @@
 !v032!${number}
 % endif
 ##
+% if thematic_titles is not UNDEFINED:
+% for value in thematic_titles:
+!v033!${thematic_titles[value]}^l${value}
+% endfor
+% endif
+##
 % if journal['scielo_issn'] is not UNDEFINED and journal['scielo_issn']:
 % if journal['scielo_issn'] == 'print':
 !v035!${journal['print_issn']}
@@ -66,12 +72,18 @@
 !v130!${journal['title']}
 % endif
 ##
+% if number is UNDEFINED or (number is not UNDEFINED and not number):
+% if volume is not UNDEFINED and volume:
 % if suppl_volume is not UNDEFINED and suppl_volume:
 !v131!${suppl_volume}
 % endif
+% endif
+% endif
 ##
+% if number is not UNDEFINED and number:
 % if suppl_number is not UNDEFINED and suppl_number:
 !v132!${suppl_number}
+% endif
 % endif
 ##
 % if journal['title_iso'] is not UNDEFINED and journal['title_iso']:
@@ -90,14 +102,36 @@
 % endfor
 % endif
 ##
+% if journal['medline_title'] is not UNDEFINED and journal['medline_title']:
+!v421!${journal['medline_title']}
+% endif
+##
+% if journal['eletronic_issn'] is not UNDEFINED and journal['eletronic_issn']:
+!v435!${journal['eletronic_issn']}^tONLIN
+% endif
+##
+% if journal['print_issn'] is not UNDEFINED and journal['print_issn']:
+!v435!${journal['print_issn']}^tPRINT
+% endif
+##
 % if journal['publisher_name'] is not UNDEFINED and journal['publisher_name']:
 !v480!${journal['publisher_name']}
 % endif
-!v540!^t${journal['use_license']['disclaimer']}^les
-!v540!^t${journal['use_license']['disclaimer']}^lpt
-!v540!^t${journal['use_license']['disclaimer']}^len
-% if journal['use_license']['license_code'] is not UNDEFINED and journal['use_license']['license_code']:
-!v541!${journal['use_license']['license_code']}
+##
+% if use_license['disclaimer'] is not UNDEFINED and use_license['disclaimer']:
+!v540!^t${use_license['disclaimer']}^les
+% endif
+##
+% if use_license['disclaimer'] is not UNDEFINED and use_license['disclaimer']:
+!v540!^t${use_license['disclaimer']}^lpt
+% endif
+##
+% if use_license['disclaimer'] is not UNDEFINED and use_license['disclaimer']:
+!v540!^t${use_license['disclaimer']}^len
+% endif
+##
+% if use_license['license_code'] is not UNDEFINED and use_license['license_code']:
+!v541!${use_license['license_code']}
 % endif
 !v706!i
 ##

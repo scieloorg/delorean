@@ -273,6 +273,7 @@ class IssueCollector(DataCollector):
         journalid = obj['journal'].strip('/').split('/')[-1]
         obj['journal'] = self._lookup_fields('journals', journalid, ['title',
                                                                      'short_title',
+                                                                     'medline_title',
                                                                      'publisher_name',
                                                                      'publication_city',
                                                                      'sponsors',
@@ -286,8 +287,11 @@ class IssueCollector(DataCollector):
                                                                      ])
 
         # Formating publication date, must have 00 for the days digits.
-        pub_month = "%02d" % obj['publication_end_month']
+        pub_month = "%02d" % obj['publication_end_month'] if obj['publication_end_month'] else  u'00'
         obj['publication_date'] = unicode(obj['publication_year']) + pub_month + u'00'
+
+        if not obj.get('use_license', None) and obj['journal'].get('use_license', None):
+            obj['use_license'] = obj['journal']['use_license']
 
         sections = {}
         # lookup sections
@@ -309,6 +313,10 @@ class IssueCollector(DataCollector):
 
         obj['sections'] = sections
 
+
+        if obj['type'] == 'special':
+            obj['number'] = 'spe.%s' % obj.get('spe_text', '')
+
         # Issue Label ShortTitle
 
         obj['display'] = {}
@@ -323,7 +331,7 @@ class IssueCollector(DataCollector):
             obj['display']['es'] += u'^t' + unicode(obj['journal']['short_title'])
 
         # Volume
-        if 'volume' in obj  and obj['volume']:
+        if 'volume' in obj and obj['volume']:
             obj['display']['pt'] += u'^vvol.' + unicode(obj['volume'])
             obj['display']['en'] += u'^vvol.' + unicode(obj['volume'])
             obj['display']['es'] += u'^vvol.' + unicode(obj['volume'])
@@ -336,9 +344,14 @@ class IssueCollector(DataCollector):
 
         # Number
         if 'number' in obj and obj['number']:
-            obj['display']['pt'] += u'^nno.' + unicode(obj['number'])
-            obj['display']['en'] += u'^nn.' + unicode(obj['number'])
-            obj['display']['es'] += u'^nno.' + unicode(obj['number'])
+            if obj['type'] == 'special':
+                obj['display']['pt'] += u'^n' + unicode(obj['number'])
+                obj['display']['en'] += u'^n' + unicode(obj['number'])
+                obj['display']['es'] += u'^n' + unicode(obj['number'])
+            else:
+                obj['display']['pt'] += u'^nno.' + unicode(obj['number'])
+                obj['display']['en'] += u'^nn.' + unicode(obj['number'])
+                obj['display']['es'] += u'^nno.' + unicode(obj['number'])
 
         # Number Supplement
         if 'suppl_number' in obj and obj['suppl_number']:
@@ -353,8 +366,8 @@ class IssueCollector(DataCollector):
             obj['display']['es'] += u'^c' + unicode(obj['journal']['publication_city'])
 
         for lang in ['pt_BR', 'en_US', 'es_ES']:
-            numeric_start_month = obj['publication_start_month']
-            numeric_end_month = obj['publication_end_month']
+            numeric_start_month = obj['publication_start_month'] or 0
+            numeric_end_month = obj['publication_end_month'] or 0
 
             if numeric_start_month in range(1, 13):
                 start_month = MONTH_ABBREVS[lang][numeric_start_month]
@@ -366,14 +379,22 @@ class IssueCollector(DataCollector):
             else:
                 end_month = ''
 
-            sub_m = './'.join([month for month in [start_month, end_month] if month])
+            #Verify if the start_month is equal to end_month
+            if start_month == end_month:
+                sub_m = start_month
+            else:
+                sub_m = './'.join([month for month in [start_month, end_month] if month])
 
-            obj['display'][lang[:2]] += u'^m' + sub_m + u'.'
+            if sub_m:
+                obj['display'][lang[:2]] += u'^m' + sub_m + u'.'
+            else:
+                obj['display'][lang[:2]] += u'^m'
+
 
         # Year
-        obj['display']['pt'] += u'^y' + unicode(obj['publication_year'])
-        obj['display']['en'] += u'^y' + unicode(obj['publication_year'])
-        obj['display']['es'] += u'^y' + unicode(obj['publication_year'])
+        obj['display']['pt'] += u'^a' + unicode(obj['publication_year'])
+        obj['display']['en'] += u'^a' + unicode(obj['publication_year'])
+        obj['display']['es'] += u'^a' + unicode(obj['publication_year'])
 
         obj['order'] = str(obj['publication_year']) + str(obj['order'])
 
@@ -387,6 +408,42 @@ class TitleCollector(DataCollector):
         del(obj['collections'])
         del(obj['issues'])
         del(obj['resource_uri'])
+
+        # lookup previous journal
+        if obj['previous_title']:
+            journalid = obj['previous_title'].strip('/').split('/')[-1]
+            obj['previous_title'] = self._lookup_fields('journals', journalid, ['title'])
+
+            if 'title' in obj['previous_title']:
+                obj['previous_title'] = obj['previous_title']['title']
+
+
+        joined_editor_address = []
+
+        if 'editor_address' in obj and obj['editor_address']:
+            joined_editor_address.append(obj['editor_address'])
+
+        if 'editor_address_city' in obj and obj['editor_address_city']:
+            joined_editor_address.append(obj['editor_address_city'])
+
+        if 'editor_address_state' in obj and obj['editor_address_state']:
+            joined_editor_address.append(obj['editor_address_state'])
+
+        if 'editor_address_country' in obj and obj['editor_address_country']:
+            joined_editor_address.append(obj['editor_address_country'])
+
+        if 'editor_address_zip' in obj and obj['editor_address_zip']:
+            joined_editor_address.append(obj['editor_address_zip'])
+
+        if 'editor_phone1' in obj and obj['editor_phone1']:
+            joined_editor_address.append(obj['editor_phone1'])
+
+        if 'editor_phone2' in obj and obj['editor_phone2']:
+            joined_editor_address.append(obj['editor_phone2'])
+
+
+        # Editor Address joined
+        obj['editor_address_joined'] = ', '.join(joined_editor_address)
 
         # dateiso format
         obj['created'] = obj['created'][:10].replace('-', '')
@@ -416,6 +473,7 @@ class TitleCollector(DataCollector):
             elif event['status'] == 'suspended':
                 status = 'S'
             else:
+                continue
                 status = '?'
 
             if len(pub_status_history[-1]) < 2:
