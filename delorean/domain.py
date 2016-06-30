@@ -441,6 +441,9 @@ class TitleCollector(DataCollector):
         if 'editor_phone2' in obj and obj['editor_phone2']:
             joined_editor_address.append(obj['editor_phone2'])
 
+        if 'missions' in obj and obj['missions']:
+            for item in obj['missions']:
+                item[1] = item[1].replace('\r\n', '\n').replace('\n', '<br/>')
 
         # Editor Address joined
         obj['editor_address_joined'] = ', '.join(joined_editor_address)
