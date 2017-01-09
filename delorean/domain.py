@@ -315,7 +315,7 @@ class IssueCollector(DataCollector):
 
 
         if obj['type'] == 'special':
-            obj['number'] = 'spe.%s' % obj.get('spe_text', '')
+            obj['number'] = 'spe%s' % obj.get('spe_text', '')
 
         # Issue Label ShortTitle
 
@@ -345,9 +345,9 @@ class IssueCollector(DataCollector):
         # Number
         if 'number' in obj and obj['number']:
             if obj['type'] == 'special':
-                obj['display']['pt'] += u'^n' + unicode(obj['number'])
-                obj['display']['en'] += u'^n' + unicode(obj['number'])
-                obj['display']['es'] += u'^n' + unicode(obj['number'])
+                obj['display']['pt'] += u'^n' + unicode(obj['number'].replace('spe', 'spe '))
+                obj['display']['en'] += u'^n' + unicode(obj['number'].replace('spe', 'spe '))
+                obj['display']['es'] += u'^n' + unicode(obj['number'].replace('spe', 'spe '))
             else:
                 obj['display']['pt'] += u'^nno.' + unicode(obj['number'])
                 obj['display']['en'] += u'^nn.' + unicode(obj['number'])

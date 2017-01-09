@@ -1,15 +1,15 @@
 !ID 0
 !v030!ABCD, arq. bras. cir. dig.
 !v031!23
-!v032!spe.1
+!v032!spe1
 !v033!Thematic Title^len
 !v035!0102-6720
 !v036!20101
 !v041!pr
 !v042!1
-!v043!^les^tABCD, arq. bras. cir. dig.^vvol.23^nspe.1^cSão Paulo^mene./mar.^a2010
-!v043!^lpt^tABCD, arq. bras. cir. dig.^vvol.23^nspe.1^cSão Paulo^mJan./Mar.^a2010
-!v043!^len^tABCD, arq. bras. cir. dig.^vvol.23^nspe.1^cSão Paulo^mJan./Mar.^a2010
+!v043!^les^tABCD, arq. bras. cir. dig.^vvol.23^nspe 1^cSão Paulo^mene./mar.^a2010
+!v043!^lpt^tABCD, arq. bras. cir. dig.^vvol.23^nspe 1^cSão Paulo^mJan./Mar.^a2010
+!v043!^len^tABCD, arq. bras. cir. dig.^vvol.23^nspe 1^cSão Paulo^mJan./Mar.^a2010
 !v048!^les^hSumario
 !v048!^lpt^hSumario
 !v048!^len^hTable of Contents

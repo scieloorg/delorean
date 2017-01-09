@@ -18,7 +18,7 @@ requires = [
     ]
 
 setup(name='delorean',
-      version='0.1',
+      version='0.1.1',
       description='delorean',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
