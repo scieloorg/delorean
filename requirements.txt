@@ -15,7 +15,7 @@ setuptools-git==1.0
 slumber==0.6.0
 translationstring==1.1
 venusian==1.0a8
-waitress==0.8.8
+waitress==1.4.0
 wsgiref==0.1.2
 zope.deprecation==4.1.0
 zope.interface==4.1.0
