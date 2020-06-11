@@ -59,8 +59,8 @@
 % if ctrl_vocabulary is not UNDEFINED and ctrl_vocabulary:
 !v085!${ctrl_vocabulary}
 % endif
-% if created is not UNDEFINED and created:
-!v091!${created}
+% if updated is not UNDEFINED and updated:
+!v091!${updated}
 % endif
 % if editorial_standard is not UNDEFINED and editorial_standard:
 !v117!${editorial_standard}
