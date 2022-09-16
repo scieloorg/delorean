@@ -1,4 +1,4 @@
-Mako==0.9.1
+Mako==1.2.2
 MarkupSafe==0.18
 PasteDeploy==1.5.2
 Pygments==1.6
