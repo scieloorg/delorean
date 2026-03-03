@@ -1,0 +1,24 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: delorean-app
+    ports:
+      - "6543:6543"
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: pserve development.ini --reload
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: delorean-test
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: python -m pytest -q delorean/tests.py
+    profiles:
+      - test

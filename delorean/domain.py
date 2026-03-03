@@ -1,12 +1,9 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 import time
 import os
 import tarfile
-import StringIO
+import io
 import tempfile
-import collections
+from collections.abc import Iterable
 from datetime import datetime
 import logging
 from abc import (
@@ -57,8 +54,9 @@ class Bundle(object):
         try:
             for name, data in self._data.items():
                 info = tarfile.TarInfo(name)
-                info.size = len(data)
-                out.addfile(info, StringIO.StringIO(data.encode('cp1252', 'replace')))
+                encoded_data = data.encode('cp1252', 'replace')
+                info.size = len(encoded_data)
+                out.addfile(info, io.BytesIO(encoded_data))
         finally:
             out.close()
 
@@ -70,9 +68,9 @@ class Bundle(object):
 
         base_path = os.path.split(os.path.splitext(target)[-2])[0]
         if not os.path.exists(base_path):
-            os.makedirs(base_path, 0755)
+            os.makedirs(base_path, 0o755)
 
-        with open(target, 'w') as f:
+        with open(target, 'wb') as f:
             f.write(data.read())
 
 
@@ -103,14 +101,15 @@ class Transformer(object):
 
         try:
             return self._template.render(**data)
-        except NameError, exc:
+        except NameError as exc:
             raise ValueError("there are some data missing: {}".format(exc))
-        except:
+        except Exception:
             traceback = RichTraceback()
             for (filename, lineno, function, line) in traceback.traceback:
-                print "File %s, line %s, in %s" % (filename, lineno, function)
-                print line, "\n"
-            print "%s: %s" % (str(traceback.error.__class__.__name__), traceback.error)
+                logger.error("File %s, line %s, in %s", filename, lineno, function)
+                logger.error("%s\n", line)
+            logger.error("%s: %s", str(traceback.error.__class__.__name__), traceback.error)
+            raise
 
     def transform_list(self, data_list, callabl=None):
         """
@@ -121,7 +120,7 @@ class Transformer(object):
            isinstance(data_list, set):
             raise TypeError('data must be iterable')
 
-        if not isinstance(data_list, collections.Iterable):
+        if not isinstance(data_list, Iterable):
             raise TypeError('data must be iterable')
 
         res = []
@@ -134,15 +133,13 @@ class Transformer(object):
         return '\n'.join(res)
 
 
-class DataCollector(object):
+class DataCollector(object, metaclass=ABCMeta):
     """
     Responsible for collecting data from RESTful interfaces,
     and making them available as Python datastructures.
 
     Implements an iterable interface.
     """
-    __metaclass__ = ABCMeta
-
     def __init__(self,
                  resource_url,
                  slumber_lib=slumber,
@@ -165,15 +162,22 @@ class DataCollector(object):
         self._memo = {}
         self._last_resource = {}
 
-    def fetch_data(self, offset, limit, collection=None):
+    def _request_kwargs(self, with_collection=False):
         kwargs = {}
 
-        if collection:
-            kwargs['collection'] = collection
+        if with_collection and self._collection:
+            kwargs['collection'] = self._collection
 
         if all([self._username, self._api_key]):
             kwargs['username'] = self._username
             kwargs['api_key'] = self._api_key
+
+        return kwargs
+
+    def fetch_data(self, offset, limit, collection=None):
+        kwargs = self._request_kwargs()
+        if collection:
+            kwargs['collection'] = collection
 
         return self.resource.get(offset=offset, limit=limit, **kwargs)
 
@@ -204,7 +208,7 @@ class DataCollector(object):
                     yield self.get_data(obj)
 
                 if not page['meta']['next']:
-                    raise StopIteration()
+                    return
                 else:
                     offset += ITEMS_PER_REQUEST
                     err_count = 0
@@ -219,13 +223,7 @@ class DataCollector(object):
             """
             res_lookup_key = '%s-%s' % (endpoint, res_id)
             if res_lookup_key not in self._last_resource:
-
-                # authorization params
-                kwargs = {}
-                if all([self._username, self._api_key]):
-                    kwargs['username'] = self._username
-                    kwargs['api_key'] = self._api_key
-                    kwargs['collection'] = self._collection
+                kwargs = self._request_kwargs(with_collection=True)
 
                 self._last_resource = {}  # release the memory
                 self._last_resource[res_lookup_key] = getattr(
@@ -288,7 +286,7 @@ class IssueCollector(DataCollector):
 
         # Formating publication date, must have 00 for the days digits.
         pub_month = "%02d" % obj['publication_end_month'] if obj['publication_end_month'] else  u'00'
-        obj['publication_date'] = unicode(obj['publication_year']) + pub_month + u'00'
+        obj['publication_date'] = str(obj['publication_year']) + pub_month + '00'
 
         if not obj.get('use_license', None) and obj['journal'].get('use_license', None):
             obj['use_license'] = obj['journal']['use_license']
@@ -326,44 +324,44 @@ class IssueCollector(DataCollector):
 
         # Short Title
         if 'short_title' in obj['journal'] and obj['journal']['short_title']:
-            obj['display']['pt'] += u'^t' + unicode(obj['journal']['short_title'])
-            obj['display']['en'] += u'^t' + unicode(obj['journal']['short_title'])
-            obj['display']['es'] += u'^t' + unicode(obj['journal']['short_title'])
+            obj['display']['pt'] += '^t' + str(obj['journal']['short_title'])
+            obj['display']['en'] += '^t' + str(obj['journal']['short_title'])
+            obj['display']['es'] += '^t' + str(obj['journal']['short_title'])
 
         # Volume
         if 'volume' in obj and obj['volume']:
-            obj['display']['pt'] += u'^vvol.' + unicode(obj['volume'])
-            obj['display']['en'] += u'^vvol.' + unicode(obj['volume'])
-            obj['display']['es'] += u'^vvol.' + unicode(obj['volume'])
+            obj['display']['pt'] += '^vvol.' + str(obj['volume'])
+            obj['display']['en'] += '^vvol.' + str(obj['volume'])
+            obj['display']['es'] += '^vvol.' + str(obj['volume'])
 
         # Volume Supplement
         if 'suppl_volume' in obj and obj['suppl_volume']:
-            obj['display']['pt'] += u'^wsupl.' + unicode(obj['suppl_volume'])
-            obj['display']['en'] += u'^wsuppl.' + unicode(obj['suppl_volume'])
-            obj['display']['es'] += u'^wsupl.' + unicode(obj['suppl_volume'])
+            obj['display']['pt'] += '^wsupl.' + str(obj['suppl_volume'])
+            obj['display']['en'] += '^wsuppl.' + str(obj['suppl_volume'])
+            obj['display']['es'] += '^wsupl.' + str(obj['suppl_volume'])
 
         # Number
         if 'number' in obj and obj['number']:
             if obj['type'] == 'special':
-                obj['display']['pt'] += u'^n' + unicode(obj['number'].replace('spe', 'spe '))
-                obj['display']['en'] += u'^n' + unicode(obj['number'].replace('spe', 'spe '))
-                obj['display']['es'] += u'^n' + unicode(obj['number'].replace('spe', 'spe '))
+                obj['display']['pt'] += '^n' + str(obj['number'].replace('spe', 'spe '))
+                obj['display']['en'] += '^n' + str(obj['number'].replace('spe', 'spe '))
+                obj['display']['es'] += '^n' + str(obj['number'].replace('spe', 'spe '))
             else:
-                obj['display']['pt'] += u'^nno.' + unicode(obj['number'])
-                obj['display']['en'] += u'^nn.' + unicode(obj['number'])
-                obj['display']['es'] += u'^nno.' + unicode(obj['number'])
+                obj['display']['pt'] += '^nno.' + str(obj['number'])
+                obj['display']['en'] += '^nn.' + str(obj['number'])
+                obj['display']['es'] += '^nno.' + str(obj['number'])
 
         # Number Supplement
         if 'suppl_number' in obj and obj['suppl_number']:
-            obj['display']['pt'] += u'^ssupl.' + unicode(obj['suppl_number'])
-            obj['display']['en'] += u'^ssuppl.' + unicode(obj['suppl_number'])
-            obj['display']['es'] += u'^ssupl.' + unicode(obj['suppl_number'])
+            obj['display']['pt'] += '^ssupl.' + str(obj['suppl_number'])
+            obj['display']['en'] += '^ssuppl.' + str(obj['suppl_number'])
+            obj['display']['es'] += '^ssupl.' + str(obj['suppl_number'])
 
         # City
         if 'publication_city' in obj['journal'] and obj['journal']['publication_city']:
-            obj['display']['pt'] += u'^c' + unicode(obj['journal']['publication_city'])
-            obj['display']['en'] += u'^c' + unicode(obj['journal']['publication_city'])
-            obj['display']['es'] += u'^c' + unicode(obj['journal']['publication_city'])
+            obj['display']['pt'] += '^c' + str(obj['journal']['publication_city'])
+            obj['display']['en'] += '^c' + str(obj['journal']['publication_city'])
+            obj['display']['es'] += '^c' + str(obj['journal']['publication_city'])
 
         for lang in ['pt_BR', 'en_US', 'es_ES']:
             numeric_start_month = obj['publication_start_month'] or 0
@@ -386,15 +384,15 @@ class IssueCollector(DataCollector):
                 sub_m = './'.join([month for month in [start_month, end_month] if month])
 
             if sub_m:
-                obj['display'][lang[:2]] += u'^m' + sub_m + u'.'
+                obj['display'][lang[:2]] += '^m' + sub_m + '.'
             else:
-                obj['display'][lang[:2]] += u'^m'
+                obj['display'][lang[:2]] += '^m'
 
 
         # Year
-        obj['display']['pt'] += u'^a' + unicode(obj['publication_year'])
-        obj['display']['en'] += u'^a' + unicode(obj['publication_year'])
-        obj['display']['es'] += u'^a' + unicode(obj['publication_year'])
+        obj['display']['pt'] += '^a' + str(obj['publication_year'])
+        obj['display']['en'] += '^a' + str(obj['publication_year'])
+        obj['display']['es'] += '^a' + str(obj['publication_year'])
 
         obj['order'] = str(obj['publication_year']) + str(obj['order'])
 
@@ -419,27 +417,18 @@ class TitleCollector(DataCollector):
 
 
         joined_editor_address = []
-
-        if 'editor_address' in obj and obj['editor_address']:
-            joined_editor_address.append(obj['editor_address'])
-
-        if 'editor_address_city' in obj and obj['editor_address_city']:
-            joined_editor_address.append(obj['editor_address_city'])
-
-        if 'editor_address_state' in obj and obj['editor_address_state']:
-            joined_editor_address.append(obj['editor_address_state'])
-
-        if 'editor_address_country' in obj and obj['editor_address_country']:
-            joined_editor_address.append(obj['editor_address_country'])
-
-        if 'editor_address_zip' in obj and obj['editor_address_zip']:
-            joined_editor_address.append(obj['editor_address_zip'])
-
-        if 'editor_phone1' in obj and obj['editor_phone1']:
-            joined_editor_address.append(obj['editor_phone1'])
-
-        if 'editor_phone2' in obj and obj['editor_phone2']:
-            joined_editor_address.append(obj['editor_phone2'])
+        editor_address_fields = (
+            'editor_address',
+            'editor_address_city',
+            'editor_address_state',
+            'editor_address_country',
+            'editor_address_zip',
+            'editor_phone1',
+            'editor_phone2',
+        )
+        for field in editor_address_fields:
+            if obj.get(field):
+                joined_editor_address.append(obj[field])
 
         if 'missions' in obj and obj['missions']:
             for item in obj['missions']:
@@ -553,80 +542,55 @@ class DeLorean(object):
         now = self._datetime_lib.strftime(self._datetime_lib.now(), fmt)
         return '{0}.{1}'.format('-'.join([prefix, now]), filetype)
 
+    def _generate_bundle(self, target, collection, resource_name,
+                         collector_factory, template_name, bundle_entry_name):
+        HERE = os.path.abspath(os.path.dirname(__file__))
+        expected_resource_name = self._generate_filename(resource_name)
+
+        iter_data = collector_factory(self._api_uri,
+                                      collection=collection,
+                                      username=self.username,
+                                      api_key=self.api_key)
+
+        transformer = self._transformer(filename=os.path.join(HERE,
+            template_name))
+        id_string = transformer.transform_list(iter_data)
+
+        packmeta = [(bundle_entry_name, id_string)]
+        pack = Bundle(*packmeta)
+        pack.deploy(os.path.join(target, expected_resource_name))
+
+        return expected_resource_name
+
     def generate_title(self, target='/tmp/', collection=None):
         """
         Starts the Title bundle generation, and returns the expected
         resource name.
         """
-        HERE = os.path.abspath(os.path.dirname(__file__))
-        expected_resource_name = self._generate_filename('title')
-
-        # data generator
-        iter_data = self._titlecollector(self._api_uri,
-                                         collection=collection,
-                                         username=self.username,
-                                         api_key=self.api_key)
-
-        # id file rendering
-        transformer = self._transformer(filename=os.path.join(HERE,
-            'templates/title_db_entry.txt'))
-        id_string = transformer.transform_list(iter_data)
-
-        # packaging
-        packmeta = [('title.id', id_string)]
-        pack = Bundle(*packmeta)
-        pack.deploy(os.path.join(target, expected_resource_name))
-
-        return expected_resource_name
+        return self._generate_bundle(target, collection,
+                                     resource_name='title',
+                                     collector_factory=self._titlecollector,
+                                     template_name='templates/title_db_entry.txt',
+                                     bundle_entry_name='title.id')
 
     def generate_issue(self, target='/tmp/', collection=None):
         """
         Starts the Issue bundle generation, and returns the expected
         resource name.
         """
-        HERE = os.path.abspath(os.path.dirname(__file__))
-        expected_resource_name = self._generate_filename('issue')
-
-        # data generator
-        iter_data = self._issuecollector(self._api_uri,
-                                         collection=collection,
-                                         username=self.username,
-                                         api_key=self.api_key)
-
-        # id file rendering
-        transformer = self._transformer(filename=os.path.join(HERE,
-            'templates/issue_db_entry.txt'))
-        id_string = transformer.transform_list(iter_data)
-
-        # packaging
-        packmeta = [('issue.id', id_string)]
-        pack = Bundle(*packmeta)
-        pack.deploy(os.path.join(target, expected_resource_name))
-
-        return expected_resource_name
+        return self._generate_bundle(target, collection,
+                                     resource_name='issue',
+                                     collector_factory=self._issuecollector,
+                                     template_name='templates/issue_db_entry.txt',
+                                     bundle_entry_name='issue.id')
 
     def generate_section(self, target='/tmp/', collection=None):
         """
         Starts the Section bundle generation, and returns the expected
         resource name.
         """
-        HERE = os.path.abspath(os.path.dirname(__file__))
-        expected_resource_name = self._generate_filename('section')
-
-        # data generator
-        iter_data = self._sectioncollector(self._api_uri,
-                                           collection=collection,
-                                           username=self.username,
-                                           api_key=self.api_key)
-
-        # id file rendering
-        transformer = self._transformer(filename=os.path.join(HERE,
-            'templates/section_db_entry.txt'))
-        id_string = transformer.transform_list(iter_data)
-
-        # packaging
-        packmeta = [('section.id', id_string)]
-        pack = Bundle(*packmeta)
-        pack.deploy(os.path.join(target, expected_resource_name))
-
-        return expected_resource_name
+        return self._generate_bundle(target, collection,
+                                     resource_name='section',
+                                     collector_factory=self._sectioncollector,
+                                     template_name='templates/section_db_entry.txt',
+                                     bundle_entry_name='section.id')

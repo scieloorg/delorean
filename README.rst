@@ -12,7 +12,7 @@ do SciELO periódicos).
 Instalação
 ----------
 
-**Atenção: esta aplicação só pode ser executada em Python 2.7.x**
+**Requisitos atuais: Python 3.14+ e Pyramid 2.0.2**
 
 A aplicação deve ser obtida por meio do `repositório de códigos
 <https://github.com/scieloorg/delorean>`_ das seguintes formas:
@@ -35,7 +35,8 @@ acordo com os valores obtidos em `manager.scielo.org <http://manager.scielo.org/
 Instale as dependências::
 
     # executar os comandos no diretório raíz do pacote/repositório
-    pip install -r requirements.txt && python setup.py install
+    python -m pip install -r requirements.txt
+    python -m pip install -e ".[test]"
 
 
 Execução
@@ -44,6 +45,21 @@ Execução
 Após a instalação, você pode executar uma instância da aplicação com o comando::
 
     pserve production.ini
+
+Para executar os testes::
+
+    python -m pytest -q delorean/tests.py
+
+Docker
+------
+
+Subir aplicação em container::
+
+    docker compose up --build app
+
+Rodar testes em container::
+
+    docker compose run --rm test
 
 
 Configurações do servidor de aplicação, como IP e porta da interface em escuta,

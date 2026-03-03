@@ -1,975 +1,639 @@
 # coding: utf-8
-from __future__ import unicode_literals
-import os
-import json
-import unittest
 import codecs
+import copy
+import json
 import tarfile
+from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import Mock
 
-from mocker import (
-    MockerTestCase,
-    ANY,
-    KWARGS,
-)
+import pytest
 from pyramid import testing
 
 
-# Functional tests
-###################
-class ViewTests(unittest.TestCase):
-    def setUp(self):
-        self.config = testing.setUp()
+HERE = Path(__file__).resolve().parent
 
-    def tearDown(self):
+
+@pytest.fixture(autouse=True)
+def pyramid_test_config():
+    testing.setUp()
+    try:
+        yield
+    finally:
         testing.tearDown()
 
-    def test_app_status(self):
-        from .views import app_status
-        request = testing.DummyRequest()
-        info = app_status(request)
-        self.assertEqual(info['app_name'], 'delorean')
+
+def _load_json(relative_path):
+    with open(HERE / relative_path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _load_iso_lines(relative_path):
+    with codecs.open(str(HERE / relative_path), "r", "iso8859-1") as f:
+        return f.readlines()
+
+
+class EndpointResource:
+    def __init__(self, response):
+        self._response = response
+        self.calls = []
+
+    def _next_response(self):
+        if isinstance(self._response, list):
+            if not self._response:
+                raise AssertionError("No mocked response left")
+            value = self._response.pop(0)
+        else:
+            value = self._response
+        return copy.deepcopy(value)
+
+    def get(self, **kwargs):
+        self.calls.append(kwargs)
+        return self._next_response()
+
+
+class EndpointCollection(EndpointResource):
+    def __init__(self, list_response, item_response=None, item_responses=None):
+        super(EndpointCollection, self).__init__(list_response)
+        self.item_response = item_response
+        self.item_responses = item_responses or {}
+        self.item_calls = []
+
+    def __call__(self, resource_id):
+        response = self.item_responses.get(str(resource_id), self.item_response)
+        if response is None:
+            raise AssertionError("No mocked item response for %s" % resource_id)
+        endpoint = EndpointResource(response)
+        original_get = endpoint.get
+
+        def wrapped_get(**kwargs):
+            self.item_calls.append((str(resource_id), kwargs))
+            return original_get(**kwargs)
+
+        endpoint.get = wrapped_get
+        return endpoint
+
+
+class FakeAPI:
+    def __init__(self, endpoints):
+        for name, endpoint in endpoints.items():
+            setattr(self, name, endpoint)
+
+
+def _make_slumber_lib(endpoints):
+    return SimpleNamespace(API=lambda _url: FakeAPI(endpoints))
+
+
+def _assert_issue_record(record, expected):
+    for field, value in expected.items():
+        if field not in ("journal", "sections", "display"):
+            assert value == record[field]
+
+        if field == "journal":
+            for jfield, jvalue in value.items():
+                assert jvalue == record["journal"][jfield]
+
+        if field == "sections":
+            for sfield, svalue in value.items():
+                for idx, title in enumerate(svalue):
+                    assert sorted(title) == sorted(record["sections"][sfield][idx])
+
+        if field == "display":
+            for dfield, dvalue in value.items():
+                assert dvalue == record["display"][dfield]
+
+
+# Functional tests
+
+def test_app_status():
+    from .views import app_status
+
+    request = testing.DummyRequest()
+    info = app_status(request)
+    assert info["app_name"] == "delorean"
 
 
 # Unit tests
-#################
-class DeLoreanTests(MockerTestCase):
-    def setUp(self):
-        self.config = testing.setUp()
 
-    def tearDown(self):
-        testing.tearDown()
+def test_generate_filename():
+    from delorean.domain import DeLorean
 
-    def _makeOne(self, *args, **kwargs):
-        from delorean.domain import DeLorean
-        return DeLorean(*args, **kwargs)
+    dummy_datetime = Mock()
+    dummy_datetime.now.return_value = object()
+    dummy_datetime.strftime.return_value = "20120712-10:07:34:803942"
 
-    def test_generate_filename(self):
-        dummy_datetime = self.mocker.mock()
+    dl = DeLorean("http://localhost:8000/api/v1/", datetime_lib=dummy_datetime)
 
-        dummy_datetime.now()
-        self.mocker.result(None)
-
-        dummy_datetime.strftime(ANY, ANY)
-        self.mocker.result('20120712-10:07:34:803942')
-
-        self.mocker.replay()
-
-        dl = self._makeOne('http://localhost:8000/api/v1/',
-                           datetime_lib=dummy_datetime)
-        self.assertEqual(dl._generate_filename('title'),
-            'title-20120712-10:07:34:803942.tar')
-
-    def test_generate_title_bundle(self):
-        dummy_datetime = self.mocker.mock()
-        dummy_titlecollector = self.mocker.mock()
-        dummy_transformer = self.mocker.mock()
-
-        dummy_datetime.now()
-        self.mocker.result(None)
-
-        dummy_datetime.strftime(ANY, ANY)
-        self.mocker.result('20120712-10:07:34:803942')
-
-        dummy_titlecollector(ANY, collection=ANY, username=None, api_key=None)
-        self.mocker.result(dummy_titlecollector)
-
-        dummy_transformer(filename=ANY)
-        self.mocker.result(dummy_transformer)
-
-        dummy_transformer.transform_list(ANY)
-        self.mocker.result('!ID 0\n')
-
-        self.mocker.replay()
-
-        dl = self._makeOne('http://localhost:8000/api/v1/',
-                           datetime_lib=dummy_datetime,
-                           titlecollector=dummy_titlecollector,
-                           transformer=dummy_transformer)
-        bundle_url = dl.generate_title(collection='brasil')
-        self.assertEqual(bundle_url,
-            'title-20120712-10:07:34:803942.tar')
+    assert dl._generate_filename("title") == "title-20120712-10:07:34:803942.tar"
 
 
-class DataCollectorTests(MockerTestCase):
-    title_res = u'http://manager.scielo.org/api/v1/journal/brasil/0102-6720'
-    valid_microset = u"""{"title": "ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)"}"""
+def test_generate_title_bundle(tmp_path):
+    from delorean.domain import DeLorean
+
+    dummy_datetime = Mock()
+    dummy_datetime.now.return_value = object()
+    dummy_datetime.strftime.return_value = "20120712-10:07:34:803942"
+
+    collector_return = [{"title": "Revista"}]
+    dummy_titlecollector = Mock(return_value=collector_return)
+
+    transformer_instance = Mock()
+    transformer_instance.transform_list.return_value = "!ID 0\n"
+    dummy_transformer = Mock(return_value=transformer_instance)
+
+    dl = DeLorean(
+        "http://localhost:8000/api/v1/",
+        datetime_lib=dummy_datetime,
+        titlecollector=dummy_titlecollector,
+        transformer=dummy_transformer,
+    )
+
+    bundle_url = dl.generate_title(target=str(tmp_path), collection="brasil")
+
+    assert bundle_url == "title-20120712-10:07:34:803942.tar"
+    dummy_titlecollector.assert_called_once_with(
+        "http://localhost:8000/api/v1/",
+        collection="brasil",
+        username=None,
+        api_key=None,
+    )
+    assert dummy_transformer.call_count == 1
+    transformer_instance.transform_list.assert_called_once_with(collector_return)
+    assert (tmp_path / bundle_url).exists()
+
+
+def test_datacollector_instantiation_abstract_error():
+    from delorean.domain import DataCollector
+
+    with pytest.raises(TypeError):
+        DataCollector("http://manager.scielo.org/api/v1/journal/brasil/0102-6720")
+
+
+def test_datacollector_fetch_all_data():
+    from delorean.domain import DataCollector
+
     valid_full_microset = {
-        'objects': [
-            {'title': 'ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)'},
+        "objects": [
+            {"title": "ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)"},
         ],
-        'meta': {'next': None},
+        "meta": {"next": None},
     }
 
-    def setUp(self):
-        self.config = testing.setUp()
+    class ConcreteDataCollector(DataCollector):
+        _resource_name = "journals"
 
-    def tearDown(self):
-        testing.tearDown()
+        def get_data(self, data):
+            return data
 
-    def _makeOne(self, resource_url, **kwargs):
-        from delorean.domain import DataCollector
+    journals = EndpointCollection(list_response=valid_full_microset)
+    slumber_lib = _make_slumber_lib({"journals": journals})
 
-        class ConcreteDataCollector(DataCollector):
-            _resource_name = 'journals'
+    dc = ConcreteDataCollector(
+        "http://manager.scielo.org/api/v1/journal/brasil/0102-6720", slumber_lib=slumber_lib
+    )
 
-            def get_data(self, data):
-                return data
-
-        return ConcreteDataCollector(resource_url, **kwargs)
-
-    def test_instantiation(self):
-        from delorean.domain import DataCollector
-        self.assertRaises(TypeError, lambda: DataCollector(self.title_res))
-
-    def test_fetch_all_data(self):
-        dummy_slumber = self.mocker.mock()
-        dummy_journal = self.mocker.mock()
-
-        dummy_slumber.API(ANY)
-        self.mocker.result(dummy_slumber)
-
-        dummy_slumber.journals
-        self.mocker.result(dummy_journal)
-
-        dummy_journal.get(offset=0, limit=50)
-        self.mocker.result(self.valid_full_microset)
-
-        self.mocker.replay()
-
-        dc = self._makeOne(self.title_res,
-                           slumber_lib=dummy_slumber)
-
-        res = dc.fetch_data(0, 50)
-        self.assertIsInstance(res, dict)
-        self.assertTrue('objects' in res)
-        self.assertTrue(len(res['objects']), 1)
-
-    def test_fetch_data_from_collection(self):
-        dummy_slumber = self.mocker.mock()
-        dummy_journal = self.mocker.mock()
-
-        dummy_slumber.API(ANY)
-        self.mocker.result(dummy_slumber)
-
-        dummy_slumber.journals
-        self.mocker.result(dummy_journal)
-
-        dummy_journal.get(offset=0, limit=50, collection='brasil')
-        self.mocker.result(self.valid_full_microset)
-
-        self.mocker.replay()
-
-        dc = self._makeOne(self.title_res,
-                           slumber_lib=dummy_slumber,
-                           collection='brasil')
-
-        res = dc.fetch_data(0, 50, collection='brasil')
-        self.assertIsInstance(res, dict)
-        self.assertTrue('objects' in res)
-        self.assertTrue(len(res['objects']), 1)
+    res = dc.fetch_data(0, 50)
+    assert isinstance(res, dict)
+    assert "objects" in res
+    assert len(res["objects"]) == 1
 
 
-class TitleCollectorTests(MockerTestCase):
-    title_res = u'http://manager.scielo.org/api/v1/'
-    valid_microset = {
-        'objects': [
-            {'title': 'ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)'},
+def test_datacollector_fetch_data_from_collection():
+    from delorean.domain import DataCollector
+
+    valid_full_microset = {
+        "objects": [
+            {"title": "ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)"},
         ],
-        'meta': {'next': None},
+        "meta": {"next": None},
     }
 
-    def setUp(self):
-        self.config = testing.setUp()
+    class ConcreteDataCollector(DataCollector):
+        _resource_name = "journals"
 
-    def tearDown(self):
-        testing.tearDown()
+        def get_data(self, data):
+            return data
 
-    def _makeOne(self, resource_url, **kwargs):
-        from delorean.domain import TitleCollector
-        return TitleCollector(resource_url, **kwargs)
+    journals = EndpointCollection(list_response=valid_full_microset)
+    slumber_lib = _make_slumber_lib({"journals": journals})
 
-    def test_instantiation(self):
-        from delorean.domain import TitleCollector
+    dc = ConcreteDataCollector(
+        "http://manager.scielo.org/api/v1/journal/brasil/0102-6720",
+        slumber_lib=slumber_lib,
+        collection="brasil",
+    )
 
-        dummy_slumber = self.mocker.mock()
-        dummy_journal = self.mocker.mock()
+    res = dc.fetch_data(0, 50, collection="brasil")
+    assert isinstance(res, dict)
+    assert "objects" in res
+    assert len(res["objects"]) == 1
+    assert journals.calls[-1] == {"offset": 0, "limit": 50, "collection": "brasil"}
 
-        dummy_slumber.API(ANY)
-        self.mocker.result(dummy_slumber)
 
-        dummy_slumber.journals
-        self.mocker.result(dummy_journal)
+def test_titlecollector_instantiation():
+    from delorean.domain import TitleCollector
 
-        self.mocker.replay()
+    journals = EndpointCollection(list_response={"objects": [], "meta": {"next": None}})
+    dc = TitleCollector(
+        "http://manager.scielo.org/api/v1/",
+        slumber_lib=_make_slumber_lib({"journals": journals}),
+        collection="brasil",
+    )
+    assert isinstance(dc, TitleCollector)
 
-        dc = self._makeOne(self.title_res,
-                           slumber_lib=dummy_slumber,
-                           collection='brasil')
-        self.assertTrue(isinstance(dc, TitleCollector))
 
-    def test_gen_iterable(self):
-        dummy_slumber = self.mocker.mock()
-        dummy_journal = self.mocker.mock()
+def test_titlecollector_gen_iterable():
+    from delorean.domain import TitleCollector
 
-        dummy_slumber.API(ANY)
-        self.mocker.result(dummy_slumber)
+    journals = EndpointCollection(list_response={"objects": [], "meta": {"next": None}})
+    dc = TitleCollector(
+        "http://manager.scielo.org/api/v1/", slumber_lib=_make_slumber_lib({"journals": journals})
+    )
+    it = iter(dc)
+    assert hasattr(it, "__next__")
 
-        dummy_slumber.journals
-        self.mocker.result(dummy_journal)
 
-        self.mocker.replay()
+def test_titlecollector_get_data():
+    from delorean.domain import TitleCollector
 
-        dc = self._makeOne(self.title_res,
-            slumber_lib=dummy_slumber)
-        it = iter(dc)
-        self.assertTrue(hasattr(it, 'next'))
+    journal_data = {"meta": {"next": None}, "objects": [_load_json("tests_assets/journal_meta_beforeproc.json")]}
 
-    def test_get_data(self):
-        here = os.path.abspath(os.path.dirname(__file__))
-        journal_data = {'meta': {'next': None}, 'objects': []}
-        d = json.load(open(os.path.join(here,
-            'tests_assets/journal_meta_beforeproc.json')))
+    journals = EndpointCollection(
+        list_response=journal_data,
+        item_response={"title": "Previous title"},
+    )
+    users = EndpointCollection(list_response={"objects": [], "meta": {"next": None}}, item_response={"username": "albert.einstein@scielo.org"})
+    sponsors = EndpointCollection(
+        list_response={"objects": [], "meta": {"next": None}},
+        item_response={"name": "Colégio Brasileiro de Cirurgia Digestiva - CBCD"},
+    )
 
-        journal_data['objects'].append(d)
-
-        dummy_slumber = self.mocker.mock()
-        dummy_journal = self.mocker.mock()
-        dummy_user = self.mocker.mock()
-        dummy_sponsor = self.mocker.mock()
-
-        dummy_slumber.API(ANY)
-        self.mocker.result(dummy_slumber)
-
-        dummy_slumber.journals
-        self.mocker.result(dummy_journal)
-
-        dummy_journal.get(limit=50, offset=0) # Journal Metadata request
-        self.mocker.result(journal_data)
-
-        dummy_slumber.journals(ANY)
-        self.mocker.result(dummy_journal)
-
-        dummy_journal.get()
-        self.mocker.result({'title': 'Previous title'})
-
-        dummy_slumber.users(ANY)
-        self.mocker.result(dummy_user)
-
-        dummy_user.get()
-        self.mocker.result(
+    dc = TitleCollector(
+        "http://manager.scielo.org/api/v1/",
+        slumber_lib=_make_slumber_lib(
             {
-                'username': 'albert.einstein@scielo.org',
+                "journals": journals,
+                "users": users,
+                "sponsors": sponsors,
             }
-        )
+        ),
+    )
 
-        dummy_slumber.sponsors(ANY)
-        self.mocker.result(dummy_sponsor)
+    desired = _load_json("tests_assets/journal_meta_afterproc.json")
+    records = list(dc)
 
-        dummy_sponsor.get()
-        self.mocker.result(
-            {
-                'name': 'Colégio Brasileiro de Cirurgia Digestiva - CBCD'
-            }
-        )
-
-        self.mocker.replay()
-
-        dc = self._makeOne(self.title_res,
-            slumber_lib=dummy_slumber)
-
-        desired_journal_struct = json.load(open(os.path.join(here, 'tests_assets/journal_meta_afterproc.json')))
-
-        for record in dc:
-            for field, value in record.items():
-                self.assertEqual(value, desired_journal_struct[field])
+    assert len(records) == 1
+    for field, value in records[0].items():
+        assert value == desired[field]
 
 
-class SectionCollectorTests(MockerTestCase):
-    section_res = u'http://manager.scielo.org/api/v1/'
+def test_sectioncollector_instantiation():
+    from delorean.domain import SectionCollector
 
-    def setUp(self):
-        self.config = testing.setUp()
-
-    def tearDown(self):
-        testing.tearDown()
-
-    def _makeOne(self, resource_url, **kwargs):
-        from delorean.domain import SectionCollector
-        return SectionCollector(resource_url, **kwargs)
-
-    def test_instantiation(self):
-        from delorean.domain import SectionCollector
-
-        dummy_slumber = self.mocker.mock()
-        dummy_journal = self.mocker.mock()
-
-        dummy_slumber.API(ANY)
-        self.mocker.result(dummy_slumber)
-
-        dummy_slumber.journals
-        self.mocker.result(dummy_journal)
-
-        self.mocker.replay()
-
-        dc = self._makeOne(self.section_res,
-            slumber_lib=dummy_slumber)
-        self.assertTrue(isinstance(dc, SectionCollector))
-
-    def test_gen_iterable(self):
-        dummy_slumber = self.mocker.mock()
-        dummy_journal = self.mocker.mock()
-
-        dummy_slumber.API(ANY)
-        self.mocker.result(dummy_slumber)
-
-        dummy_slumber.journals
-        self.mocker.result(dummy_journal)
-
-        self.mocker.replay()
-
-        dc = self._makeOne(self.section_res,
-            slumber_lib=dummy_slumber)
-        it = iter(dc)
-        self.assertTrue(hasattr(it, 'next'))
-
-    def test_get_data(self):
-        here = os.path.abspath(os.path.dirname(__file__))
-        journal_data = {'meta': {'next': None}, 'objects': []}
-
-        d = json.load(open(os.path.join(here, 'tests_assets/section_meta_beforeproc.json')))
-        journal_data['objects'].append(d)
-
-        section_data = {
-                "code": "ABCD030",
-                "titles": [
-                    ["pt", "Artigos de Revisão"],
-                    ["en", "Review Articles"]
-                ],
-                "id": "5676"
-            }
-
-        dummy_slumber = self.mocker.mock()
-        dummy_journal = self.mocker.mock()
-        dummy_section = self.mocker.mock()
-
-        dummy_slumber.API(ANY)
-        self.mocker.result(dummy_slumber)
-
-        dummy_slumber.journals
-        self.mocker.result(dummy_journal)
-
-        dummy_journal.get(offset=ANY, limit=ANY)
-        self.mocker.result(journal_data)
-
-        dummy_slumber.sections(ANY)
-        self.mocker.result(dummy_section)
-        self.mocker.count(10)
-
-        dummy_section.get()
-        self.mocker.result(section_data)
-        self.mocker.count(10)
-
-        self.mocker.replay()
-
-        dc = self._makeOne(self.section_res,
-            slumber_lib=dummy_slumber)
-
-        desired_section_struct = json.load(open(os.path.join(here, 'tests_assets/section_meta_afterproc.json')))
-
-        for record in dc:
-            for field, value in desired_section_struct.items():
-                if field == 'sections':
-                        self.assertTrue(record['sections'][0] in value)
+    journals = EndpointCollection(list_response={"objects": [], "meta": {"next": None}})
+    dc = SectionCollector(
+        "http://manager.scielo.org/api/v1/", slumber_lib=_make_slumber_lib({"journals": journals})
+    )
+    assert isinstance(dc, SectionCollector)
 
 
-class IssueCollectorTests(MockerTestCase):
-    issue_res = u'http://manager.scielo.org/api/v1/'
-    valid_microset = {
-        'objects': [
-            {'title': 'ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)'},
-        ],
-        'meta': {'next': None},
+def test_sectioncollector_gen_iterable():
+    from delorean.domain import SectionCollector
+
+    journals = EndpointCollection(list_response={"objects": [], "meta": {"next": None}})
+    dc = SectionCollector(
+        "http://manager.scielo.org/api/v1/", slumber_lib=_make_slumber_lib({"journals": journals})
+    )
+    it = iter(dc)
+    assert hasattr(it, "__next__")
+
+
+def test_sectioncollector_get_data():
+    from delorean.domain import SectionCollector
+
+    journal_data = {"meta": {"next": None}, "objects": [_load_json("tests_assets/section_meta_beforeproc.json")]}
+
+    section_data = {
+        "code": "ABCD030",
+        "titles": [["pt", "Artigos de Revisão"], ["en", "Review Articles"]],
+        "id": "5676",
     }
 
-    def setUp(self):
-        self.config = testing.setUp()
+    journals = EndpointCollection(list_response=journal_data)
+    sections = EndpointCollection(
+        list_response={"objects": [], "meta": {"next": None}},
+        item_response=section_data,
+    )
 
-    def tearDown(self):
-        testing.tearDown()
+    dc = SectionCollector(
+        "http://manager.scielo.org/api/v1/",
+        slumber_lib=_make_slumber_lib({"journals": journals, "sections": sections}),
+    )
 
-    def _makeOne(self, resource_url, **kwargs):
-        from delorean.domain import IssueCollector
-        return IssueCollector(resource_url, **kwargs)
+    desired = _load_json("tests_assets/section_meta_afterproc.json")
+    records = list(dc)
 
-    def test_instantiation(self):
-        from delorean.domain import IssueCollector
+    assert len(records) == 1
+    for field, value in desired.items():
+        if field == "sections":
+            assert records[0]["sections"][0] in value
 
-        dummy_slumber = self.mocker.mock()
-        dummy_issues = self.mocker.mock()
 
-        dummy_slumber.API(ANY)
-        self.mocker.result(dummy_slumber)
+def test_issuecollector_instantiation():
+    from delorean.domain import IssueCollector
 
-        dummy_slumber.issues
-        self.mocker.result(dummy_issues)
+    issues = EndpointCollection(list_response={"objects": [], "meta": {"next": None}})
+    dc = IssueCollector("http://manager.scielo.org/api/v1/", slumber_lib=_make_slumber_lib({"issues": issues}))
+    assert isinstance(dc, IssueCollector)
 
-        self.mocker.replay()
 
-        dc = self._makeOne(self.issue_res,
-            slumber_lib=dummy_slumber)
-        self.assertTrue(isinstance(dc, IssueCollector))
+def test_issuecollector_gen_iterable():
+    from delorean.domain import IssueCollector
 
-    def test_gen_iterable(self):
-        dummy_slumber = self.mocker.mock()
-        dummy_issues = self.mocker.mock()
+    issues = EndpointCollection(list_response={"objects": [], "meta": {"next": None}})
+    dc = IssueCollector("http://manager.scielo.org/api/v1/", slumber_lib=_make_slumber_lib({"issues": issues}))
+    it = iter(dc)
+    assert hasattr(it, "__next__")
 
-        dummy_slumber.API(ANY)
-        self.mocker.result(dummy_slumber)
 
-        dummy_slumber.issues
-        self.mocker.result(dummy_issues)
+def _run_issue_collector_case(beforeproc_file, expected_file):
+    from delorean.domain import IssueCollector
 
-        self.mocker.replay()
+    issue_data = {"meta": {"next": None}, "objects": [_load_json(beforeproc_file)]}
 
-        dc = self._makeOne(self.issue_res,
-            slumber_lib=dummy_slumber)
-        it = iter(dc)
-        self.assertTrue(hasattr(it, 'next'))
+    journal_data = {
+        "title": "ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)",
+        "short_title": "ABCD, arq. bras. cir. dig.",
+        "eletronic_issn": "",
+        "print_issn": "0102-6720",
+        "scielo_issn": "print",
+        "publisher_name": "Colégio Brasileiro de Cirurgia Digestiva",
+        "publication_city": "São Paulo",
+        "sponsors": ["Brazilian Archives of Digestive Surgery"],
+        "resource_uri": "/api/v1/journals/2647/",
+        "acronym": "ABCD",
+        "title_iso": "ABCD, arq. bras. cir. dig",
+        "medline_title": "ABCD arq bras cir dig",
+        "use_license": {
+            "disclaimer": "Licencia Creative Commons",
+            "id": "1",
+            "license_code": "BY-NC",
+            "reference_url": None,
+            "resource_uri": "/api/v1/uselicenses/1/",
+        },
+    }
 
-    def test_get_data(self):
+    section_data = {
+        "resource_uri": "/api/v1/sections/67221/",
+        "titles": [["pt", "Técnica"], ["en", "Technic"]],
+        "code": "CBCD-f28r",
+    }
 
-        here = os.path.abspath(os.path.dirname(__file__))
+    issues = EndpointCollection(list_response=issue_data)
+    journals = EndpointCollection(
+        list_response={"objects": [], "meta": {"next": None}},
+        item_response=journal_data,
+    )
+    sections = EndpointCollection(
+        list_response={"objects": [], "meta": {"next": None}},
+        item_response=section_data,
+    )
 
-        issue_data = {'meta': {'next': None}, 'objects': []}
-        d = json.load(open(os.path.join(here, 'tests_assets/issue_meta_beforeproc.json')))
-        issue_data['objects'].append(d)
-
-        journal_data = {
-            "title": "ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)",
-            "short_title": "ABCD, arq. bras. cir. dig.",
-            "eletronic_issn": "",
-            "print_issn": "0102-6720",
-            "scielo_issn": "print",
-            "publisher_name": "Colégio Brasileiro de Cirurgia Digestiva",
-            "publication_city": "São Paulo",
-            "sponsors": [
-                "Brazilian Archives of Digestive Surgery"
-            ],
-            "resource_uri": "/api/v1/journals/2647/",
-            "acronym": "ABCD",
-            "title_iso": "ABCD, arq. bras. cir. dig",
-            "medline_title": "ABCD arq bras cir dig",
-            "use_license": {
-                "disclaimer": "Licencia Creative Commons",
-                "id": "1",
-                "license_code": "BY-NC",
-                "reference_url": None,
-                "resource_uri": "/api/v1/uselicenses/1/"}
+    dc = IssueCollector(
+        "http://manager.scielo.org/api/v1/",
+        slumber_lib=_make_slumber_lib(
+            {
+                "issues": issues,
+                "journals": journals,
+                "sections": sections,
             }
+        ),
+    )
 
-        section_data = {
-            "resource_uri": "/api/v1/sections/67221/",
-            "titles":
-                [
-                    ["pt", "Técnica"],
-                    ["en", "Technic"]
-                ],
-            "code": "CBCD-f28r"
-        }
+    desired = _load_json(expected_file)
+    records = list(dc)
+    assert len(records) == 1
+    _assert_issue_record(records[0], desired)
 
-        dummy_slumber = self.mocker.mock()
-        dummy_issue = self.mocker.mock()
-        dummy_journal = self.mocker.mock()
-        dummy_section = self.mocker.mock()
 
-        dummy_slumber.API(ANY)
-        self.mocker.result(dummy_slumber)
+def test_issuecollector_get_data():
+    _run_issue_collector_case("tests_assets/issue_meta_beforeproc.json", "tests_assets/issue_meta_afterproc.json")
 
-        dummy_slumber.issues
-        self.mocker.result(dummy_issue)
 
-        dummy_issue.get(offset=ANY, limit=ANY)
-        self.mocker.result(issue_data)
+def test_issuecollector_get_data_pub_monthly():
+    _run_issue_collector_case(
+        "tests_assets/issue_meta_beforeproc_pub_monthly.json",
+        "tests_assets/issue_meta_afterproc_pub_monthly.json",
+    )
 
-        dummy_slumber.journals(ANY)
-        self.mocker.result(dummy_journal)
-        self.mocker.count(1)
 
-        dummy_journal.get()
-        self.mocker.result(journal_data)
-        self.mocker.count(1)
+def test_issuecollector_get_data_special():
+    _run_issue_collector_case("tests_assets/issue_spe_meta_beforeproc.json", "tests_assets/issue_spe_meta_afterproc.json")
 
-        dummy_slumber.sections(ANY)
-        self.mocker.result(dummy_section)
-        self.mocker.count(5)
 
-        dummy_section.get()
-        self.mocker.result(section_data)
-        self.mocker.count(5)
-
-        self.mocker.replay()
-
-        dc = self._makeOne(self.issue_res,
-            slumber_lib=dummy_slumber)
-
-        desired_issue_struct = json.load(open(os.path.join(here, 'tests_assets/issue_meta_afterproc.json')))
-
-        for record in dc:
-            for field, value in desired_issue_struct.items():
-                if not field in ('journal', 'sections', 'display'):
-                    self.assertEqual(value, record[field])
-
-                if field == 'journal':
-                    for jfield, jvalue in value.items():
-                        self.assertEqual(jvalue, record['journal'][jfield])
-
-                if field == 'sections':
-                    for sfield, svalue in value.items():
-                        for idx, title in enumerate(svalue):
-                            self.assertEqual(sorted(title), sorted(record['sections'][sfield][idx]))
-
-                if field == 'display':
-                    for dfield, dvalue in value.items():
-                        self.assertEqual(dvalue, record['display'][dfield])
-
-    def test_get_data_pub_monthly(self):
-
-        here = os.path.abspath(os.path.dirname(__file__))
-
-        issue_data = {'meta': {'next': None}, 'objects': []}
-        d = json.load(open(os.path.join(here, 'tests_assets/issue_meta_beforeproc_pub_monthly.json')))
-        issue_data['objects'].append(d)
-
-        journal_data = {
-            "title": "ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)",
-            "short_title": "ABCD, arq. bras. cir. dig.",
-            "eletronic_issn": "",
-            "print_issn": "0102-6720",
-            "scielo_issn": "print",
-            "publisher_name": "Colégio Brasileiro de Cirurgia Digestiva",
-            "publication_city": "São Paulo",
-            "sponsors": [
-                "Brazilian Archives of Digestive Surgery"
-            ],
-            "resource_uri": "/api/v1/journals/2647/",
-            "acronym": "ABCD",
-            "title_iso": "ABCD, arq. bras. cir. dig",
-            "medline_title": "ABCD arq bras cir dig",
-            "use_license": {
-                "disclaimer": "Licencia Creative Commons",
-                "id": "1",
-                "license_code": "BY-NC",
-                "reference_url": None,
-                "resource_uri": "/api/v1/uselicenses/1/"}
-            }
-
-        section_data = {
-            "resource_uri": "/api/v1/sections/67221/",
-            "titles":
-                [
-                    ["pt", "Técnica"],
-                    ["en", "Technic"]
-                ],
-            "code": "CBCD-f28r"
-        }
-
-        dummy_slumber = self.mocker.mock()
-        dummy_issue = self.mocker.mock()
-        dummy_journal = self.mocker.mock()
-        dummy_section = self.mocker.mock()
-
-        dummy_slumber.API(ANY)
-        self.mocker.result(dummy_slumber)
-
-        dummy_slumber.issues
-        self.mocker.result(dummy_issue)
-
-        dummy_issue.get(offset=ANY, limit=ANY)
-        self.mocker.result(issue_data)
-
-        dummy_slumber.journals(ANY)
-        self.mocker.result(dummy_journal)
-        self.mocker.count(1)
-
-        dummy_journal.get()
-        self.mocker.result(journal_data)
-        self.mocker.count(1)
-
-        dummy_slumber.sections(ANY)
-        self.mocker.result(dummy_section)
-        self.mocker.count(5)
-
-        dummy_section.get()
-        self.mocker.result(section_data)
-        self.mocker.count(5)
-
-        self.mocker.replay()
-
-        dc = self._makeOne(self.issue_res,
-            slumber_lib=dummy_slumber)
-
-        desired_issue_struct = json.load(open(os.path.join(here, 'tests_assets/issue_meta_afterproc_pub_monthly.json')))
-
-        for record in dc:
-            for field, value in desired_issue_struct.items():
-                if not field in ('journal', 'sections', 'display'):
-                    self.assertEqual(value, record[field])
-
-                if field == 'journal':
-                    for jfield, jvalue in value.items():
-                        self.assertEqual(jvalue, record['journal'][jfield])
-
-                if field == 'sections':
-                    for sfield, svalue in value.items():
-                        for idx, title in enumerate(svalue):
-                            self.assertEqual(sorted(title), sorted(record['sections'][sfield][idx]))
-
-                if field == 'display':
-                    for dfield, dvalue in value.items():
-                        self.assertEqual(dvalue, record['display'][dfield])
-
-    def test_get_data_special(self):
-
-        here = os.path.abspath(os.path.dirname(__file__))
-
-        issue_data = {'meta': {'next': None}, 'objects': []}
-        d = json.load(open(os.path.join(here, 'tests_assets/issue_spe_meta_beforeproc.json')))
-        issue_data['objects'].append(d)
-
-        journal_data = {
-            "title": "ABCD. Arquivos Brasileiros de Cirurgia Digestiva (São Paulo)",
-            "short_title": "ABCD, arq. bras. cir. dig.",
-            "eletronic_issn": "",
-            "print_issn": "0102-6720",
-            "scielo_issn": "print",
-            "publisher_name": "Colégio Brasileiro de Cirurgia Digestiva",
-            "publication_city": "São Paulo",
-            "sponsors": [
-                "Brazilian Archives of Digestive Surgery"
-            ],
-            "resource_uri": "/api/v1/journals/2647/",
-            "acronym": "ABCD",
-            "title_iso": "ABCD, arq. bras. cir. dig",
-            "medline_title": "ABCD arq bras cir dig",
-            "use_license": {
-                "disclaimer": "Licencia Creative Commons",
-                "id": "1",
-                "license_code": "BY-NC",
-                "reference_url": None,
-                "resource_uri": "/api/v1/uselicenses/1/"}
-            }
-
-        section_data = {
-            "resource_uri": "/api/v1/sections/67221/",
-            "titles":
-                [
-                    ["pt", "Técnica"],
-                    ["en", "Technic"]
-                ],
-            "code": "CBCD-f28r"
-        }
-
-        dummy_slumber = self.mocker.mock()
-        dummy_issue = self.mocker.mock()
-        dummy_journal = self.mocker.mock()
-        dummy_section = self.mocker.mock()
-
-        dummy_slumber.API(ANY)
-        self.mocker.result(dummy_slumber)
-
-        dummy_slumber.issues
-        self.mocker.result(dummy_issue)
-
-        dummy_issue.get(offset=ANY, limit=ANY)
-        self.mocker.result(issue_data)
-
-        dummy_slumber.journals(ANY)
-        self.mocker.result(dummy_journal)
-        self.mocker.count(1)
-
-        dummy_journal.get()
-        self.mocker.result(journal_data)
-        self.mocker.count(1)
-
-        dummy_slumber.sections(ANY)
-        self.mocker.result(dummy_section)
-        self.mocker.count(5)
-
-        dummy_section.get()
-        self.mocker.result(section_data)
-        self.mocker.count(5)
-
-        self.mocker.replay()
-
-        dc = self._makeOne(self.issue_res,
-            slumber_lib=dummy_slumber)
-
-        desired_issue_struct = json.load(open(os.path.join(here, 'tests_assets/issue_spe_meta_afterproc.json')))
-
-        for record in dc:
-            for field, value in desired_issue_struct.items():
-                if not field in ('journal', 'sections', 'display'):
-                    self.assertEqual(value, record[field])
-
-                if field == 'journal':
-                    for jfield, jvalue in value.items():
-                        self.assertEqual(jvalue, record['journal'][jfield])
-
-                if field == 'sections':
-                    for sfield, svalue in value.items():
-                        for idx, title in enumerate(svalue):
-                            self.assertEqual(sorted(title), sorted(record['sections'][sfield][idx]))
-
-                if field == 'display':
-                    for dfield, dvalue in value.items():
-                        self.assertEqual(dvalue, record['display'][dfield])
-
-class TransformerTests(unittest.TestCase):
-    tpl_basic = u'Pra frente, ${country}'
-    tpl_basic_id = u'!ID ${i}\n!v100!${title}'
-    tpl_basic_compound = u"""
+class TestTransformer:
+    tpl_basic = "Pra frente, ${country}"
+    tpl_basic_id = "!ID ${i}\n!v100!${title}"
+    tpl_basic_compound = (
+        """
     !ID 0
     !v100!${title}
     % for l in languages:
     !v350!${l['iso_code']}
     % endfor
     """.strip()
+    )
 
-    def setUp(self):
-        self.config = testing.setUp()
-
-    def tearDown(self):
-        testing.tearDown()
-
-    def _makeOne(self, *args, **kwargs):
+    def _make_one(self, *args, **kwargs):
         from delorean.domain import Transformer
+
         return Transformer(*args, **kwargs)
 
     def test_instantiation(self):
         from delorean.domain import Transformer
-        t = self._makeOne(self.tpl_basic)
-        self.assertTrue(isinstance(t, Transformer))
+
+        t = self._make_one(self.tpl_basic)
+        assert isinstance(t, Transformer)
 
     def test_basic_transformation(self):
-        t = self._makeOne(self.tpl_basic)
-        result = t.transform({'country': 'Brasil'})
-        self.assertEqual(result, u'Pra frente, Brasil')
+        t = self._make_one(self.tpl_basic)
+        result = t.transform({"country": "Brasil"})
+        assert result == "Pra frente, Brasil"
 
     def test_transformation_missing_data(self):
-        t = self._makeOne(self.tpl_basic)
-        self.assertRaises(ValueError, t.transform, {})
+        t = self._make_one(self.tpl_basic)
+        with pytest.raises(ValueError):
+            t.transform({})
 
     def test_transformation_wrong_typed_data(self):
-        t = self._makeOne(self.tpl_basic)
-        types = [[], 1, (), 'str', set()]
-        for typ in types:
-            self.assertRaises(TypeError, t.transform, typ)
+        t = self._make_one(self.tpl_basic)
+        for typ in [[], 1, (), "str", set()]:
+            with pytest.raises(TypeError):
+                t.transform(typ)
 
     def test_basic_list_transformation(self):
-        t = self._makeOne(self.tpl_basic)
-        data_list = [{'country': 'Brasil'}, {'country': 'Egito'}]
+        t = self._make_one(self.tpl_basic)
+        data_list = [{"country": "Brasil"}, {"country": "Egito"}]
         result = t.transform_list(data_list)
-        expected_result = u'Pra frente, Brasil\nPra frente, Egito'
-        self.assertEqual(result, expected_result)
+        assert result == "Pra frente, Brasil\nPra frente, Egito"
 
     def test_transformation_missing_data_list(self):
-        t = self._makeOne(self.tpl_basic)
-        self.assertRaises(ValueError, t.transform_list,
-            [{'country': 'Brasil'}, {}])
+        t = self._make_one(self.tpl_basic)
+        with pytest.raises(ValueError):
+            t.transform_list([{"country": "Brasil"}, {}])
 
     def test_transformation_wrong_typed_data_list(self):
-        t = self._makeOne(self.tpl_basic)
-        types = [1, 'str', {}, set()]
-        for typ in types:
-            self.assertRaises(TypeError, t.transform_list, typ)
+        t = self._make_one(self.tpl_basic)
+        for typ in [1, "str", {}, set()]:
+            with pytest.raises(TypeError):
+                t.transform_list(typ)
 
     def test_transformation_iterable_data(self):
-        t = self._makeOne(self.tpl_basic)
+        t = self._make_one(self.tpl_basic)
 
         def item_factory():
             for i in range(2):
-                yield {'country': 'Brasil%s' % i}
+                yield {"country": "Brasil%s" % i}
 
         result = t.transform_list(item_factory())
-        expected_result = u'Pra frente, Brasil0\nPra frente, Brasil1'
-        self.assertEqual(result, expected_result)
+        assert result == "Pra frente, Brasil0\nPra frente, Brasil1"
 
     def test_transformation_with_callable(self):
-        """
-        !ID 0
-        !v100!Revista Brasileira
-        !ID 1
-        !v100!Revista Mexicana
-        """
-        t = self._makeOne(self.tpl_basic_id)
+        t = self._make_one(self.tpl_basic_id)
 
         def add_index(data_list):
-            i = 0
-            for item in data_list:
-                item.update({'i': i})
-                i += 1
+            for i, item in enumerate(data_list):
+                item.update({"i": i})
 
         result = t.transform_list(
-            [{'title': 'Revista Brasileira'},
-             {'title': 'Revista Mexicana'}], add_index)
-        self.assertEqual([part.strip() for part in result.split('\n')],
-            u'!ID 0\n!v100!Revista Brasileira\n!ID 1\n!v100!Revista Mexicana'.split('\n'))
+            [{"title": "Revista Brasileira"}, {"title": "Revista Mexicana"}],
+            add_index,
+        )
+        assert [part.strip() for part in result.split("\n")] == (
+            "!ID 0\n!v100!Revista Brasileira\n!ID 1\n!v100!Revista Mexicana".split("\n")
+        )
 
     def test_compound_transformation(self):
-        t = self._makeOne(self.tpl_basic_compound)
+        t = self._make_one(self.tpl_basic_compound)
         d = {
-          'title': "ABCD. Arquivos Brasileiros",
-          'languages': [
-            {'iso_code': 'en'},
-            {'iso_code': 'pt'},
-          ],
+            "title": "ABCD. Arquivos Brasileiros",
+            "languages": [{"iso_code": "en"}, {"iso_code": "pt"}],
         }
         result = t.transform(d)
-        self.assertEqual([part.strip() for part in result.split('\n')],
-            u'!ID 0\n!v100!ABCD. Arquivos Brasileiros\n!v350!en\n!v350!pt\n'.split('\n'))
+        assert [part.strip() for part in result.split("\n")] == (
+            "!ID 0\n!v100!ABCD. Arquivos Brasileiros\n!v350!en\n!v350!pt\n".split("\n")
+        )
 
     def test_compound_transformation_filebased(self):
-        here = os.path.abspath(os.path.dirname(__file__))
-        t = self._makeOne(filename=os.path.join(here, 'tests_assets/basic_compound.txt'))
+        t = self._make_one(filename=str(HERE / "tests_assets/basic_compound.txt"))
         d = {
-          'title': "ABCD. Arquivos Brasileiros",
-          'languages': [
-            {'iso_code': 'en'},
-            {'iso_code': 'pt'},
-          ],
+            "title": "ABCD. Arquivos Brasileiros",
+            "languages": [{"iso_code": "en"}, {"iso_code": "pt"}],
         }
         result = t.transform(d)
-        self.assertEqual([part.strip() for part in result.split('\n')],
-            u'!ID 0\n!v100!ABCD. Arquivos Brasileiros\n!v350!en\n!v350!pt\n'.split('\n'))
+        assert [part.strip() for part in result.split("\n")] == (
+            "!ID 0\n!v100!ABCD. Arquivos Brasileiros\n!v350!en\n!v350!pt\n".split("\n")
+        )
 
     def test_title_db_generation(self):
-        """
-        Compares the generated with the expected id file
-        line-by-line.
-        """
-        here = os.path.abspath(os.path.dirname(__file__))
-        t = self._makeOne(filename=os.path.join(here, 'templates/title_db_entry.txt'))
-        d = json.load(open(os.path.join(here, 'tests_assets/journal_meta_afterproc.json')))
+        t = self._make_one(filename=str(HERE / "templates/title_db_entry.txt"))
+        d = _load_json("tests_assets/journal_meta_afterproc.json")
         generated_id = t.transform(d).splitlines()
-        canonical_id = codecs.open(os.path.join(here, 'tests_assets/journal_meta.id'), 'r', 'iso8859-1').readlines()
+        canonical_id = _load_iso_lines("tests_assets/journal_meta.id")
 
-        del(generated_id[0])  # removing a blank line
+        del generated_id[0]
 
-        for i in xrange(len(generated_id)):
-            self.assertEqual(generated_id[i].strip(), canonical_id[i].strip())
+        for i in range(len(generated_id)):
+            assert generated_id[i].strip() == canonical_id[i].strip()
 
-        self.assertEqual(len(generated_id), len(canonical_id))
+        assert len(generated_id) == len(canonical_id)
 
     def test_title_db_generation_with_no_public_status(self):
-        """
-        Compares the generated with the expected id file
-        line-by-line.
-        """
-        here = os.path.abspath(os.path.dirname(__file__))
-        t = self._makeOne(filename=os.path.join(here, 'templates/title_db_entry.txt'))
-        d = json.load(open(os.path.join(here, 'tests_assets/journal_meta_afterproc.json')))
-        d['pub_status'] = u'inprogress'
+        t = self._make_one(filename=str(HERE / "templates/title_db_entry.txt"))
+        d = _load_json("tests_assets/journal_meta_afterproc.json")
+        d["pub_status"] = "inprogress"
         generated_id = t.transform(d).splitlines()
-        canonical_id = codecs.open(os.path.join(here, 'tests_assets/journal_meta_notpublic.id'), 'r', 'iso8859-1').readlines()
+        canonical_id = _load_iso_lines("tests_assets/journal_meta_notpublic.id")
 
-        del(generated_id[0])  # removing a blank line
+        del generated_id[0]
 
-        for i in xrange(len(generated_id)):
-            self.assertEqual(generated_id[i].strip(), canonical_id[i].strip())
+        for i in range(len(generated_id)):
+            assert generated_id[i].strip() == canonical_id[i].strip()
 
-        self.assertEqual(len(generated_id), len(canonical_id))
+        assert len(generated_id) == len(canonical_id)
 
     def test_issue_db_generation(self):
-        """
-        Compares the generated with the expected id file
-        line-by-line.
-        """
-        here = os.path.abspath(os.path.dirname(__file__))
-        t = self._makeOne(filename=os.path.join(here, 'templates/issue_db_entry.txt'))
-        d = json.load(open(os.path.join(here, 'tests_assets/issue_meta_afterproc.json')))
+        t = self._make_one(filename=str(HERE / "templates/issue_db_entry.txt"))
+        d = _load_json("tests_assets/issue_meta_afterproc.json")
         generated_id = t.transform(d).splitlines()
-        canonical_id = codecs.open(os.path.join(here, 'tests_assets/issue_meta.id'), 'r', 'iso8859-1').readlines()
+        canonical_id = _load_iso_lines("tests_assets/issue_meta.id")
 
-        del(generated_id[0])  # removing a blank line
+        del generated_id[0]
 
-        for i in xrange(len(canonical_id)):
-            self.assertEqual(generated_id[i].strip(), canonical_id[i].strip())
+        for i in range(len(canonical_id)):
+            assert generated_id[i].strip() == canonical_id[i].strip()
 
-        self.assertEqual(len(generated_id), len(canonical_id))
+        assert len(generated_id) == len(canonical_id)
 
     def test_issue_db_generation_special(self):
-        """
-        Compares the generated with the expected id file
-        line-by-line.
-        """
-        here = os.path.abspath(os.path.dirname(__file__))
-        t = self._makeOne(filename=os.path.join(here, 'templates/issue_db_entry.txt'))
-        d = json.load(open(os.path.join(here, 'tests_assets/issue_spe_meta_afterproc.json')))
+        t = self._make_one(filename=str(HERE / "templates/issue_db_entry.txt"))
+        d = _load_json("tests_assets/issue_spe_meta_afterproc.json")
         generated_id = t.transform(d).splitlines()
-        canonical_id = codecs.open(os.path.join(here, 'tests_assets/issue_spe_meta.id'), 'r', 'iso8859-1').readlines()
+        canonical_id = _load_iso_lines("tests_assets/issue_spe_meta.id")
 
-        del(generated_id[0])  # removing a blank line
+        del generated_id[0]
 
-        for i in xrange(len(canonical_id)):
-            self.assertEqual(generated_id[i].strip(), canonical_id[i].strip())
+        for i in range(len(canonical_id)):
+            assert generated_id[i].strip() == canonical_id[i].strip()
 
-        self.assertEqual(len(generated_id), len(canonical_id))
+        assert len(generated_id) == len(canonical_id)
 
     def test_section_db_generation(self):
-        """
-        Compares the generated with the expected id file
-        line-by-line.
-        """
-        here = os.path.abspath(os.path.dirname(__file__))
-        t = self._makeOne(filename=os.path.join(here, 'templates/section_db_entry.txt'))
-        d = json.load(open(os.path.join(here, 'tests_assets/section_meta_afterproc.json')))
+        t = self._make_one(filename=str(HERE / "templates/section_db_entry.txt"))
+        d = _load_json("tests_assets/section_meta_afterproc.json")
         generated_id = t.transform(d).splitlines()
-        canonical_id = codecs.open(os.path.join(here, 'tests_assets/section_meta.id'), 'r', 'iso8859-1').readlines()
+        canonical_id = _load_iso_lines("tests_assets/section_meta.id")
 
-        del(generated_id[0])  # removing a blank line
+        del generated_id[0]
 
-        for i in xrange(len(canonical_id)):
-            self.assertEqual(generated_id[i].strip(), canonical_id[i].strip())
+        for i in range(len(canonical_id)):
+            assert generated_id[i].strip() == canonical_id[i].strip()
 
-        self.assertEqual(len(generated_id), len(canonical_id))
+        assert len(generated_id) == len(canonical_id)
 
 
-class BundleTests(unittest.TestCase):
-    basic_data = [(u'arq_a', u'Arq A content'),
-                  (u'arq_b', u'Arq B content')]
+class TestBundle:
+    basic_data = [("arq_a", "Arq A content"), ("arq_b", "Arq B content")]
 
-    def setUp(self):
-        self.config = testing.setUp()
-
-    def tearDown(self):
-        testing.tearDown()
-
-    def _makeOne(self, *args, **kwargs):
+    def _make_one(self, *args, **kwargs):
         from delorean.domain import Bundle
+
         return Bundle(*args, **kwargs)
 
     def test_instantiation(self):
         from delorean.domain import Bundle
-        p = self._makeOne(*self.basic_data)
-        self.assertTrue(isinstance(p, Bundle))
+
+        p = self._make_one(*self.basic_data)
+        assert isinstance(p, Bundle)
 
     def test_generate_tarball(self):
         data_as_dict = dict(self.basic_data)
-        p = self._makeOne(*self.basic_data)
+        p = self._make_one(*self.basic_data)
         tar_handler = p._tar()
-        self.assertTrue(hasattr(tar_handler, 'read'))
-        self.assertTrue(hasattr(tar_handler, 'name'))
+        assert hasattr(tar_handler, "read")
+        assert hasattr(tar_handler, "name")
 
-        t = tarfile.open(tar_handler.name, 'r')
+        t = tarfile.open(tar_handler.name, "r")
         for member in t.getmembers():
-            self.assertTrue(member.name in data_as_dict)
+            assert member.name in data_as_dict
 
-    def test_deploy_data(self):
-        p = self._makeOne(*self.basic_data)
-        p.deploy('/tmp/files/zippedfile.tar')
+    def test_deploy_data(self, tmp_path):
+        p = self._make_one(*self.basic_data)
+        p.deploy(str(tmp_path / "files" / "zippedfile.tar"))
 
-class ResourceUnavailableErrorTests(unittest.TestCase):
 
+class TestResourceUnavailableError:
     def test_raise(self):
         from delorean.domain import ResourceUnavailableError
-        self.assertTrue(issubclass(ResourceUnavailableError, BaseException))
+
+        assert issubclass(ResourceUnavailableError, BaseException)
