@@ -85,12 +85,12 @@
 !v151!${title_iso}
 % endif
 ##
-% if other_titles is not UNDEFINED and other_titles.has_key('paralleltitle'):
+% if other_titles is not UNDEFINED and 'paralleltitle' in other_titles:
 % for value in other_titles['paralleltitle']:
 !v230!${value}
 % endfor
 % endif
-% if other_titles is not UNDEFINED and other_titles.has_key('other'):
+% if other_titles is not UNDEFINED and 'other' in other_titles:
 % for value in other_titles['other']:
 !v240!${value}
 % endfor

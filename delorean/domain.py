@@ -3,6 +3,7 @@ import os
 import tarfile
 import io
 import tempfile
+import collections
 from collections.abc import Iterable
 from datetime import datetime
 import logging
@@ -19,6 +20,12 @@ import slumber
 
 logger = logging.getLogger(__name__)
 ITEMS_PER_REQUEST = 50
+
+# Python 3.14 removed collections.Iterable, but older Mako-generated modules
+# may still import it from collections.
+if not hasattr(collections, 'Iterable'):
+    collections.Iterable = Iterable
+
 MONTH_ABBREVS = {'es_ES': {1: 'ene', 2: 'feb', 3: 'mar', 4: 'abr',
         5: 'may', 6: 'jun', 7: 'jul', 8: 'ago', 9: 'sep', 10: 'oct',
         11: 'nov', 12: 'dic'}, 'en_US': {1: 'Jan', 2: 'Feb', 3: 'Mar',
