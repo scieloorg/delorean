@@ -38,6 +38,10 @@ Instale as dependências::
     python -m pip install -r requirements.txt
     python -m pip install -e ".[test]"
 
+Configure as credenciais (copie o template e preencha)::
+
+    cp .env.example .env
+
 
 Execução
 --------

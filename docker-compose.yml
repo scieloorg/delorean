@@ -8,6 +8,8 @@ services:
       - "6543:6543"
     volumes:
       - .:/app
+    env_file:
+      - .env
     working_dir: /app
     user: "65534:65534"
     command: pserve development.ini --reload
@@ -19,6 +21,8 @@ services:
     container_name: delorean-test
     volumes:
       - .:/app
+    env_file:
+      - .env
     working_dir: /app
     user: "65534:65534"
     command: python -m pytest -q delorean/tests.py

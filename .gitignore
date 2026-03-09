@@ -8,3 +8,4 @@ runtests.sh
 _build/
 _static/
 _template/
+.env

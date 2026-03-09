@@ -14,6 +14,19 @@ RESOURCE_HANDLERS = {
     'section': 'generate_section'
 }
 
+ENV_SETTINGS_MAP = {
+    'delorean.manager_access_username': 'DELOREAN_MANAGER_ACCESS_USERNAME',
+    'delorean.manager_access_api_key': 'DELOREAN_MANAGER_ACCESS_API_KEY',
+    'delorean.manager_access_uri': 'DELOREAN_MANAGER_ACCESS_URI',
+}
+
+
+def _get_setting(settings, key):
+    value = settings.get(key)
+    if value:
+        return value
+    return os.environ.get(ENV_SETTINGS_MAP[key])
+
 
 @view_config(route_name='home', renderer='jsonp')
 def app_status(request):
@@ -26,9 +39,10 @@ def bundle_generator(request):
     start_time = time.time()
     resource_name = request.matchdict.get('resource')
     collection = request.GET.get('collection', None)
-    username = request.registry.settings.get('delorean.manager_access_username', None)
-    api_key = request.registry.settings.get('delorean.manager_access_api_key', None)
-    api_uri = request.registry.settings.get('delorean.manager_access_uri', None)
+    settings = request.registry.settings
+    username = _get_setting(settings, 'delorean.manager_access_username')
+    api_key = _get_setting(settings, 'delorean.manager_access_api_key')
+    api_uri = _get_setting(settings, 'delorean.manager_access_uri')
 
     if not all([username, api_key, api_uri]):
         raise httpexceptions.HTTPInternalServerError(
