@@ -29,7 +29,7 @@ Download do conteúdo do repositório em um pacote zipado::
 
 Edite o arquivo *production.ini* para definir os valores das diretivas
 ``delorean.manager_access_username`` e ``delorean.manager_access_api_key`` de
-acordo com os valores obtidos em `manager.scielo.org <http://manager.scielo.org/accounts/myaccount/#api_keys>`_.
+acordo com os valores obtidos em `manager.scielo.org <https://manager.scielo.org/accounts/myaccount/#api_keys>`_.
 
 
 Instale as dependências::

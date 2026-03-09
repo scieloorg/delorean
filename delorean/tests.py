@@ -166,7 +166,7 @@ def test_datacollector_instantiation_abstract_error():
     from delorean.domain import DataCollector
 
     with pytest.raises(TypeError):
-        DataCollector("http://manager.scielo.org/api/v1/journal/brasil/0102-6720")
+        DataCollector("https://manager.scielo.org/api/v1/journal/brasil/0102-6720")
 
 
 def test_datacollector_fetch_all_data():
@@ -189,7 +189,7 @@ def test_datacollector_fetch_all_data():
     slumber_lib = _make_slumber_lib({"journals": journals})
 
     dc = ConcreteDataCollector(
-        "http://manager.scielo.org/api/v1/journal/brasil/0102-6720", slumber_lib=slumber_lib
+        "https://manager.scielo.org/api/v1/journal/brasil/0102-6720", slumber_lib=slumber_lib
     )
 
     res = dc.fetch_data(0, 50)
@@ -218,7 +218,7 @@ def test_datacollector_fetch_data_from_collection():
     slumber_lib = _make_slumber_lib({"journals": journals})
 
     dc = ConcreteDataCollector(
-        "http://manager.scielo.org/api/v1/journal/brasil/0102-6720",
+        "https://manager.scielo.org/api/v1/journal/brasil/0102-6720",
         slumber_lib=slumber_lib,
         collection="brasil",
     )
@@ -235,7 +235,7 @@ def test_titlecollector_instantiation():
 
     journals = EndpointCollection(list_response={"objects": [], "meta": {"next": None}})
     dc = TitleCollector(
-        "http://manager.scielo.org/api/v1/",
+        "https://manager.scielo.org/api/v1/",
         slumber_lib=_make_slumber_lib({"journals": journals}),
         collection="brasil",
     )
@@ -247,7 +247,7 @@ def test_titlecollector_gen_iterable():
 
     journals = EndpointCollection(list_response={"objects": [], "meta": {"next": None}})
     dc = TitleCollector(
-        "http://manager.scielo.org/api/v1/", slumber_lib=_make_slumber_lib({"journals": journals})
+        "https://manager.scielo.org/api/v1/", slumber_lib=_make_slumber_lib({"journals": journals})
     )
     it = iter(dc)
     assert hasattr(it, "__next__")
@@ -269,7 +269,7 @@ def test_titlecollector_get_data():
     )
 
     dc = TitleCollector(
-        "http://manager.scielo.org/api/v1/",
+        "https://manager.scielo.org/api/v1/",
         slumber_lib=_make_slumber_lib(
             {
                 "journals": journals,
@@ -292,7 +292,7 @@ def test_sectioncollector_instantiation():
 
     journals = EndpointCollection(list_response={"objects": [], "meta": {"next": None}})
     dc = SectionCollector(
-        "http://manager.scielo.org/api/v1/", slumber_lib=_make_slumber_lib({"journals": journals})
+        "https://manager.scielo.org/api/v1/", slumber_lib=_make_slumber_lib({"journals": journals})
     )
     assert isinstance(dc, SectionCollector)
 
@@ -302,7 +302,7 @@ def test_sectioncollector_gen_iterable():
 
     journals = EndpointCollection(list_response={"objects": [], "meta": {"next": None}})
     dc = SectionCollector(
-        "http://manager.scielo.org/api/v1/", slumber_lib=_make_slumber_lib({"journals": journals})
+        "https://manager.scielo.org/api/v1/", slumber_lib=_make_slumber_lib({"journals": journals})
     )
     it = iter(dc)
     assert hasattr(it, "__next__")
@@ -326,7 +326,7 @@ def test_sectioncollector_get_data():
     )
 
     dc = SectionCollector(
-        "http://manager.scielo.org/api/v1/",
+        "https://manager.scielo.org/api/v1/",
         slumber_lib=_make_slumber_lib({"journals": journals, "sections": sections}),
     )
 
@@ -343,7 +343,7 @@ def test_issuecollector_instantiation():
     from delorean.domain import IssueCollector
 
     issues = EndpointCollection(list_response={"objects": [], "meta": {"next": None}})
-    dc = IssueCollector("http://manager.scielo.org/api/v1/", slumber_lib=_make_slumber_lib({"issues": issues}))
+    dc = IssueCollector("https://manager.scielo.org/api/v1/", slumber_lib=_make_slumber_lib({"issues": issues}))
     assert isinstance(dc, IssueCollector)
 
 
@@ -351,7 +351,7 @@ def test_issuecollector_gen_iterable():
     from delorean.domain import IssueCollector
 
     issues = EndpointCollection(list_response={"objects": [], "meta": {"next": None}})
-    dc = IssueCollector("http://manager.scielo.org/api/v1/", slumber_lib=_make_slumber_lib({"issues": issues}))
+    dc = IssueCollector("https://manager.scielo.org/api/v1/", slumber_lib=_make_slumber_lib({"issues": issues}))
     it = iter(dc)
     assert hasattr(it, "__next__")
 
@@ -400,7 +400,7 @@ def _run_issue_collector_case(beforeproc_file, expected_file):
     )
 
     dc = IssueCollector(
-        "http://manager.scielo.org/api/v1/",
+        "https://manager.scielo.org/api/v1/",
         slumber_lib=_make_slumber_lib(
             {
                 "issues": issues,
