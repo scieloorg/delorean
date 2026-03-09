@@ -77,11 +77,6 @@ jobs:
           docker push infrascielo/delorean:${VERSION}
           docker push infrascielo/delorean:latest
 
-      - name: Push image
-        run: |
-          docker push infrascielo/delorean:${VERSION}
-          docker push infrascielo/delorean:latest
-
       - name: Get image digest
         run: |
           DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' infrascielo/delorean:${VERSION})
@@ -116,4 +111,17 @@ jobs:
             --type cyclonedx \
             ${IMAGE_DIGEST}
 
+      - name: Update GitOps Homolog
+        env:
+          GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
+        run: |
+          git clone https://${GITOPS_TOKEN}@github.com/scieloorg/gitops.git
+          cd gitops
 
+          sed -i "s|digest: sha256:.*|digest: ${IMAGE_DIGEST#*@}|" \
+            apps/delorean/homolog/kustomization.yaml
+
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git commit -am "HML ${VERSION}"
+          git push
