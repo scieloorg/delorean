@@ -27,16 +27,15 @@ jobs:
       - name: Build image
         run: |
           docker build \
-            -f docker/rocky9/Dockerfile \
-            -t infrascielo/proceedings:${VERSION} \
-            -t infrascielo/proceedings:latest \
+            -t infrascielo/delorean:${VERSION} \
+            -t infrascielo/delorean:latest \
             .
 
       # 🔐 Scan único (policy)
       - name: Trivy Image Scan
         uses: aquasecurity/trivy-action@0.20.0
         with:
-          image-ref: infrascielo/proceedings:${{ env.VERSION }}
+          image-ref: infrascielo/delorean:${{ env.VERSION }}
           severity: HIGH,CRITICAL
           exit-code: 0
 
@@ -52,7 +51,7 @@ jobs:
             --severity HIGH,CRITICAL \
             --format table \
             --output trivy-report.txt \
-            infrascielo/proceedings:${VERSION}
+            infrascielo/delorean:${VERSION}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -66,7 +65,7 @@ jobs:
             --scanners vuln \
             --format cyclonedx \
             --output sbom-${VERSION}.json \
-            infrascielo/proceedings:${VERSION}
+            infrascielo/delorean:${VERSION}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -75,17 +74,17 @@ jobs:
 
       - name: Push image
         run: |
-          docker push infrascielo/proceedings:${VERSION}
-          docker push infrascielo/proceedings:latest
+          docker push infrascielo/delorean:${VERSION}
+          docker push infrascielo/delorean:latest
 
       - name: Push image
         run: |
-          docker push infrascielo/proceedings:${VERSION}
-          docker push infrascielo/proceedings:latest
+          docker push infrascielo/delorean:${VERSION}
+          docker push infrascielo/delorean:latest
 
       - name: Get image digest
         run: |
-          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' infrascielo/proceedings:${VERSION})
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' infrascielo/delorean:${VERSION})
           echo "IMAGE_DIGEST=${DIGEST}" >> $GITHUB_ENV
 
       - name: Install Cosign
