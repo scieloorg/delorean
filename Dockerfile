@@ -22,4 +22,6 @@ COPY development.ini production.ini runtests.sh ./
 
 EXPOSE 6543
 
+USER 65534:65534
+
 CMD ["pserve", "production.ini", "--reload"]

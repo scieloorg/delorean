@@ -9,6 +9,7 @@ services:
     volumes:
       - .:/app
     working_dir: /app
+    user: "65534:65534"
     command: pserve development.ini --reload
 
   test:
@@ -19,6 +20,7 @@ services:
     volumes:
       - .:/app
     working_dir: /app
+    user: "65534:65534"
     command: python -m pytest -q delorean/tests.py
     profiles:
       - test
