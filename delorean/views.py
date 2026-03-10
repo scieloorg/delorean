@@ -3,11 +3,11 @@ import os
 import time
 
 from .domain import DeLorean
+from .settings import get_bundle_dir
 
 from pyramid.view import view_config
 from pyramid import httpexceptions
 
-HERE = os.path.abspath(os.path.dirname(__file__))
 RESOURCE_HANDLERS = {
     'title': 'generate_title',
     'issue': 'generate_issue',
@@ -49,17 +49,16 @@ def bundle_generator(request):
             comment='missing configuration')
 
     dl = DeLorean(api_uri, username=username, api_key=api_key)
+    bundle_target_dir = get_bundle_dir()
 
     try:
         bundle_url = getattr(dl, RESOURCE_HANDLERS[resource_name])(
-            os.path.join(HERE, 'public'), collection=collection)
+            bundle_target_dir, collection=collection)
     except KeyError:
         raise httpexceptions.HTTPNotFound()
 
     return {
         'resource_name': resource_name,
-        'expected_bundle_url': request.static_url(
-            'delorean:public/%s' % bundle_url
-        ),
+        'expected_bundle_url': '{0}/public/{1}'.format(request.application_url, bundle_url),
         'elapsed_time': time.time() - start_time,
     }
